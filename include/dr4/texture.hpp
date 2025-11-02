@@ -1,6 +1,7 @@
 #ifndef I_DR4_TEXTURE
 #define I_DR4_TEXTURE
 
+#include <cstdint>
 #include <string>
 
 #include "dr4/math/color.hpp"
@@ -45,6 +46,26 @@ struct Text {
     Rect2f GetBounds() const;
 };
 
+class Image {
+
+public:
+    // how to interpret color. GetArray in RGBA
+    enum class ColorMode {
+        UNKNOWN = -1,
+        RGBA,
+        ABGR
+    };
+
+    virtual void Create(Vec2f size, ColorMode mode, Color color = {0, 0, 0, 0}) = 0;
+
+    virtual Vec2f GetSize() const = 0;
+
+    virtual void SetPixel(size_t x, size_t y, Color color) = 0;
+    virtual dr4::Color GetPixel(size_t x, size_t y) const = 0;
+
+    virtual const uint8_t* GetArray() const = 0;
+};
+
 class Texture {
 
 public:
@@ -56,6 +77,7 @@ public:
 
     virtual void Draw(const Rectangle &rect) = 0;
     virtual void Draw(const Text &text) = 0;
+    virtual void Draw(const Image &image, const Vec2f& pos) = 0;
     virtual void Draw(const Texture &texture, const Vec2f &pos) = 0;
 
     virtual ~Texture() = default;

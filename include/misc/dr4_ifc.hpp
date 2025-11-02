@@ -15,6 +15,7 @@ class DR4Backend {
 public:
 
     virtual const std::string &Name() const = 0;
+    virtual dr4::Image  *CreateImage() = 0;
     virtual dr4::Window *CreateWindow() = 0;
     inline virtual ~DR4Backend() {};
 
