@@ -111,9 +111,25 @@ dr4::Image* dr4::MyWindow::CreateImage()
     return new MyImage(width, height);
 }
 
+std::optional<dr4::Event> dr4::MyWindow::PollEvent()
+{
+    SDL_Event event;
+    if (!SDL_PollEvent(&event)) return {};
+    
+    dr4::Event evt;
+    switch (event.type)
+    {
+        case SDL_EVENT_QUIT: case SDL_EVENT_KEY_DOWN:
+            evt.type = dr4::Event::Type::QUIT;
+            break;
+        default:
+            evt.type = dr4::Event::Type::UNKNOWN;
+            break;
+    }
 
+    return evt;
+}
 
 
 
 dr4::Font* dr4::MyWindow::CreateFont() { return nullptr; }
-std::optional<dr4::Event> dr4::MyWindow::PollEvent() { return {}; }
