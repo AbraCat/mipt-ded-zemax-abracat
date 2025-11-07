@@ -1,30 +1,20 @@
 #define SDL_MAIN_USE_CALLBACKS 1
-#include <SDL3/SDL.h>
 
 #include "dr4/window.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/math/color.hpp"
+#include "misc/dr4_ifc.hpp"
 
-#include "sdl-adapter.h"
-#include "my-dr4-plugin.h"
-
-dr4::DR4Backend* plugin = nullptr;
-static dr4::Window* window = nullptr;
-static dr4::Texture* texture = nullptr;
-
-const double fps = 30;
-const int begin_ticks = 1000, width = 1920, height = 1000;
-bool first_frame = 1;
+extern "C" dr4::DR4Backend* CreateDR4Backend(void);
 
 int main()
 {
     srand(1);
-    plugin = dr4::CreateDR4Backend();
+    dr4::DR4Backend* plugin = CreateDR4Backend();
 
-    window = plugin->CreateWindow();
+    dr4::Window* window = plugin->CreateWindow();
     window->Open();
-
-    texture = window->CreateTexture();
+    dr4::Texture* texture = window->CreateTexture();
 
     while (true)
     {
@@ -32,7 +22,7 @@ int main()
         while ((event = window->PollEvent()).has_value())
         {
             dr4::Event evt = event.value();
-            
+
             if (evt.type == dr4::Event::Type::QUIT)
             {
                 window->Close();
@@ -60,9 +50,8 @@ int main()
         text.color = dr4::Color(0, 255, 0, 255);
         texture->Draw(text);
 
+        window->Draw(*texture, dr4::Vec2f(0, 0));
         window->Display();
-
-        //
     }
 
     return 0;

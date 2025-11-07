@@ -52,19 +52,21 @@ void dr4::MyWindow::Open()
     setRenderer(rend);
 
     this->texture = new MyTexture(Vec2f(width, height));
+    is_open = true;
 }
 
 bool dr4::MyWindow::IsOpen() const { return is_open; }
 
 void dr4::MyWindow::Close()
 {
+    is_open = false;
     delete texture;
 }
 
 void dr4::MyWindow::Clear(const Color &color)
 {
     setColor(Vector(color.r, color.g, color.b));
-    SDL_SetRenderTarget(getRenderer(), texture->t);
+    SDL_SetRenderTarget(getRenderer(), NULL);
     SDL_RenderClear(getRenderer());
 }
 
@@ -92,12 +94,6 @@ void dr4::MyWindow::Draw(const Texture &texture, Vec2f pos)
 
 void dr4::MyWindow::Display()
 {
-    SDL_SetRenderTarget(getRenderer(), NULL);
-    SDL_SetRenderDrawColor(getRenderer(), 0, 0, 0, 0);
-    SDL_RenderClear(getRenderer());
-
-    Draw(*texture, Vec2f(0, 0));
-
     SDL_RenderPresent(getRenderer());
 }
 
@@ -111,17 +107,96 @@ dr4::Image* dr4::MyWindow::CreateImage()
     return new MyImage(width, height);
 }
 
+dr4::Event getMouseButtonEvent(SDL_Event event)
+{
+    dr4::Event evt;
+
+    evt.mouseButton.pos.x = event.button.x;
+    evt.mouseButton.pos.y = event.button.y;
+    switch (event.button.type)
+    {
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+            evt.type = dr4::Event::Type::MOUSE_DOWN;
+            break;
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+            evt.type = dr4::Event::Type::MOUSE_UP;
+            break;
+        default:
+            evt.type = dr4::Event::Type::UNKNOWN;
+            break;
+    }
+    switch (event.button.button)
+    {
+        case SDL_BUTTON_LEFT: 
+            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_LEFT;
+            break;
+        case SDL_BUTTON_RIGHT: 
+            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_RIGHT;
+            break;
+        case SDL_BUTTON_MIDDLE: 
+            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_MIDDLE;
+            break;
+        default: 
+            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_UNKNOWN;
+            break;
+    }
+
+    return evt;
+}
+
+dr4::Event getKeyboardEvent(SDL_Event event)
+{
+    dr4::Event evt;
+
+    switch (event.key.type)
+    {
+        case SDL_EVENT_KEY_DOWN:
+            evt.type = dr4::Event::Type::KEY_DOWN;
+            break;
+        case SDL_EVENT_KEY_UP:
+            evt.type = dr4::Event::Type::KEY_UP;
+            break;
+        default:
+            evt.type = dr4::Event::Type::UNKNOWN;
+            break;
+    }
+    evt.key.sym = dr4::KeyCode::KEYCODE_A;
+    evt.key.mod = dr4::KeyMode::KEYMOD_NONE;
+
+    return evt;
+}
+
 std::optional<dr4::Event> dr4::MyWindow::PollEvent()
 {
     SDL_Event event;
     if (!SDL_PollEvent(&event)) return {};
     
     dr4::Event evt;
+
     switch (event.type)
     {
-        case SDL_EVENT_QUIT: case SDL_EVENT_KEY_DOWN:
+        case SDL_EVENT_QUIT:
             evt.type = dr4::Event::Type::QUIT;
             break;
+
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: case SDL_EVENT_MOUSE_BUTTON_UP:
+            return getMouseButtonEvent(event);
+
+        case SDL_EVENT_KEY_DOWN: case SDL_EVENT_KEY_UP:
+            return getKeyboardEvent(event);
+
+        case SDL_EVENT_MOUSE_MOTION:
+            evt.type = dr4::Event::Type::MOUSE_MOVE;
+            evt.mouseMove.pos.x = evt.mouseMove.rel.x = event.motion.x;
+            evt.mouseMove.pos.y = evt.mouseMove.rel.y = event.motion.y;
+            break;
+
+        case SDL_EVENT_MOUSE_WHEEL:
+            evt.type = dr4::Event::Type::MOUSE_WHEEL;
+            evt.mouseMove.pos.x = evt.mouseMove.rel.x = event.wheel.x;
+            evt.mouseMove.pos.y = evt.mouseMove.rel.y = event.wheel.y;
+            break;
+
         default:
             evt.type = dr4::Event::Type::UNKNOWN;
             break;
