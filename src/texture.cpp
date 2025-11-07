@@ -14,6 +14,19 @@ const int pix_bytes = 3;
 //     // printf("created rect: %lf %lf\n", r.pos.x, r.pos.y);
 // }
 
+bool dr4::Rect2f::Contains(Vec2f point) const
+{
+    return point.x > pos.x && point.x < pos.x + size.x && point.y > pos.y && point.y < pos.y + size.y;
+}
+
+
+dr4::Rect2f dr4::Text::GetBounds() const
+{
+    const int height = 20, char_width = 10;
+    int width = text.size() * char_width;
+    return dr4::Rect2f(pos, dr4::Vec2f(width, height));
+}
+
 
 
 
@@ -60,16 +73,16 @@ dr4::MyTexture::MyTexture(dr4::Vec2f size) : w(size.x), h(size.y)
 }
 
 void dr4::MyTexture::SetSize(Vec2f size) { w = size.x; h = size.y; }
-
 dr4::Vec2f dr4::MyTexture::GetSize() const { return Vec2f(w, h); }
-
 float dr4::MyTexture::GetWidth() const { return w; }
-
 float dr4::MyTexture::GetHeight() const { return h; }
 
 void dr4::MyTexture::Draw(const dr4::Text &text)
 {
-    putText(text.text, Vector(text.pos.x, text.pos.y), Vector());
+    dr4::Rect2f bound = text.GetBounds();
+    putText(text.text, Vector(bound.pos.x, bound.pos.y),
+                       Vector(bound.pos.x, bound.pos.y) +
+                       Vector(bound.size.x, bound.size.y));
 }
 
 void dr4::MyTexture::Draw(const Texture &texture, const dr4::Vec2f &pos)
@@ -99,9 +112,9 @@ void dr4::MyTexture::Draw(const Rectangle &rect)
     SDL_SetRenderTarget(getRenderer(), t);
     SDL_RenderFillRect(getRenderer(), &r);
 
-    // setColor(Vector(rect.borderColor.r, rect.borderColor.g, rect.borderColor.b));
-    // SDL_SetRenderTarget(getRenderer(), t);
-    // SDL_RenderRect(getRenderer(), &r);
+    setColor(Vector(rect.borderColor.r, rect.borderColor.g, rect.borderColor.b));
+    SDL_SetRenderTarget(getRenderer(), t);
+    SDL_RenderRect(getRenderer(), &r);
 }
 
 void dr4::MyTexture::Draw(const Image &img, const Vec2f &pos)
