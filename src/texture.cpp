@@ -8,18 +8,6 @@
 
 const int pix_bytes = 3;
 
-// dr4::Rectangle::Rectangle(Rect2f r, Color fill, Color border_col)
-//     : rect(r), fill(fill), borderColor(border_col)
-// {
-//     // printf("created rect: %lf %lf\n", r.pos.x, r.pos.y);
-// }
-
-bool dr4::Rect2f::Contains(Vec2f point) const
-{
-    return point.x > pos.x && point.x < pos.x + size.x && point.y > pos.y && point.y < pos.y + size.y;
-}
-
-
 dr4::Rect2f dr4::Text::GetBounds() const
 {
     const int height = 20, char_width = 10;
@@ -64,12 +52,36 @@ dr4::Color dr4::MyImage::GetPixel(unsigned x, unsigned y) const
 }
 
 
+void dr4::MyImage::SetSize(Vec2f size)
+{
+    this->width = size.x;
+    this->height = size.y;
+
+    free(buffer);
+
+    buffer = std::calloc(width * height, pix_bytes);
+    assert(buffer != NULL);
+    buf = (unsigned char*)buffer;
+}
+
+
+dr4::Vec2f dr4::MyImage::GetSize() const { return dr4::Vec2f(width, height); }
+float dr4::MyImage::GetWidth() const { return width; }
+float dr4::MyImage::GetHeight() const { return height; }
+
 
 
 
 dr4::MyTexture::MyTexture(dr4::Vec2f size) : w(size.x), h(size.y)
 {
     t = SDL_CreateTexture(getRenderer(), SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, w, h);
+}
+
+void dr4::MyTexture::Clear(dr4::Color color)
+{
+    SDL_SetRenderTarget(getRenderer(), t);
+    setColor(Vector(color.r, color.g, color.b));
+    SDL_RenderClear(getRenderer());
 }
 
 void dr4::MyTexture::SetSize(Vec2f size) { w = size.x; h = size.y; }
@@ -79,6 +91,9 @@ float dr4::MyTexture::GetHeight() const { return h; }
 
 void dr4::MyTexture::Draw(const dr4::Text &text)
 {
+    SDL_SetRenderTarget(getRenderer(), t);
+    setColor(Vector(text.color.r, text.color.g, text.color.b));
+
     dr4::Rect2f bound = text.GetBounds();
     putText(text.text, Vector(bound.pos.x, bound.pos.y),
                        Vector(bound.pos.x, bound.pos.y) +
@@ -121,11 +136,14 @@ void dr4::MyTexture::Draw(const Image &img, const Vec2f &pos)
 {
     SDL_SetRenderTarget(getRenderer(), t);
 
-    for (int x = 0; x < GetWidth(); ++x)
+    int x_upper = std::min(GetWidth(), pos.x + img.GetWidth());
+    int y_upper = std::min(GetHeight(), pos.y + img.GetHeight());
+
+    for (int x = pos.x; x < x_upper; ++x)
     {
-        for (int y = 0; y < GetHeight(); ++y)
+        for (int y = pos.y; y < y_upper; ++y)
         {
-            dr4::Color col = img.GetPixel(x, y);
+            dr4::Color col = img.GetPixel(x - pos.x, y - pos.y);
             setColor(Vector(col.r, col.g, col.b));
 
             SDL_RenderPoint(getRenderer(), x, y);

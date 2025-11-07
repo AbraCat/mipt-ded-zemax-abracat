@@ -38,6 +38,7 @@ class MyWindow : public Window {
 
         virtual dr4::Texture *CreateTexture() override;
         virtual dr4::Image *CreateImage() override;
+        virtual dr4::Font *CreateFont() override;
 
         virtual std::optional<Event> PollEvent() override;
     };

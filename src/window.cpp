@@ -58,7 +58,7 @@ bool dr4::MyWindow::IsOpen() const { return is_open; }
 
 void dr4::MyWindow::Close()
 {
-    //
+    delete texture;
 }
 
 void dr4::MyWindow::Clear(const Color &color)
@@ -74,6 +74,12 @@ void dr4::MyWindow::Draw(const Texture &texture, Vec2f pos)
     const MyTexture* t = dynamic_cast<const MyTexture*>(texture_ptr);
     assert(t != nullptr);
 
+    SDL_FRect src_rect;
+    src_rect.x = 0;
+    src_rect.y = 0;
+    src_rect.w = texture.GetWidth();
+    src_rect.h = texture.GetHeight();
+
     SDL_FRect dst_rect;
     dst_rect.x = pos.x;
     dst_rect.y = pos.y;
@@ -81,7 +87,7 @@ void dr4::MyWindow::Draw(const Texture &texture, Vec2f pos)
     dst_rect.h = texture.GetHeight();
 
     SDL_SetRenderTarget(getRenderer(), NULL);
-    SDL_RenderTexture(getRenderer(), t->t, NULL, &dst_rect);
+    SDL_RenderTexture(getRenderer(), t->t, &src_rect, &dst_rect);
 }
 
 void dr4::MyWindow::Display()
@@ -102,10 +108,12 @@ dr4::Texture* dr4::MyWindow::CreateTexture()
 
 dr4::Image* dr4::MyWindow::CreateImage()
 {
-    return nullptr;
+    return new MyImage(width, height);
 }
 
-std::optional<dr4::Event> dr4::MyWindow::PollEvent()
-{
-    return {};
-}
+
+
+
+
+dr4::Font* dr4::MyWindow::CreateFont() { return nullptr; }
+std::optional<dr4::Event> dr4::MyWindow::PollEvent() { return {}; }

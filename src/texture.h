@@ -29,12 +29,19 @@ public:
 
     virtual void SetPixel(unsigned x, unsigned y, dr4::Color col) override;
     virtual dr4::Color GetPixel(unsigned x, unsigned y) const override;
+
+    virtual void SetSize(Vec2f size) override;
+    virtual Vec2f GetSize() const override;
+    virtual float GetWidth() const override;
+    virtual float GetHeight() const override;
 };
 
 class MyTexture : public Texture
 {
 public:
     MyTexture(dr4::Vec2f size);
+
+    virtual void Clear(dr4::Color color) override;
 
     virtual void SetSize(Vec2f size) override;
     virtual Vec2f GetSize() const override;

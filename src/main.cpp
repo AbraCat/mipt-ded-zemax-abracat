@@ -41,8 +41,24 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-    dr4::Rectangle rect{dr4::Rect2f{dr4::Vec2f(100, 100), dr4::Vec2f(100, 100)}, dr4::Color(0, 0, 255, 255)};
+    dr4::Image* img = window->CreateImage();
+    for (int x = 100; x < 300; ++x) {
+        for (int y = 300; y < 500; ++y)
+        {
+            if (((x / 10) % 2) ^ ((y / 10) % 2)) img->SetPixel(x, y, dr4::Color(255, 255, 0, 255));
+            else img->SetPixel(x, y, dr4::Color(255, 0, 255, 255));
+        }
+    }
+    texture->Draw(*img, dr4::Vec2f(0, 0));
+
+    dr4::Rectangle rect{dr4::Rect2f{dr4::Vec2f(100, 100), dr4::Vec2f(300, 100)}, dr4::Color(0, 0, 255, 255)};
     texture->Draw(rect);
+
+    dr4::Text text;
+    text.text = "aboba";
+    text.pos = dr4::Vec2f(100, 100);
+    text.color = dr4::Color(0, 255, 0, 255);
+    texture->Draw(text);
 
     window->Display();
     return SDL_APP_CONTINUE;
