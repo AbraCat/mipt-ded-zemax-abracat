@@ -1,3 +1,6 @@
 .vscode/
 .clangd
 build/
+sdl/
+run
+ivan-main.cpp

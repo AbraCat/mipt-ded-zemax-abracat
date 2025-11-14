@@ -12,7 +12,7 @@
 
 
 
-
+namespace dr4 {
 
 dr4::MyWindow::MyWindow(dr4::Vec2f size, std::string title)
 {
@@ -36,7 +36,7 @@ dr4::Vec2f dr4::MyWindow::GetSize() const
     return Vec2f(width, height);
 }
 
-void dr4::MyWindow::SetSize(const dr4::Vec2f& size)
+void dr4::MyWindow::SetSize(dr4::Vec2f size)
 {
     width = size.x;
     height = size.y;
@@ -63,14 +63,14 @@ void dr4::MyWindow::Close()
     delete texture;
 }
 
-void dr4::MyWindow::Clear(const Color &color)
+void dr4::MyWindow::Clear(Color color)
 {
     setColor(Vector(color.r, color.g, color.b));
     SDL_SetRenderTarget(getRenderer(), NULL);
     SDL_RenderClear(getRenderer());
 }
 
-void dr4::MyWindow::Draw(const Texture &texture, Vec2f pos)
+void dr4::MyWindow::Draw(const Texture &texture)
 {
     const Texture* texture_ptr = &texture;
     const MyTexture* t = dynamic_cast<const MyTexture*>(texture_ptr);
@@ -83,8 +83,8 @@ void dr4::MyWindow::Draw(const Texture &texture, Vec2f pos)
     src_rect.h = texture.GetHeight();
 
     SDL_FRect dst_rect;
-    dst_rect.x = pos.x;
-    dst_rect.y = pos.y;
+    dst_rect.x = texture.GetPos().x;
+    dst_rect.y = texture.GetPos().y;
     dst_rect.w = texture.GetWidth();
     dst_rect.h = texture.GetHeight();
 
@@ -97,15 +97,21 @@ void dr4::MyWindow::Display()
     SDL_RenderPresent(getRenderer());
 }
 
-dr4::Texture* dr4::MyWindow::CreateTexture()
-{
-    return texture;
-}
 
-dr4::Image* dr4::MyWindow::CreateImage()
-{
-    return new MyImage(width, height);
-}
+double MyWindow::GetTime() { return 0; } // TODO
+
+dr4::Texture* dr4::MyWindow::CreateTexture() { return texture; }
+dr4::Image* dr4::MyWindow::CreateImage() { return new MyImage(width, height); }
+
+Font      *MyWindow::CreateFont()      { return new MyFont(); }
+Line      *MyWindow::CreateLine()      { return new MyLine(); }
+Circle    *MyWindow::CreateCircle()    { return new MyCircle(); }
+Rectangle *MyWindow::CreateRectangle() { return new MyRectangle(); }
+Text      *MyWindow::CreateText()      { return new MyText(); }
+
+void MyWindow::StartTextInput() {}
+void MyWindow::StopTextInput() {}
+
 
 dr4::Event getMouseButtonEvent(SDL_Event event)
 {
@@ -128,16 +134,16 @@ dr4::Event getMouseButtonEvent(SDL_Event event)
     switch (event.button.button)
     {
         case SDL_BUTTON_LEFT: 
-            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_LEFT;
+            evt.mouseButton.button = dr4::MouseButtonType::LEFT;
             break;
         case SDL_BUTTON_RIGHT: 
-            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_RIGHT;
+            evt.mouseButton.button = dr4::MouseButtonType::RIGHT;
             break;
         case SDL_BUTTON_MIDDLE: 
-            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_MIDDLE;
+            evt.mouseButton.button = dr4::MouseButtonType::MIDDLE;
             break;
         default: 
-            evt.mouseButton.button = dr4::MouseCode::MOUSECODE_UNKNOWN;
+            evt.mouseButton.button = dr4::MouseButtonType::UNKNOWN;
             break;
     }
 
@@ -151,7 +157,7 @@ dr4::KeyCode getKeyCode(SDL_Keycode key)
     //
 }
 
-dr4::KeyMode getKeyMode(SDL_Keymod mod)
+uint16_t getKeyMode(SDL_Keymod mod)
 {
     return dr4::KeyMode::KEYMOD_NONE;
 }
@@ -173,7 +179,7 @@ dr4::Event getKeyboardEvent(SDL_Event event)
             break;
     }
     evt.key.sym = getKeyCode(event.key.key);
-    evt.key.mod = getKeyMode(event.key.mod);
+    evt.key.mods = getKeyMode(event.key.mod);
 
     return evt;
 }
@@ -207,7 +213,8 @@ std::optional<dr4::Event> dr4::MyWindow::PollEvent()
             evt.type = dr4::Event::Type::MOUSE_WHEEL;
             evt.mouseWheel.pos.x = event.wheel.mouse_x;
             evt.mouseWheel.pos.y = event.wheel.mouse_y;
-            evt.mouseWheel.delta = event.wheel.x; // ???
+            evt.mouseWheel.deltaX = event.wheel.x;
+            evt.mouseWheel.deltaY = event.wheel.y;
             break;
 
         default:
@@ -218,6 +225,4 @@ std::optional<dr4::Event> dr4::MyWindow::PollEvent()
     return evt;
 }
 
-
-
-dr4::Font* dr4::MyWindow::CreateFont() { return nullptr; }
+} // namespace dr4

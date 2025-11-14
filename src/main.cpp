@@ -30,6 +30,7 @@ int main()
         }
 
         dr4::Image* img = window->CreateImage();
+        img->SetSize(dr4::Vec2f(1000, 800));
         for (int x = 100; x < 300; ++x) {
             for (int y = 300; y < 500; ++y)
             {
@@ -37,18 +38,24 @@ int main()
                 else img->SetPixel(x, y, dr4::Color(255, 0, 255, 255));
             }
         }
-        texture->Draw(*img, dr4::Vec2f(0, 0));
 
-        dr4::Rectangle rect{dr4::Rect2f{dr4::Vec2f(100, 100), dr4::Vec2f(300, 100)}, dr4::Color(0, 0, 255, 255)};
-        texture->Draw(rect);
+        texture->Draw(*img);
 
-        dr4::Text text;
-        text.text = "some text";
-        text.pos = dr4::Vec2f(100, 100);
-        text.color = dr4::Color(0, 255, 0, 255);
-        texture->Draw(text);
+        dr4::Rectangle* rect = window->CreateRectangle();
+        rect->SetSize(dr4::Vec2f(300, 100));
+        rect->SetPos(100, 100);
+        rect->SetFillColor(dr4::Color(0, 0, 255));
+        rect->SetBorderColor(dr4::Color(255, 0, 0));
 
-        window->Draw(*texture, dr4::Vec2f(0, 0));
+        texture->Draw(*rect);
+
+        dr4::Text* text = window->CreateText();
+        text->SetText("some text");
+        text->SetPos(100, 100);
+        text->SetColor(dr4::Color(0, 255, 0));
+        texture->Draw(*text);
+
+        window->Draw(*texture);
         window->Display();
     }
 

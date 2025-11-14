@@ -8,22 +8,166 @@
 
 const int pix_bytes = 3;
 
-dr4::Rect2f dr4::Text::GetBounds() const
-{
-    const int height = 20, char_width = 10;
-    int width = text.size() * char_width;
-    return dr4::Rect2f(pos, dr4::Vec2f(width, height));
+static Vector colToMyVec(dr4::Color col) { return Vector(col.r, col.g, col.b); }
+static Vector dr4ToMyVec(dr4::Vec2f vec) { return Vector(vec.x, vec.y, 0); }
+
+namespace dr4 {
+
+void dr4::MyLine::DrawOn(Texture& texture) const {} // TODO
+
+void dr4::MyLine::SetPos(Vec2f pos) {
+    Vec2f diff = end - start;
+    start = pos;
+    end = pos + diff;
 }
 
+Vec2f dr4::MyLine::GetPos() const { return start; }
+
+void dr4::MyLine::SetStart(Vec2f start) { this->start = start; }
+void dr4::MyLine::SetEnd(Vec2f end) { this->end = end; }
+void dr4::MyLine::SetColor(Color color) { this->color = color; }
+void dr4::MyLine::SetThickness(float thickness) { this->thickness = thickness; }
+
+dr4::Vec2f dr4::MyLine::GetStart() const { return start; }
+dr4::Vec2f dr4::MyLine::GetEnd() const { return end; }
+dr4::Color dr4::MyLine::GetColor() const { return color; }
+float dr4::MyLine::GetThickness() const { return thickness; }
 
 
+
+
+void dr4::MyCircle::DrawOn(Texture& texture) const {} // TODO
+
+void dr4::MyCircle::SetPos(Vec2f pos) { center = pos; }
+Vec2f dr4::MyCircle::GetPos() const { return center; }
+
+void dr4::MyCircle::SetCenter(dr4::Vec2f center) { this->center = center; }
+void dr4::MyCircle::SetRadius(float radius) { this->radius = radius; }
+void dr4::MyCircle::SetFillColor(dr4::Color color) { this->fill_color = color; }
+void dr4::MyCircle::SetBorderColor(dr4::Color color) { this->border_color = color; }
+void dr4::MyCircle::SetBorderThickness(float thickness) { this->thickness = thickness; }
+
+dr4::Vec2f dr4::MyCircle::GetCenter() const { return center; }
+float dr4::MyCircle::GetRadius() const { return radius; }
+dr4::Color dr4::MyCircle::GetFillColor() const { return fill_color; }
+dr4::Color dr4::MyCircle::GetBorderColor() const { return border_color; }
+float dr4::MyCircle::GetBorderThickness() const { return thickness; } 
+
+
+
+
+void dr4::MyRectangle::DrawOn(Texture& texture) const {
+    MyTexture* my_t = dynamic_cast<MyTexture*>(&texture);
+    assert(my_t != nullptr);
+    SDL_SetRenderTarget(getRenderer(), my_t->t);
+
+    Vec2f zero = texture.GetZero();
+
+    SDL_FRect r;
+    r.x = pos.x + zero.x;
+    r.y = pos.y + zero.y;
+    r.w = size.x;
+    r.h = size.y;
+    
+    setColor(colToMyVec(fill_color));
+    SDL_RenderFillRect(getRenderer(), &r);
+
+    setColor(colToMyVec(border_color));
+    SDL_RenderRect(getRenderer(), &r);
+}
+
+void dr4::MyRectangle::SetPos(Vec2f pos) { this->pos = pos; }
+Vec2f dr4::MyRectangle::GetPos() const { return pos; }
+
+ void dr4::MyRectangle::SetSize(dr4::Vec2f size) { this->size = size; }
+ void dr4::MyRectangle::SetFillColor(dr4::Color color) { this->fill_color = color; }
+ void dr4::MyRectangle::SetBorderThickness(float thickness) { this->thickness = thickness; }
+ void dr4::MyRectangle::SetBorderColor(dr4::Color color) { this->border_color = color; }
+
+ dr4::Vec2f dr4::MyRectangle::GetSize() const { return size; }
+ dr4::Color dr4::MyRectangle::GetFillColor() const { return fill_color; }
+ float dr4::MyRectangle::GetBorderThickness() const { return thickness; }
+ dr4::Color dr4::MyRectangle::GetBorderColor() const { return border_color; }
+
+
+
+void dr4::MyFont::LoadFromFile(const std::string &path) {}
+void dr4::MyFont::LoadFromBuffer(const void *buffer, size_t size) {}
+
+float dr4::MyFont::GetAscent(float fontSize) const { return 0; }
+float dr4::MyFont::GetDescent(float fontSize) const { return 0; }
+
+
+
+void dr4::MyText::DrawOn(Texture& texture) const {
+    MyTexture* my_t = dynamic_cast<MyTexture*>(&texture);
+    assert(my_t != nullptr);
+
+    Vec2f zero = texture.GetZero();
+
+    SDL_SetRenderTarget(getRenderer(), my_t->t);
+    setColor(colToMyVec(color));
+
+    putText(text, dr4ToMyVec(pos + zero), dr4ToMyVec(pos + zero + GetBounds()));
+}
+
+void dr4::MyText::SetPos(Vec2f pos) { this->pos = pos; }
+Vec2f dr4::MyText::GetPos() const { return pos; }
+
+void dr4::MyText::SetText(const std::string &text) { this->text = text; }
+void dr4::MyText::SetColor(dr4::Color color) { this->color = color; }
+void dr4::MyText::SetFontSize(float size) { this->font_size = size; }
+void dr4::MyText::SetVAlign(VAlign align) { this->v_align = align; }
+void dr4::MyText::SetFont(const Font *font) { this->font = font; }
+
+Vec2f              dr4::MyText::GetBounds() const {
+    const int height = 20, char_width = 10;
+    int width = text.size() * char_width;
+    return dr4::Vec2f(width, height);
+}
+
+const std::string &dr4::MyText::GetText() const { return text; }
+Color              dr4::MyText::GetColor() const { return color; }
+float              dr4::MyText::GetFontSize() const { return font_size; }
+Text::VAlign             dr4::MyText::GetVAlign() const { return v_align; }
+const Font        &dr4::MyText::GetFont() const { return *font; }
+
+
+
+
+void dr4::MyImage::DrawOn(Texture& texture) const {
+    MyTexture* my_t = dynamic_cast<MyTexture*>(&texture);
+    assert(my_t != nullptr);
+    SDL_SetRenderTarget(getRenderer(), my_t->t);
+
+    Vec2f zero = texture.GetZero();
+    Vec2f texture_size = texture.GetSize();
+
+    int x_upper = std::min(texture_size.x, pos.x + width);
+    int y_upper = std::min(texture_size.y, pos.y + height);
+
+    for (int x = pos.x; x < x_upper; ++x)
+    {
+        for (int y = pos.y; y < y_upper; ++y)
+        {
+            dr4::Color col = GetPixel(x - pos.x, y - pos.y);
+            setColor(colToMyVec(col));
+
+            SDL_RenderPoint(getRenderer(), x + zero.x, y + zero.y);
+        }
+    }
+}
+
+void dr4::MyImage::SetPos(Vec2f pos) { this->pos = pos; }
+Vec2f dr4::MyImage::GetPos() const { return pos; }
 
 dr4::MyImage::MyImage(unsigned w, unsigned h) : width(w), height(h), stride(w * pix_bytes)
 {
     buffer = std::calloc(w * h, pix_bytes);
     assert(buffer != NULL);
-
     buf = (unsigned char*)buffer;
+
+    pos = Vec2f(0, 0);
 }
 
 dr4::MyImage::~MyImage()
@@ -31,7 +175,7 @@ dr4::MyImage::~MyImage()
     free(buffer);
 }
 
-void dr4::MyImage::SetPixel(unsigned x, unsigned y, dr4::Color col)
+void dr4::MyImage::SetPixel(size_t x, size_t y, dr4::Color col)
 {
     assert(x >= 0 && x < width && y >= 0 && y < height);
 
@@ -40,7 +184,7 @@ void dr4::MyImage::SetPixel(unsigned x, unsigned y, dr4::Color col)
     buf[pix_bytes * (y * width + x) + 2] = (unsigned char)col.b;
 }
 
-dr4::Color dr4::MyImage::GetPixel(unsigned x, unsigned y) const
+dr4::Color dr4::MyImage::GetPixel(size_t x, size_t y) const
 {
     assert(x >= 0 && x < width && y >= 0 && y < height);
 
@@ -75,6 +219,7 @@ float dr4::MyImage::GetHeight() const { return height; }
 dr4::MyTexture::MyTexture(dr4::Vec2f size) : w(size.x), h(size.y)
 {
     t = SDL_CreateTexture(getRenderer(), SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, w, h);
+    pos = zero = Vec2f();
 }
 
 void dr4::MyTexture::Clear(dr4::Color color)
@@ -89,69 +234,29 @@ dr4::Vec2f dr4::MyTexture::GetSize() const { return Vec2f(w, h); }
 float dr4::MyTexture::GetWidth() const { return w; }
 float dr4::MyTexture::GetHeight() const { return h; }
 
-void dr4::MyTexture::Draw(const dr4::Text &text)
-{
-    SDL_SetRenderTarget(getRenderer(), t);
-    setColor(Vector(text.color.r, text.color.g, text.color.b));
+void dr4::MyTexture::SetPos(Vec2f pos) { this->pos = pos; }
+Vec2f dr4::MyTexture::GetPos() const { return pos; }
 
-    dr4::Rect2f bound = text.GetBounds();
-    putText(text.text, Vector(bound.pos.x, bound.pos.y),
-                       Vector(bound.pos.x, bound.pos.y) +
-                       Vector(bound.size.x, bound.size.y));
-}
+void dr4::MyTexture::SetZero(Vec2f pos) { this->zero = pos; }
+Vec2f dr4::MyTexture::GetZero() const { return zero; }
 
-void dr4::MyTexture::Draw(const Texture &texture, const dr4::Vec2f &pos)
+void dr4::MyTexture::DrawOn(Texture& texture) const
 {
     const MyTexture* sdl_t = dynamic_cast<const MyTexture*>(&texture);
     assert(sdl_t != nullptr);
+    Vec2f zero = texture.GetZero();
 
-    SDL_SetRenderTarget(getRenderer(), this->t);
+    SDL_SetRenderTarget(getRenderer(), sdl_t->t);
 
     SDL_FRect dst_rect;
-    dst_rect.x = pos.x;
-    dst_rect.y = pos.y;
-    dst_rect.w = texture.GetWidth();
-    dst_rect.h = texture.GetHeight();
-    SDL_RenderTexture(getRenderer(), sdl_t->t, NULL, &dst_rect);
+    dst_rect.x = pos.x + zero.x;
+    dst_rect.y = pos.y + zero.y;
+    dst_rect.w = w;
+    dst_rect.h = h;
+    SDL_RenderTexture(getRenderer(), t, NULL, &dst_rect);
 }
 
-void dr4::MyTexture::Draw(const Rectangle &rect)
-{
-    SDL_FRect r;
-    r.x = rect.rect.pos.x;
-    r.y = rect.rect.pos.y;
-    r.w = rect.rect.size.x;
-    r.h = rect.rect.size.y;
-    
-    setColor(Vector(rect.fill.r, rect.fill.g, rect.fill.b));
-    SDL_SetRenderTarget(getRenderer(), t);
-    SDL_RenderFillRect(getRenderer(), &r);
-
-    setColor(Vector(rect.borderColor.r, rect.borderColor.g, rect.borderColor.b));
-    SDL_SetRenderTarget(getRenderer(), t);
-    SDL_RenderRect(getRenderer(), &r);
-}
-
-void dr4::MyTexture::Draw(const Image &img, const Vec2f &pos)
-{
-    SDL_SetRenderTarget(getRenderer(), t);
-
-    int x_upper = std::min(GetWidth(), pos.x + img.GetWidth());
-    int y_upper = std::min(GetHeight(), pos.y + img.GetHeight());
-
-    for (int x = pos.x; x < x_upper; ++x)
-    {
-        for (int y = pos.y; y < y_upper; ++y)
-        {
-            dr4::Color col = img.GetPixel(x - pos.x, y - pos.y);
-            setColor(Vector(col.r, col.g, col.b));
-
-            SDL_RenderPoint(getRenderer(), x, y);
-        }
-    }
-}
-
-
+} // namespace dr4
 
 
 
@@ -239,7 +344,7 @@ void CoordSystem::rescale(double new_scale_x, double new_scale_y, Vector point)
 //     for (ColPolygon pol: polygons) paintPolygon(pol);
 //     paintText();
 
-//     updated = 0;
+//     updated {}
 // }
 
 // void Texture::paintText()
@@ -264,7 +369,7 @@ void CoordSystem::rescale(double new_scale_x, double new_scale_y, Vector point)
 //     for (Widget* child: w->children)
 //         child->t->renderIfUpdatedRec();
 
-//     updated = 0;
+//     updated {}
 // }
 
 // void Texture::clear()
@@ -419,9 +524,9 @@ void CoordSystem::rescale(double new_scale_x, double new_scale_y, Vector point)
 
 // void PixelTexture::render()
 // {
-//     for (int y = 0; y < w->height; ++y)
+//     for (int y {} y < w->height; ++y)
 //     {
-//         for (int x = 0; x < w->width; ++x)
+//         for (int x {} x < w->width; ++x)
 //         {
 //             setColor(getPix(x, y));
 //             drawPoint(Vector(x, y) + w->getAbsTL());
