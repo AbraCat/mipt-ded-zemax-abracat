@@ -144,6 +144,18 @@ dr4::Event getMouseButtonEvent(SDL_Event event)
     return evt;
 }
 
+dr4::KeyCode getKeyCode(SDL_Keycode key)
+{
+    return dr4::KeyCode::KEYCODE_A;
+
+    //
+}
+
+dr4::KeyMode getKeyMode(SDL_Keymod mod)
+{
+    return dr4::KeyMode::KEYMOD_NONE;
+}
+
 dr4::Event getKeyboardEvent(SDL_Event event)
 {
     dr4::Event evt;
@@ -160,8 +172,8 @@ dr4::Event getKeyboardEvent(SDL_Event event)
             evt.type = dr4::Event::Type::UNKNOWN;
             break;
     }
-    evt.key.sym = dr4::KeyCode::KEYCODE_A;
-    evt.key.mod = dr4::KeyMode::KEYMOD_NONE;
+    evt.key.sym = getKeyCode(event.key.key);
+    evt.key.mod = getKeyMode(event.key.mod);
 
     return evt;
 }
@@ -193,8 +205,9 @@ std::optional<dr4::Event> dr4::MyWindow::PollEvent()
 
         case SDL_EVENT_MOUSE_WHEEL:
             evt.type = dr4::Event::Type::MOUSE_WHEEL;
-            evt.mouseMove.pos.x = evt.mouseMove.rel.x = event.wheel.x;
-            evt.mouseMove.pos.y = evt.mouseMove.rel.y = event.wheel.y;
+            evt.mouseWheel.pos.x = event.wheel.mouse_x;
+            evt.mouseWheel.pos.y = event.wheel.mouse_y;
+            evt.mouseWheel.delta = event.wheel.x; // ???
             break;
 
         default:

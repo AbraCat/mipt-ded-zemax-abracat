@@ -1,5 +1,3 @@
-#define SDL_MAIN_USE_CALLBACKS 1
-
 #include "dr4/window.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/math/color.hpp"
@@ -23,7 +21,7 @@ int main()
         {
             dr4::Event evt = event.value();
 
-            if (evt.type == dr4::Event::Type::QUIT)
+            if (evt.type == dr4::Event::Type::QUIT || evt.type == dr4::Event::Type::KEY_DOWN)
             {
                 window->Close();
                 delete window;
@@ -45,7 +43,7 @@ int main()
         texture->Draw(rect);
 
         dr4::Text text;
-        text.text = "aboba";
+        text.text = "some text";
         text.pos = dr4::Vec2f(100, 100);
         text.color = dr4::Color(0, 255, 0, 255);
         texture->Draw(text);
