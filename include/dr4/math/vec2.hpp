@@ -9,8 +9,7 @@ struct Vec2f {
 
     float x, y;
 
-    Vec2f() 
-        :x(0), y(0) {}
+    Vec2f() = default;
 
     Vec2f(float x_, float y_)
         :x(x_), y(y_) {}
@@ -31,7 +30,7 @@ struct Vec2f {
     }
 };
 
-inline Vec2f operator*(float k, const Vec2f& vec) {
+inline Vec2f operator*(float k, Vec2f vec) {
     return Vec2f(vec.x * k, vec.y * k);
 }
 

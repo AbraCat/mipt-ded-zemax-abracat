@@ -1,10 +1,11 @@
 #ifndef I_DR4_EVENT
 #define I_DR4_EVENT
 
+#include <cstdint>
+
 #include "dr4/math/vec2.hpp"
 #include "dr4/keycodes.hpp"
-#include "dr4/mousecodes.hpp"
-#include <cstdint>
+#include "dr4/mouse_buttons.hpp"
 
 namespace dr4 {
 
@@ -22,9 +23,9 @@ struct Event {
         QUIT
     };
 
-    struct TextEvent
-    {
-        uint32_t unicode;
+    struct TextEvent {
+        // utf8-encoded
+        const char *unicode;
     };
 
     struct MouseMove {
@@ -33,18 +34,30 @@ struct Event {
     };
 
     struct MouseButton {
-        MouseCode button;
+        MouseButtonType button;
         Vec2f pos;
     };
 
     struct MouseWheel {
-        int delta;
+
+        /**
+         * The amount scrolled horizontally,
+         * positive to the right and negative to the left.
+         */
+        float deltaX;
+
+        /**
+         * The amount scrolled vertically,
+         * positive away from the user and negative toward the user.
+         */
+        float deltaY;
+
         Vec2f pos;
     };
 
-    struct KeyButton {
+    struct KeyEvent {
         KeyCode sym;
-        KeyMode mod;
+        uint16_t mods;
     };
 
     Type type;
@@ -54,7 +67,7 @@ struct Event {
         MouseMove   mouseMove;
         MouseButton mouseButton;
         MouseWheel  mouseWheel;
-        KeyButton   key;
+        KeyEvent    key;
     };
 
     Event() {}
