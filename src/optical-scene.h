@@ -18,19 +18,18 @@ using SourceIt = std::vector<Source*>::iterator;
 
 extern const double ratio;
 
-
-
-Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light);
+// Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light);
 
 class OptScene : public hui::Widget
 {
 public:
     // OptScene(Widget* parent, Vector tl, Vector br, OptController* control);
     OptScene(hui::State* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size);
-    void updateTexture();
+    // void updateTexture();
     // virtual bool onIdle(IdleEvent* evt) override;
 
     virtual void Redraw() override;
+    dr4::Texture* getTexture();
 
     Vector screen_to_pixels(Vector p);
     Vector pixels_to_screen(IntVec pix);
@@ -53,6 +52,8 @@ public:
     std::vector<Surface*> surfaces;
     std::vector<Source*> sources;
     std::set<OptObject*> selected;
+
+    int size_x, size_y;
 
     // OptController* control;
     // std::vector<IntVec> pix_queue;

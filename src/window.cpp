@@ -100,7 +100,7 @@ void dr4::MyWindow::Display()
 
 double MyWindow::GetTime() { return 0; } // TODO
 
-dr4::Texture* dr4::MyWindow::CreateTexture() { return texture; }
+dr4::Texture* dr4::MyWindow::CreateTexture() { return new MyTexture(dr4::Vec2f(width, height)); }
 dr4::Image* dr4::MyWindow::CreateImage() { return new MyImage(width, height); }
 
 Font      *MyWindow::CreateFont()      { return new MyFont(); }

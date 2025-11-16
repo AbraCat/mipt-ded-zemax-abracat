@@ -1,6 +1,6 @@
 #include "optical-scene.h"
-
-#include "texture.h"
+// #include "texture.h"
+#include "dr4/window.hpp"
 
 #include <algorithm>
 #include <random>
@@ -9,6 +9,8 @@
 #include <limits>
 #include <cmath>
 #include <cassert>
+
+extern dr4::Window* window;
 
 const double ratio = 16.0 / 9.0, screen_size = 4, obj_change = 1;
 const int max_depth = 8, n_diffuse_rays = 1, n_shadow_rays = 1, n_move_buttons = 6, obj_button_h = 100,
@@ -27,8 +29,8 @@ struct RenderThreadData
     std::vector<IntVec>* thread_pix;
 };
 
-void OptScene::updateTexture()
-{
+// void OptScene::updateTexture()
+// {
     // t->clear();
     // for (OptObject* obj: selected)
     // {
@@ -51,7 +53,7 @@ void OptScene::updateTexture()
     // std::random_device rd;
     // std::mt19937 g(rd());
     // std::shuffle(pix_queue.begin(), pix_queue.end(), g);
-}
+// }
 
 // int calcIdleThread(void* void_data)
 // {
@@ -118,9 +120,10 @@ Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light)
 
 
 OptScene::OptScene(hui::State* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f size)
-    : hui::Widget(state, pos, size) //, control(control)
+    : hui::Widget(pos.x, pos.y, state, parent) //control(control)
 {
-    // control = nullptr;
+    SetRelPos(pos);
+    size_x = texture->GetSize().x, size_y = texture->GetSize().y;
 
     V = init_V;
     screen_tl = init_screen_tl;
@@ -133,9 +136,6 @@ OptScene::OptScene(hui::State* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f
     sources.reserve(10);
 
     redraw_picture = 1;
-    // setPixelTexture(true);
-    // pix_texture = dynamic_cast<PixelTexture*>(t);
-    // assert(pix_texture != nullptr);
 
     surfaces.push_back(new PlaneSurface(2, white_col, "plane", this));
     sources.push_back(new SphereSource(gray_col * 0.5, {0, -1, 4}, 1, "source", this));
@@ -147,6 +147,8 @@ OptScene::OptScene(hui::State* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f
     surfaces.push_back(new SphereSurface({0, 0, -2}, 0.3, purple_col, "sphere", this));
     surfaces.push_back(new SphereSurface({0, 0, 3}, 1, white_col, "sphere", this, glass));
 }
+
+dr4::Texture* OptScene::getTexture() { return texture; }
 
 void OptScene::Redraw()
 {
@@ -160,11 +162,13 @@ void OptScene::Redraw()
 //         s->pix_texture->setPix(pix.x, pix.y, color * 255);
 //     }
 
-    dr4::MyImage img(size.x, size.y);
+    // dr4::MyImage img(size_x, size_y);
+    dr4::Image* img = window->CreateImage();
+    img->SetSize(dr4::Vec2f(size_x, size_y));
 
-    for (int x = 0; x < size.x - 1; ++x)
+    for (int x = 0; x < size_x - 1; ++x)
     {
-        for (int y = 0; y < size.y - 1; ++y)
+        for (int y = 0; y < size_y - 1; ++y)
         {
             Vector p = pixels_to_screen(IntVec(x, y));
 
@@ -172,21 +176,26 @@ void OptScene::Redraw()
             Vector traced_color = traceRay(ray, 0);
             Vector color = limitVector(traced_color, 0, 1) * 255;
 
-            img.SetPix(x, y, dr4::Color(color.x, color.y, color.z, 255));
+            img->SetPixel(x, y, dr4::Color(color.x, color.y, color.z, 255));
         }
     }
     
-    texture->Draw(img);
+    texture->Draw(*img);
+
+    dr4::Rectangle* rect = window->CreateRectangle();
+    rect->SetSize(dr4::Vec2f(300, 100));
+    rect->SetFillColor(dr4::Color(0, 0, 255));
+    texture->Draw(*rect);
 }
 
 Vector OptScene::screen_to_pixels(Vector p)
 {
-    return Vector((p - screen_tl).x * size.x / screen_w.x, (p - screen_tl).y * size.y / screen_h.y);
+    return Vector((p - screen_tl).x * size_x / screen_w.x, (p - screen_tl).y * size_y / screen_h.y);
 }
 
 Vector OptScene::pixels_to_screen(IntVec pix)
 {
-    return screen_tl + screen_w * (1.0 * pix.x / size.x) + screen_h * (1.0 * pix.y / size.y);
+    return screen_tl + screen_w * (1.0 * pix.x / size_x) + screen_h * (1.0 * pix.y / size_y);
 }
 
 FixedVec OptScene::getRect(OptObject* obj)
@@ -313,3 +322,4 @@ void OptScene::moveCamera(Vector change)
     screen_tl += change;
 }
 
+// } // namespace hui

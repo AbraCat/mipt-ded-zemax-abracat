@@ -3,16 +3,25 @@
 #include "dr4/math/color.hpp"
 #include "misc/dr4_ifc.hpp"
 
+#include "optical-scene.h"
+
 extern "C" dr4::DR4Backend* CreateDR4Backend(void);
+
+extern dr4::Window* window = nullptr;
 
 int main()
 {
     srand(1);
     dr4::DR4Backend* plugin = CreateDR4Backend();
 
-    dr4::Window* window = plugin->CreateWindow();
+    window = plugin->CreateWindow();
     window->Open();
+
     dr4::Texture* texture = window->CreateTexture();
+    // texture->SetSize(1000, 800);
+
+    OptScene* scene = new OptScene(nullptr, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(500, 300));
+    scene->Redraw();
 
     while (true)
     {
@@ -29,34 +38,39 @@ int main()
             }
         }
 
-        dr4::Image* img = window->CreateImage();
-        img->SetSize(dr4::Vec2f(1000, 800));
-        for (int x = 100; x < 300; ++x) {
-            for (int y = 300; y < 500; ++y)
-            {
-                if (((x / 10) % 2) ^ ((y / 10) % 2)) img->SetPixel(x, y, dr4::Color(255, 255, 0, 255));
-                else img->SetPixel(x, y, dr4::Color(255, 0, 255, 255));
-            }
-        }
+        // dr4::Image* img = window->CreateImage();
+        // img->SetSize(dr4::Vec2f(1000, 800));
+        // for (int x = 100; x < 300; ++x) {
+        //     for (int y = 300; y < 500; ++y)
+        //     {
+        //         if (((x / 10) % 2) ^ ((y / 10) % 2)) img->SetPixel(x, y, dr4::Color(255, 255, 0, 255));
+        //         else img->SetPixel(x, y, dr4::Color(255, 0, 255, 255));
+        //     }
+        // }
 
-        texture->Draw(*img);
+        // texture->Draw(*img);
 
-        dr4::Rectangle* rect = window->CreateRectangle();
-        rect->SetSize(dr4::Vec2f(300, 100));
-        rect->SetPos(100, 100);
-        rect->SetFillColor(dr4::Color(0, 0, 255));
-        rect->SetBorderColor(dr4::Color(255, 0, 0));
+        // dr4::Rectangle* rect = window->CreateRectangle();
+        // rect->SetSize(dr4::Vec2f(300, 100));
+        // rect->SetFillColor(dr4::Color(0, 0, 255));
+        // texture->Draw(*rect);
 
-        texture->Draw(*rect);
+        // rect->SetPos(100, 100);
+        // rect->SetBorderColor(dr4::Color(255, 0, 0));
 
-        dr4::Text* text = window->CreateText();
-        text->SetText("some text");
-        text->SetPos(100, 100);
-        text->SetColor(dr4::Color(0, 255, 0));
-        texture->Draw(*text);
+        // texture->Draw(*rect);
 
-        window->Draw(*texture);
+        // dr4::Text* text = window->CreateText();
+        // text->SetText("some text");
+        // text->SetPos(100, 100);
+        // text->SetColor(dr4::Color(0, 255, 0));
+        // texture->Draw(*text);
+
+        // window->Draw(*texture);
+
+        window->Draw(*(scene->getTexture()));
         window->Display();
+
     }
 
     return 0;

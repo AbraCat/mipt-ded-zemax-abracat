@@ -33,6 +33,6 @@ target_link_libraries(plugin PUBLIC SDL3::SDL3)
 target_include_directories(plugin PUBLIC ./include/ ./src)
 target_compile_options(plugin PUBLIC -Wno-narrowing)
 
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/texture.cpp src/widget.cpp src/optical-object.cpp src/optical-scene.cpp)
 target_include_directories(main PRIVATE ./include/)
 target_link_libraries(main PRIVATE plugin)

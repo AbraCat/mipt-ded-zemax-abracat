@@ -51,7 +51,7 @@ public:
     virtual void StartTextInput() override;
     virtual void StopTextInput() override;
 
-        virtual std::optional<Event> PollEvent() override;
+    virtual std::optional<Event> PollEvent() override;
     };
 
 }
