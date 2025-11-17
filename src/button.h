@@ -9,21 +9,24 @@
 #include <cstdio>
 #include <string>
 
-// class TextField : public hui::Widget
-// {
-// public:
-//     TextField(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size);
-//     // virtual void updateTexture() override;
-//     virtual void Redraw() override;
+namespace hui {
 
-//     void SetFieldColor(Vector color);
-//     void SetText(std::string text);
-//     std::string getText();
+class TextField : public hui::Widget
+{
+public:
+    TextField(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size);
+    // virtual void updateTexture() override;
+    virtual void Redraw() const override;
 
-// private:
-//     Vector color;
-//     std::string text;
-// };
+    void SetFieldColor(dr4::Color color);
+    void SetText(std::string text);
+    std::string getText();
+
+private:
+    bool draw_border;
+    dr4::Color color;
+    std::string text;
+};
 
 // class InputField : public TextField
 // {
@@ -43,31 +46,33 @@
 //     std::function<bool(std::string)> text_valid;
 // };
 
-// class Button : public TextField
-// {
-// public:
-//     Button(Widget* parent, Vector tl, Vector br, Vector color, std::string text);
+class Button : public TextField
+{
+public:
+    Button(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
 
-//     virtual bool mousePressEvent(MouseEvent* e) override;
-//     virtual bool mouseReleaseEvent(MouseEvent* e) override;
+    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
+    virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
 
-//     virtual void action() = 0;
-//     virtual void unpress();
+    virtual void action() = 0;
+    virtual void unpress();
 
-//     bool is_pressed;
-//     Vector press_color, unpress_color;
-//     std::string text;
-// };
+    bool is_pressed;
+    dr4::Color press_color, unpress_color;
+    std::string text;
+};
 
-// class ToggleButton : public Button
-// {
-// public:
-//     ToggleButton(Widget* parent, Vector tl, Vector br, Vector color, std::string text);
+class ToggleButton : public Button
+{
+public:
+    ToggleButton(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
 
-//     virtual bool mousePressEvent(MouseEvent* e) override;
-//     virtual bool mouseReleaseEvent(MouseEvent* e) override;
+    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
+    virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
 
-//     virtual void deactivate() = 0;
-// };
+    virtual void deactivate() = 0;
+};
+
+} // namespace hui
 
 #endif // MY_BUTTON_H

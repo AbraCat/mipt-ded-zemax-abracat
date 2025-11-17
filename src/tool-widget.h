@@ -2,14 +2,18 @@
 #define TOOL_WIDGET_H
 
 #include "pp/tool.hpp"
-#include "hui/widget.hpp"
+#include "button.h"
 
 namespace hui {
 
-class ToolWidget : public Widget {
+class ToolWidget : public ToggleButton {
 public:
-    ToolWidget(pp::Tool* tool, const std::size_t width, const std::size_t height, Widget *parent);
+    ToolWidget(hui::State *state, pp::Tool* tool, dr4::Vec2f pos, dr4::Vec2f size,
+            dr4::Color color, std::string text);
+
     pp::Tool* getTool() const;
+    virtual void action() override;
+    virtual void deactivate() override;
 
 private:
     pp::Tool* tool;

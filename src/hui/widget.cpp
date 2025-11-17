@@ -14,6 +14,7 @@ namespace hui {
 Widget::Widget(State *state_) 
     :state(state_), rect(0, 0, 0, 0),
      texture(window->CreateTexture()), extents(0) {
+    textureWillRedraw = true; // non-standard
 }
 
 Widget::~Widget() {

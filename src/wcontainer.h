@@ -11,6 +11,7 @@ namespace hui
 class MyContainer : public Container {
 public:
     MyContainer(State* state);
+    virtual ~MyContainer();
     void Redraw() const override;
 
     void addChild(Widget* w);

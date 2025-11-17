@@ -6,6 +6,10 @@ MyContainer::MyContainer(State* state) : Container(state) {
     //
 } 
 
+MyContainer::~MyContainer() {
+    for (Widget* w: children) delete w;
+}
+
 void MyContainer::Redraw() const {
     for (Widget* w: children) {
         GetTexture().Draw(*w);
