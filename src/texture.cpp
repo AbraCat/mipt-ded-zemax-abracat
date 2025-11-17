@@ -222,6 +222,8 @@ dr4::MyTexture::MyTexture(dr4::Vec2f size) : w(size.x), h(size.y)
     pos = zero = Vec2f();
 }
 
+dr4::MyTexture::~MyTexture() { SDL_DestroyTexture(t); }
+
 void dr4::MyTexture::Clear(dr4::Color color)
 {
     SDL_SetRenderTarget(getRenderer(), t);
@@ -229,7 +231,14 @@ void dr4::MyTexture::Clear(dr4::Color color)
     SDL_RenderClear(getRenderer());
 }
 
-void dr4::MyTexture::SetSize(Vec2f size) { w = size.x; h = size.y; }
+void dr4::MyTexture::SetSize(Vec2f size) {
+    SDL_DestroyTexture(t);
+
+    w = size.x;
+    h = size.y;
+    t = SDL_CreateTexture(getRenderer(), SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, w, h);
+}
+
 dr4::Vec2f dr4::MyTexture::GetSize() const { return Vec2f(w, h); }
 float dr4::MyTexture::GetWidth() const { return w; }
 float dr4::MyTexture::GetHeight() const { return h; }

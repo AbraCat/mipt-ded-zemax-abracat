@@ -152,6 +152,7 @@ class MyTexture : public Texture
 {
 public:
     MyTexture(dr4::Vec2f size);
+    ~MyTexture();
 
     virtual void Clear(dr4::Color color) override;
 

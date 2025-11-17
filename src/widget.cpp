@@ -17,7 +17,8 @@ namespace hui {
 
 dr4::Texture* getTexture(size_t width, size_t height) {
     dr4::Texture* texture = window->CreateTexture();
-    // texture->SetSize(dr4::Vec2f(width, height));
+    texture->SetSize(dr4::Vec2f(width, height));
+    
     return texture;
 }
 

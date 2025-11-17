@@ -120,7 +120,7 @@ Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light)
 
 
 OptScene::OptScene(hui::State* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f size)
-    : hui::Widget(pos.x, pos.y, state, parent) //control(control)
+    : hui::Widget(size.x, size.y, state, parent) //control(control)
 {
     SetRelPos(pos);
     size_x = texture->GetSize().x, size_y = texture->GetSize().y;
@@ -162,7 +162,6 @@ void OptScene::Redraw()
 //         s->pix_texture->setPix(pix.x, pix.y, color * 255);
 //     }
 
-    // dr4::MyImage img(size_x, size_y);
     dr4::Image* img = window->CreateImage();
     img->SetSize(dr4::Vec2f(size_x, size_y));
 
@@ -181,11 +180,6 @@ void OptScene::Redraw()
     }
     
     texture->Draw(*img);
-
-    dr4::Rectangle* rect = window->CreateRectangle();
-    rect->SetSize(dr4::Vec2f(300, 100));
-    rect->SetFillColor(dr4::Color(0, 0, 255));
-    texture->Draw(*rect);
 }
 
 Vector OptScene::screen_to_pixels(Vector p)
