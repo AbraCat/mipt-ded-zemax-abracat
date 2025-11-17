@@ -7,26 +7,29 @@
 #include "mycanvas.h"
 
 #include "optical-scene.h"
+#include "desktop.h"
 
 extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
 extern "C" pp::PPToolPlugin* Create_PP_Plugin(void);
 
 extern dr4::Window* window = nullptr;
-const int scene_w = 1000;
+const int desktop_w = 1000, desktop_h = 800;
 
 int main()
 {
     srand(1);
     cum::DR4BackendPlugin* dr4_plugin = CreateDR4Backend();
+    hui::State* state = new hui::State();
 
     window = dr4_plugin->CreateWindow();
     window->Open();
     dr4::Texture* main_texture = window->CreateTexture();
-    main_texture->SetSize(scene_w, scene_w / ratio);
+    main_texture->SetSize(desktop_w, desktop_h);
 
-    OptScene* scene = new OptScene(nullptr, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
+    hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h));
+    root_widget->ForceRedraw();
 
-    pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(scene_w, scene_w / ratio), main_texture);
+    pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h), main_texture);
     pp::PPToolPlugin* pp_plugin = Create_PP_Plugin();
     std::vector<pp::Tool*> tools = pp_plugin->CreateTools(canvas);
     tools[0]->OnStart();
@@ -53,7 +56,7 @@ int main()
                 tools[0]->OnMouseMove(evt.mouseMove);
         }
 
-        scene->DrawOn(*main_texture);
+        root_widget->DrawOn(*main_texture);
         canvas->DrawAllShapes();
 
         window->Draw(*main_texture);
@@ -62,7 +65,7 @@ int main()
     }
 
     delete main_texture;
-    delete scene;
-    // for (pp::Tool* tl: tools) delete tl;
+    delete root_widget;
+    for (pp::Tool* tl: tools) delete tl;
     return 0;
 }

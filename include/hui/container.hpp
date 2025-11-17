@@ -4,6 +4,8 @@
 #include "hui/event.hpp"
 #include "hui/widget.hpp"
 
+#include "hui/state.hpp" // non-standard
+
 namespace hui {
 
 /**
@@ -35,6 +37,8 @@ namespace hui {
  *
  */
 class Container : public Widget {
+public:
+    Container(State* state); // non-standard
 
 protected:
 

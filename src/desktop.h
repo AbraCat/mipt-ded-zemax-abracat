@@ -12,13 +12,15 @@
 #include "wcontainer.h"
 #include "dr4/math/vec2.hpp"
 
-class Desktop : public hui::MyContainerWidget
+namespace hui {
+
+class Desktop : public MyContainer
 {
 public:
     Desktop(hui::State* state, dr4::Vec2f size);
     ~Desktop();
 
-    virtual void Redraw() override;
+    // virtual void Redraw() override;
 
     // virtual void updateTexture() override;
     // virtual bool onIdle(IdleEvent* e) override;
@@ -31,5 +33,7 @@ private:
 
     // OptController* control;
 };
+
+}
 
 #endif // MY_APP_H

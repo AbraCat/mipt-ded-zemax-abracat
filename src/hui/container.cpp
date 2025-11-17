@@ -4,6 +4,8 @@
 
 namespace hui {
 
+Container::Container(State* state) : Widget(state) {}
+
 void Container::BecomeParentOf(Widget *child) {
     assert(child->GetParent() == nullptr);
     child->SetParent(this);

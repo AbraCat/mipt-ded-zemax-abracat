@@ -12,7 +12,9 @@ const double src_size = 0.3;
 
 const int scene_w = 1000;
 
-Desktop::Desktop(hui::State* state, dr4::Vec2f size) : hui::MyContainerWidget(state, dr4::Vec2f(0, 0), size)
+namespace hui {
+
+Desktop::Desktop(hui::State* state, dr4::Vec2f size) : hui::MyContainer(state)
 {
     // setFillRect(1);
     // control = new OptController(this);
@@ -26,8 +28,10 @@ Desktop::Desktop(hui::State* state, dr4::Vec2f size) : hui::MyContainerWidget(st
     // control->addSphere({0, 0, -2}, purple_col, 0.3);
     // control->addSphere({0, 0, 3}, white_col, 1, glass);
 
+    SetSize(size);
 
-    OptScene* scene = new OptScene(state, nullptr, dr4::Vec2f(100, 50), dr4::Vec2f(scene_w, scene_w / ratio));
+
+    OptScene* scene = new OptScene(state, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
     addChild(scene);
 }
 
@@ -36,10 +40,10 @@ Desktop::~Desktop()
     //
 }
 
-void Desktop::Redraw()
-{
-    hui::MyContainerWidget::Redraw();
-}
+// void Desktop::Redraw()
+// {
+//     hui::MyContainerWidget::Redraw();
+// }
 
 // void Desktop::updateTexture()
 // {
@@ -50,3 +54,5 @@ void Desktop::Redraw()
 // {
 //     return 0;
 // }
+
+} // namepsace hui
