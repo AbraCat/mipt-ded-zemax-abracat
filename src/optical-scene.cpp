@@ -120,10 +120,12 @@ Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light)
 
 
 OptScene::OptScene(hui::State* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f size)
-    : hui::Widget(size.x, size.y, state, parent) //control(control)
+    : hui::Widget(state) //control(control)
 {
-    SetRelPos(pos);
-    size_x = texture->GetSize().x, size_y = texture->GetSize().y;
+    SetPos(pos);
+    SetSize(size);
+
+    size_x = GetTexture().GetSize().x, size_y = GetTexture().GetSize().y;
 
     V = init_V;
     screen_tl = init_screen_tl;
@@ -148,9 +150,9 @@ OptScene::OptScene(hui::State* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f
     surfaces.push_back(new SphereSurface({0, 0, 3}, 1, white_col, "sphere", this, glass));
 }
 
-dr4::Texture* OptScene::getTexture() { return texture; }
+dr4::Texture* OptScene::getTexture() const { return &GetTexture(); }
 
-void OptScene::Redraw()
+void OptScene::Redraw() const
 {
     // for (IntVec pix: *(data->thread_pix))
 //     {
@@ -179,20 +181,20 @@ void OptScene::Redraw()
         }
     }
     
-    texture->Draw(*img);
+    GetTexture().Draw(*img);
 }
 
-Vector OptScene::screen_to_pixels(Vector p)
+Vector OptScene::screen_to_pixels(Vector p) const
 {
     return Vector((p - screen_tl).x * size_x / screen_w.x, (p - screen_tl).y * size_y / screen_h.y);
 }
 
-Vector OptScene::pixels_to_screen(IntVec pix)
+Vector OptScene::pixels_to_screen(IntVec pix) const
 {
     return screen_tl + screen_w * (1.0 * pix.x / size_x) + screen_h * (1.0 * pix.y / size_y);
 }
 
-FixedVec OptScene::getRect(OptObject* obj)
+FixedVec OptScene::getRect(OptObject* obj) const
 {
     Ray ray(V, obj->pos - V);
 
@@ -208,7 +210,7 @@ FixedVec OptScene::getRect(OptObject* obj)
     return {centre - rect_size_vec, centre + rect_size_vec};
 }
 
-Vector OptScene::traceDiffuse(Surface* s, Vector p)
+Vector OptScene::traceDiffuse(Surface* s, Vector p) const
 {
     Vector diffuse_color = blackV;
 
@@ -225,13 +227,13 @@ Vector OptScene::traceDiffuse(Surface* s, Vector p)
     return diffuse_color;
 }
 
-Vector OptScene::castShadowRay(Surface* s, Source* l, Vector p)
+Vector OptScene::castShadowRay(Surface* s, Source* l, Vector p) const
 {
     Vector p_light = l->getRandPoint();
     Ray shadow_ray(p, p_light - p);
 
     double intersect_t = 0, intensity = 1;
-    for (std::vector<Surface*>::iterator s1_it = surfaces.begin(); s1_it != surfaces.end(); ++s1_it)
+    for (std::vector<Surface*>::const_iterator s1_it = surfaces.begin(); s1_it != surfaces.end(); ++s1_it)
     {
         Surface* s1 = *s1_it;
         if (s1 == s) continue;
@@ -247,7 +249,7 @@ Vector OptScene::castShadowRay(Surface* s, Source* l, Vector p)
     return blackV;
 }
 
-Vector OptScene::traceRefract(Surface* s, Ray ray, Vector p, int depth)
+Vector OptScene::traceRefract(Surface* s, Ray ray, Vector p, int depth) const
 {
     bool refracted = 0;
     Ray refract_ray = s->refract(ray, p, &refracted);
@@ -261,12 +263,12 @@ Vector OptScene::traceRefract(Surface* s, Ray ray, Vector p, int depth)
     }
 }
 
-Surface* OptScene::getIntersectedSurface(Ray ray, double *t_ptr)
+Surface* OptScene::getIntersectedSurface(Ray ray, double *t_ptr) const
 {
     Surface *s = nullptr;
     double t = std::numeric_limits<double>::infinity();
 
-    for (std::vector<Surface*>::iterator s1 = surfaces.begin(); s1 != surfaces.end(); ++s1)
+    for (std::vector<Surface*>::const_iterator s1 = surfaces.begin(); s1 != surfaces.end(); ++s1)
     {
         double cur_t = 0;
         if ((*s1)->intersect(ray, &cur_t) && cur_t < t)
@@ -280,7 +282,7 @@ Surface* OptScene::getIntersectedSurface(Ray ray, double *t_ptr)
     return s;
 }
 
-Vector OptScene::traceRay(Ray ray, int depth)
+Vector OptScene::traceRay(Ray ray, int depth) const
 {
     if (depth >= max_depth) return blackV;
 

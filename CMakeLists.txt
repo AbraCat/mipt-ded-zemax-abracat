@@ -27,16 +27,16 @@ add_subdirectory(sdl EXCLUDE_FROM_ALL)
 # target_include_directories(hello PRIVATE ./include/ ./src)
 # target_compile_options(hello PRIVATE -Wno-narrowing)
 
-add_library(plugin SHARED src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
+add_library(dr4_plugin SHARED src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
     src/window.cpp src/my-dr4-plugin.cpp)
-target_link_libraries(plugin PUBLIC SDL3::SDL3)
-target_include_directories(plugin PUBLIC ./include/ ./src)
-target_compile_options(plugin PUBLIC -Wno-narrowing)
+target_link_libraries(dr4_plugin PUBLIC SDL3::SDL3)
+target_include_directories(dr4_plugin PUBLIC ./include/ ./src)
 
 add_library(pp_plugin SHARED src/my-pp-plugin.cpp)
-# target_link_libraries(plugin PUBLIC SDL3::SDL3)
 target_include_directories(pp_plugin PUBLIC ./include/ ./src)
 
-add_executable(main src/main.cpp src/widget.cpp src/optical-object.cpp src/optical-scene.cpp src/mycanvas.cpp)
+add_executable(main src/main.cpp src/hui/widget.cpp src/hui/event.cpp src/hui/container.cpp
+    src/optical-object.cpp src/optical-scene.cpp src/mycanvas.cpp)
+
 target_include_directories(main PRIVATE ./include/)
-target_link_libraries(main PRIVATE plugin pp_plugin)
+target_link_libraries(main PRIVATE dr4_plugin pp_plugin)

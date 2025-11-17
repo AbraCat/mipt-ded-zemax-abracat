@@ -25,12 +25,11 @@ int main()
     main_texture->SetSize(scene_w, scene_w / ratio);
 
     OptScene* scene = new OptScene(nullptr, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
-    scene->Redraw();
 
     pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(scene_w, scene_w / ratio), main_texture);
     pp::PPToolPlugin* pp_plugin = Create_PP_Plugin();
-    pp::Tool* tool = pp_plugin->CreateTools(canvas)[0];
-    tool->OnStart();
+    std::vector<pp::Tool*> tools = pp_plugin->CreateTools(canvas);
+    tools[0]->OnStart();
 
     while (true)
     {
@@ -47,14 +46,14 @@ int main()
             }
 
             if (evt.type == dr4::Event::Type::MOUSE_DOWN)
-                tool->OnMouseDown(evt.mouseButton);
+                tools[0]->OnMouseDown(evt.mouseButton);
             else if (evt.type == dr4::Event::Type::MOUSE_UP)
-                tool->OnMouseUp(evt.mouseButton);
+                tools[0]->OnMouseUp(evt.mouseButton);
             else if (evt.type == dr4::Event::Type::MOUSE_MOVE)
-                tool->OnMouseMove(evt.mouseMove);
+                tools[0]->OnMouseMove(evt.mouseMove);
         }
 
-        main_texture->Draw(*(scene->getTexture()));
+        scene->DrawOn(*main_texture);
         canvas->DrawAllShapes();
 
         window->Draw(*main_texture);
@@ -62,5 +61,8 @@ int main()
 
     }
 
+    delete main_texture;
+    delete scene;
+    // for (pp::Tool* tl: tools) delete tl;
     return 0;
 }

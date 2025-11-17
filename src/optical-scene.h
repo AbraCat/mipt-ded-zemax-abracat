@@ -28,23 +28,26 @@ public:
     // void updateTexture();
     // virtual bool onIdle(IdleEvent* evt) override;
 
-    virtual void Redraw() override;
-    dr4::Texture* getTexture();
+    dr4::Texture* getTexture() const;
 
-    Vector screen_to_pixels(Vector p);
-    Vector pixels_to_screen(IntVec pix);
+    Vector screen_to_pixels(Vector p) const;
+    Vector pixels_to_screen(IntVec pix) const;
 
-    FixedVec getRect(OptObject* obj);
+    FixedVec getRect(OptObject* obj) const;
 
     void setV(Vector V);
     void moveCamera(Vector change);
 
-    Vector traceRay(Ray ray, int depth);
-    Surface* getIntersectedSurface(Ray ray, double *t_ptr);
-    Vector castShadowRay(Surface* s, Source* l, Vector p);
-    Vector traceDiffuse(Surface* s, Vector p);
-    Vector traceRefract(Surface* s, Ray ray, Vector p, int depth);
+    Vector traceRay(Ray ray, int depth) const;
+    Surface* getIntersectedSurface(Ray ray, double *t_ptr) const;
+    Vector castShadowRay(Surface* s, Source* l, Vector p) const;
+    Vector traceDiffuse(Surface* s, Vector p) const;
+    Vector traceRefract(Surface* s, Ray ray, Vector p, int depth) const;
 
+protected:
+    virtual void Redraw() const override;
+
+public:
 // private:
     bool redraw_picture;
     Vector V, screen_tl, screen_w, screen_h;
