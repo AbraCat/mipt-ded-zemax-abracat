@@ -1,24 +1,30 @@
 #ifndef I_ABRACAT_DR4_PLUGIN
 #define I_ABRACAT_DR4_PLUGIN
 
-#include "misc/dr4_ifc.hpp"
+#include "cum/ifc/dr4.hpp"
 
-namespace dr4
+namespace cum
 {
 
-class AbraCat_DR4Backend : public dr4::DR4Backend
+class AbraCat_DR4Backend : public cum::DR4BackendPlugin
 {
 public:
     AbraCat_DR4Backend();
-
-    virtual const std::string &Name() const override;
     virtual dr4::Window *CreateWindow() override;
 
+    virtual std::string_view GetIdentifier() const override;
+    virtual std::string_view GetName() const override;
+    virtual std::string_view &GetDescription() const override;
+    virtual std::vector<std::string_view> GetDependencies() const override;
+    virtual std::vector<std::string_view> GetConflicts() const override;
+    virtual void AfterLoad() override;
+
 private:
-    std::string name;
+    std::string name, description;
+    // std::string_view descr_view;
 };
 
-extern "C" DR4Backend* CreateDR4Backend(void);
+extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
 
 }
 

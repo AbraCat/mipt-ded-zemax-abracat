@@ -1,25 +1,36 @@
 #include "dr4/window.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/math/color.hpp"
-#include "misc/dr4_ifc.hpp"
+#include "cum/ifc/dr4.hpp"
+
+#include "cum/ifc/pp.hpp"
+#include "mycanvas.h"
 
 #include "optical-scene.h"
 
-extern "C" dr4::DR4Backend* CreateDR4Backend(void);
+extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
+extern "C" pp::PPToolPlugin* Create_PP_Plugin(void);
 
 extern dr4::Window* window = nullptr;
-const int scene_w = 500;
+const int scene_w = 1000;
 
 int main()
 {
     srand(1);
-    dr4::DR4Backend* plugin = CreateDR4Backend();
+    cum::DR4BackendPlugin* dr4_plugin = CreateDR4Backend();
 
-    window = plugin->CreateWindow();
+    window = dr4_plugin->CreateWindow();
     window->Open();
+    dr4::Texture* main_texture = window->CreateTexture();
+    main_texture->SetSize(scene_w, scene_w / ratio);
 
     OptScene* scene = new OptScene(nullptr, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
     scene->Redraw();
+
+    pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(scene_w, scene_w / ratio), main_texture);
+    pp::PPToolPlugin* pp_plugin = Create_PP_Plugin();
+    pp::Tool* tool = pp_plugin->CreateTools(canvas)[0];
+    tool->OnStart();
 
     while (true)
     {
@@ -34,9 +45,19 @@ int main()
                 delete window;
                 return 0;
             }
+
+            if (evt.type == dr4::Event::Type::MOUSE_DOWN)
+                tool->OnMouseDown(evt.mouseButton);
+            else if (evt.type == dr4::Event::Type::MOUSE_UP)
+                tool->OnMouseUp(evt.mouseButton);
+            else if (evt.type == dr4::Event::Type::MOUSE_MOVE)
+                tool->OnMouseMove(evt.mouseMove);
         }
 
-        window->Draw(*(scene->getTexture()));
+        main_texture->Draw(*(scene->getTexture()));
+        canvas->DrawAllShapes();
+
+        window->Draw(*main_texture);
         window->Display();
 
     }

@@ -33,6 +33,10 @@ target_link_libraries(plugin PUBLIC SDL3::SDL3)
 target_include_directories(plugin PUBLIC ./include/ ./src)
 target_compile_options(plugin PUBLIC -Wno-narrowing)
 
-add_executable(main src/main.cpp src/widget.cpp src/optical-object.cpp src/optical-scene.cpp)
+add_library(pp_plugin SHARED src/my-pp-plugin.cpp)
+# target_link_libraries(plugin PUBLIC SDL3::SDL3)
+target_include_directories(pp_plugin PUBLIC ./include/ ./src)
+
+add_executable(main src/main.cpp src/widget.cpp src/optical-object.cpp src/optical-scene.cpp src/mycanvas.cpp)
 target_include_directories(main PRIVATE ./include/)
-target_link_libraries(main PRIVATE plugin)
+target_link_libraries(main PRIVATE plugin pp_plugin)
