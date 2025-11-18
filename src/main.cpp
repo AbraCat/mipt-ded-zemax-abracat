@@ -17,7 +17,8 @@ const int desktop_w = 1900, desktop_h = 1000;
 
 hui::Event* dr4ToHuiEvent(dr4::Event evt);
 
-int iterate_app(hui::Widget* root_widget, dr4::Texture* main_texture, pp::MyCanvas* canvas, pp::Tool* tool) {
+int iterate_app(hui::Widget* root_widget, dr4::Texture* main_texture, pp::MyCanvas* canvas,
+  std::vector<pp::Tool*> tools) {
     std::optional<dr4::Event> event;
     while ((event = window->PollEvent()).has_value())
     {
@@ -33,12 +34,14 @@ int iterate_app(hui::Widget* root_widget, dr4::Texture* main_texture, pp::MyCanv
         hui::Event* hui_event = dr4ToHuiEvent(evt);
         if (hui_event != nullptr) hui_event->Apply(*root_widget);
 
-        if (evt.type == dr4::Event::Type::MOUSE_DOWN)
-            tool->OnMouseDown(evt.mouseButton);
-        else if (evt.type == dr4::Event::Type::MOUSE_UP)
-            tool->OnMouseUp(evt.mouseButton);
-        else if (evt.type == dr4::Event::Type::MOUSE_MOVE)
-            tool->OnMouseMove(evt.mouseMove);
+        for (pp::Tool* tl: tools) {
+            if (evt.type == dr4::Event::Type::MOUSE_DOWN)
+                tl->OnMouseDown(evt.mouseButton);
+            else if (evt.type == dr4::Event::Type::MOUSE_UP)
+                tl->OnMouseUp(evt.mouseButton);
+            else if (evt.type == dr4::Event::Type::MOUSE_MOVE)
+                tl->OnMouseMove(evt.mouseMove);
+        }
     }
 
     root_widget->DrawOn(*main_texture);
@@ -63,14 +66,12 @@ int main()
     pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h), main_texture);
     pp::PPToolPlugin* pp_plugin = Create_PP_Plugin();
     std::vector<pp::Tool*> tools = pp_plugin->CreateTools(canvas);
-    pp::Tool* tool = tools[0];
 
-    hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tool);
+    hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tools);
 
     while (true)
     {
-        if (iterate_app(root_widget, main_texture, canvas, tool)) return 0;
-
+        if (iterate_app(root_widget, main_texture, canvas, tools)) return 0;
     }
 
     delete main_texture;

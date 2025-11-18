@@ -13,7 +13,16 @@ static Vector dr4ToMyVec(dr4::Vec2f vec) { return Vector(vec.x, vec.y, 0); }
 
 namespace dr4 {
 
-void dr4::MyLine::DrawOn(Texture& texture) const {} // TODO
+void dr4::MyLine::DrawOn(Texture& texture) const {
+    MyTexture* my_t = dynamic_cast<MyTexture*>(&texture);
+    assert(my_t != nullptr);
+    SDL_SetRenderTarget(getRenderer(), my_t->t);
+
+    Vec2f zero = texture.GetZero();
+
+    setColor(colToMyVec(color));
+    SDL_RenderLine(getRenderer(), start.x + zero.x, start.y + zero.y, end.x + zero.x, end.y + zero.y);
+}
 
 void dr4::MyLine::SetPos(Vec2f pos) {
     Vec2f diff = end - start;
@@ -36,7 +45,19 @@ float dr4::MyLine::GetThickness() const { return thickness; }
 
 
 
-void dr4::MyCircle::DrawOn(Texture& texture) const {} // TODO
+void dr4::MyCircle::DrawOn(Texture& texture) const {
+    MyTexture* my_t = dynamic_cast<MyTexture*>(&texture);
+    assert(my_t != nullptr);
+    SDL_SetRenderTarget(getRenderer(), my_t->t);
+
+    Vec2f zero = texture.GetZero();
+    
+    setColor(colToMyVec(fill_color));
+    drawCircle(dr4ToMyVec(center + zero), radius, true);
+
+    setColor(colToMyVec(border_color));
+    drawCircle(dr4ToMyVec(center + zero), radius, false);
+}
 
 void dr4::MyCircle::SetPos(Vec2f pos) { center = pos; }
 Vec2f dr4::MyCircle::GetPos() const { return center; }

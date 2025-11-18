@@ -25,6 +25,7 @@ private:
     dr4::Window* window;
     std::vector<Shape*> shapes;
     dr4::Texture* texture;
+    ControlsTheme theme;
 };
 
 } // namespace pp

@@ -16,7 +16,7 @@ namespace hui {
 class Desktop : public MyContainer
 {
 public:
-    Desktop(hui::State* state, dr4::Vec2f size, pp::Tool* tool);
+    Desktop(hui::State* state, dr4::Vec2f size, std::vector<pp::Tool*> tools);
     ~Desktop();
     dr4::Texture* giveTexture() const;
 
@@ -28,7 +28,8 @@ public:
 private:
     // WContainer *button_cont;
     // OptController* control;
-    pp::Tool* tool;
+
+    std::vector<pp::Tool*> tools;
 };
 
 }

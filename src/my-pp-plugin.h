@@ -9,64 +9,90 @@
 
 namespace pp {
 
-class RectShape : public Shape {
+class MyShape : public Shape {
 public:
-    RectShape();
+    MyShape();
 
     void SetPos(dr4::Vec2f pos) override;
     dr4::Vec2f GetPos() const override;
     void SetSize(dr4::Vec2f size);
     dr4::Vec2f GetSize() const;
 
-    virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
-    virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
-    virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
-
     virtual void OnSelect() override;
     virtual void OnDeselect() override;
 
-    virtual void DrawOn(dr4::Texture &tex) const override;
-
-private:
+protected:
     bool selected;
     dr4::Vec2f pos, size;
 };
 
-class RectTool : public Tool {
+class RectShape : public MyShape {
 public:
-    RectTool();
-    void SetCanvas(Canvas* canvas);
+    RectShape();
+    virtual void DrawOn(dr4::Texture &tex) const override;
+};
 
-    virtual std::string_view Icon() const override;
-    virtual std::string_view Name() const override;
+class CircleShape : public MyShape {
+public:
+    CircleShape();
+    virtual void DrawOn(dr4::Texture &tex) const override;
+};
+
+class LineShape : public MyShape {
+public:
+    LineShape();
+    virtual void DrawOn(dr4::Texture &tex) const override;
+};
+
+
+
+class MyTool : public Tool {
+public:
+    MyTool();
+    virtual MyShape* createShape() = 0;
+
+    void SetCanvas(Canvas* canvas);
     virtual bool IsCurrentlyDrawing() const override;
 
     virtual void OnStart() override;
-    virtual void OnBreak() override;
     virtual void OnEnd() override;
+    virtual void OnBreak() override;
+
     virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
 
-private:
+protected:
     bool is_drawing, is_selected;
-    RectShape* cur_shape;
     Canvas* canvas;
+    MyShape* cur_shape;
 };
 
-class MyCanvas : public Canvas {
+class RectTool : public MyTool {
 public:
-    MyCanvas(dr4::Window* window);
+    RectTool();
+    virtual MyShape* createShape() override;
 
-    virtual ControlsTheme GetControlsTheme() const;
-    virtual void AddShape(Shape *shape) override;
-    virtual void DelShape(Shape *shape) override;
-    virtual void ShapeChanged(Shape *shape) override;
-    virtual dr4::Window *GetWindow() override;
+    virtual std::string_view Icon() const override;
+    virtual std::string_view Name() const override;
+};
 
-private:
-    dr4::Window* window;
-    std::vector<Shape*> shapes;
+class CircleTool : public MyTool {
+public:
+    CircleTool();
+    virtual MyShape* createShape() override;
+
+    virtual std::string_view Icon() const override;
+    virtual std::string_view Name() const override;
+};
+
+class LineTool : public MyTool {
+public:
+    LineTool();
+    virtual MyShape* createShape() override;
+
+    virtual std::string_view Icon() const override;
+    virtual std::string_view Name() const override;
 };
 
 

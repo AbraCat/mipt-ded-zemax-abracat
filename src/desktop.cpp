@@ -15,7 +15,8 @@ const int scene_w = 1000, button_w = 200, button_h = 150;
 
 namespace hui {
 
-Desktop::Desktop(hui::State* state, dr4::Vec2f size, pp::Tool* tool) : hui::MyContainer(state), tool(tool)
+Desktop::Desktop(hui::State* state, dr4::Vec2f size, std::vector<pp::Tool*> tools) :
+    hui::MyContainer(state), tools(tools)
 {
     // setFillRect(1);
     // control = new OptController(this);
@@ -35,14 +36,19 @@ Desktop::Desktop(hui::State* state, dr4::Vec2f size, pp::Tool* tool) : hui::MyCo
     OptScene* scene = new OptScene(state, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
     addChild(scene);
 
-    Button* tool_button = new ToolWidget(state, tool, dr4::Vec2f(scene_w, 0), dr4::Vec2f(button_w, button_h),
-        dr4::Color(255, 0, 0), "draw rect");
-    addChild(tool_button);
+    for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {
+        pp::Tool* tool = tools[n_tool];
+
+        Button* tool_button = new ToolWidget(state, tool, dr4::Vec2f(scene_w, button_h * n_tool), dr4::Vec2f(button_w, button_h),
+            dr4::Color(255, 0, 0), std::string(tool->Name()));
+
+        addChild(tool_button);
+    }
 }
 
 Desktop::~Desktop()
 {
-    //
+    for (pp::Tool* tl: tools) delete tl;
 }
 
 dr4::Texture* Desktop::giveTexture() const { return &GetTexture(); }

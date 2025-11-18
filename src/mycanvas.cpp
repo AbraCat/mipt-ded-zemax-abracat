@@ -13,9 +13,11 @@ MyCanvas::MyCanvas(dr4::Window* window, dr4::Vec2f size, dr4::Texture* texture)
     // texture = window->CreateTexture();
     // texture->SetSize(size);
     // texture->SetPos(dr4::Vec2f());
+
+    theme.shapeColor = dr4::Color(255, 0, 0);
 }
 
-ControlsTheme MyCanvas::GetControlsTheme() const { return ControlsTheme(); }
+ControlsTheme MyCanvas::GetControlsTheme() const { return theme; }
 
 void MyCanvas::AddShape(Shape *shape) {
     shapes.push_back(shape);
