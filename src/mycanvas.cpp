@@ -47,4 +47,7 @@ void MyCanvas::DrawAllShapes() {
     // window->Draw(*texture);
 }
 
+void MyCanvas::SetSelectedShape(Shape *shape) {} // TODO
+Shape *MyCanvas::GetSelectedShape() const { return nullptr; }
+
 } // namespace pp

@@ -14,7 +14,7 @@ public:
 
     virtual std::string_view GetIdentifier() const override;
     virtual std::string_view GetName() const override;
-    virtual std::string_view &GetDescription() const override;
+    virtual std::string_view GetDescription() const override;
     virtual std::vector<std::string_view> GetDependencies() const override;
     virtual std::vector<std::string_view> GetConflicts() const override;
     virtual void AfterLoad() override;

@@ -97,6 +97,7 @@ void dr4::MyWindow::Display()
     SDL_RenderPresent(getRenderer());
 }
 
+void MyWindow::Sleep(double time) {} // TODO
 
 double MyWindow::GetTime() { return 0; } // TODO
 
@@ -213,8 +214,8 @@ std::optional<dr4::Event> dr4::MyWindow::PollEvent()
             evt.type = dr4::Event::Type::MOUSE_WHEEL;
             evt.mouseWheel.pos.x = event.wheel.mouse_x;
             evt.mouseWheel.pos.y = event.wheel.mouse_y;
-            evt.mouseWheel.deltaX = event.wheel.x;
-            evt.mouseWheel.deltaY = event.wheel.y;
+            evt.mouseWheel.delta.x = event.wheel.x;
+            evt.mouseWheel.delta.y = event.wheel.y;
             break;
 
         default:

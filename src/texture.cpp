@@ -53,23 +53,23 @@ void dr4::MyCircle::DrawOn(Texture& texture) const {
     Vec2f zero = texture.GetZero();
     
     setColor(colToMyVec(fill_color));
-    drawCircle(dr4ToMyVec(center + zero), radius, true);
+    drawCircle(dr4ToMyVec(center + zero), radius.x, true);
 
     setColor(colToMyVec(border_color));
-    drawCircle(dr4ToMyVec(center + zero), radius, false);
+    drawCircle(dr4ToMyVec(center + zero), radius.x, false);
 }
 
 void dr4::MyCircle::SetPos(Vec2f pos) { center = pos; }
 Vec2f dr4::MyCircle::GetPos() const { return center; }
 
 void dr4::MyCircle::SetCenter(dr4::Vec2f center) { this->center = center; }
-void dr4::MyCircle::SetRadius(float radius) { this->radius = radius; }
+void dr4::MyCircle::SetRadius(Vec2f radius) { this->radius = radius; }
 void dr4::MyCircle::SetFillColor(dr4::Color color) { this->fill_color = color; }
 void dr4::MyCircle::SetBorderColor(dr4::Color color) { this->border_color = color; }
 void dr4::MyCircle::SetBorderThickness(float thickness) { this->thickness = thickness; }
 
 dr4::Vec2f dr4::MyCircle::GetCenter() const { return center; }
-float dr4::MyCircle::GetRadius() const { return radius; }
+Vec2f dr4::MyCircle::GetRadius() const { return radius; }
 dr4::Color dr4::MyCircle::GetFillColor() const { return fill_color; }
 dr4::Color dr4::MyCircle::GetBorderColor() const { return border_color; }
 float dr4::MyCircle::GetBorderThickness() const { return thickness; } 
@@ -151,7 +151,7 @@ const std::string &dr4::MyText::GetText() const { return text; }
 Color              dr4::MyText::GetColor() const { return color; }
 float              dr4::MyText::GetFontSize() const { return font_size; }
 Text::VAlign             dr4::MyText::GetVAlign() const { return v_align; }
-const Font        &dr4::MyText::GetFont() const { return *font; }
+const Font        *dr4::MyText::GetFont() const { return font; }
 
 
 
@@ -269,6 +269,10 @@ Vec2f dr4::MyTexture::GetPos() const { return pos; }
 
 void dr4::MyTexture::SetZero(Vec2f pos) { this->zero = pos; }
 Vec2f dr4::MyTexture::GetZero() const { return zero; }
+
+void MyTexture::SetClipRect(Rect2f rect) { clip_rect = rect; }
+void MyTexture::RemoveClipRect() { clip_rect = Rect2f(); }
+Rect2f MyTexture::GetClipRect() const { return clip_rect; }
 
 void dr4::MyTexture::DrawOn(Texture& texture) const
 {

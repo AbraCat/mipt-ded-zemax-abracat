@@ -10,12 +10,12 @@ namespace hui
 
 class MyContainer : public Container {
 public:
-    MyContainer(State* state);
+    MyContainer(UI* state);
     virtual ~MyContainer();
     void Redraw() const override;
 
     void addChild(Widget* w);
-    EventResult PropogateToChildren(Event &event) override;
+    virtual EventResult PropagateToChildren(Event &event) override;
 
 private:
     std::vector<Widget*> children;

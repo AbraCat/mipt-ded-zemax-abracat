@@ -2,7 +2,7 @@
 
 namespace hui {
 
-MyContainer::MyContainer(State* state) : Container(state) {
+MyContainer::MyContainer(UI* state) : Container(state) {
     //
 } 
 
@@ -21,7 +21,7 @@ void MyContainer::addChild(Widget* w) {
     Container::BecomeParentOf(w);
 }
 
-EventResult MyContainer::PropogateToChildren(Event &event) {
+EventResult MyContainer::PropagateToChildren(Event &event) {
     for (Widget* w: children) {
         if (event.Apply(*w) == EventResult::HANDLED) return EventResult::HANDLED;
     }

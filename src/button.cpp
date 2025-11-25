@@ -12,7 +12,7 @@ extern dr4::Window* window;
 
 namespace hui {
 
-TextField::TextField(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size)
+TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
     : Widget(state)//, color(color), text(text)
 {
     SetPos(pos);
@@ -45,7 +45,7 @@ std::string TextField::getText() { return text; }
 
 
 
-Button::Button(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text)
+Button::Button(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text)
     : TextField(state, pos, size)
 {
     this->press_color = color;
@@ -63,7 +63,7 @@ EventResult Button::OnMouseDown(MouseButtonEvent &evt)
 {
     // Widget::mousePressEvent(e);
 
-    if (!GetRect().Contains(evt.relPos)) return EventResult::UNHANDLED;
+    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
     if (is_pressed) return EventResult::UNHANDLED;
 
     is_pressed = 1;
@@ -92,7 +92,7 @@ void Button::unpress()
 
 
 
-ToggleButton::ToggleButton(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size, 
+ToggleButton::ToggleButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, 
     dr4::Color color, std::string text)
     : Button(state, pos, size, color, text)
 {
@@ -103,7 +103,7 @@ EventResult ToggleButton::OnMouseDown(MouseButtonEvent &evt)
 {
     // Widget::mousePressEvent(e);
 
-    if (!GetRect().Contains(evt.relPos)) return EventResult::UNHANDLED;
+    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
 
     is_pressed = !is_pressed;
     SetFieldColor(is_pressed ? press_color : unpress_color);

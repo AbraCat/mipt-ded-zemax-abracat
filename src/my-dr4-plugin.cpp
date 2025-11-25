@@ -27,7 +27,7 @@ dr4::Window * AbraCat_DR4Backend::CreateWindow()
 }
 
 std::string_view AbraCat_DR4Backend::GetIdentifier() const { return name; }
-std::string_view &AbraCat_DR4Backend::GetDescription() const {std::string_view str(description); return str; }
+std::string_view AbraCat_DR4Backend::GetDescription() const {std::string_view str(description); return str; }
 std::vector<std::string_view> AbraCat_DR4Backend::GetDependencies() const { return std::vector<std::string_view>(); }
 std::vector<std::string_view> AbraCat_DR4Backend::GetConflicts() const { return std::vector<std::string_view>(); }
 void AbraCat_DR4Backend::AfterLoad() {}

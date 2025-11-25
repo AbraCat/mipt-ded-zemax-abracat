@@ -95,16 +95,19 @@ public:
     virtual std::string_view Name() const override;
 };
 
+} // namespace pp
+
+namespace cum {
 
 class AbraCat_pp_plugin : public PPToolPlugin
 {
 public:
     AbraCat_pp_plugin();
-    virtual std::vector<pp::Tool*> CreateTools(Canvas *cvs) override;
+    virtual std::vector<std::unique_ptr<pp::Tool>> CreateTools(pp::Canvas *cvs) override;
 
     virtual std::string_view GetIdentifier() const override;
     virtual std::string_view GetName() const override;
-    virtual std::string_view &GetDescription() const override;
+    virtual std::string_view GetDescription() const override;
     virtual std::vector<std::string_view> GetDependencies() const override;
     virtual std::vector<std::string_view> GetConflicts() const override;
     virtual void AfterLoad() override;
@@ -117,7 +120,7 @@ private:
 extern "C" AbraCat_pp_plugin* Create_PP_Plugin(void);
 
 
-} // namespace pp
+} // namespace cum
 
 
 #endif // ABRACAT_PP_PLUGIN_H

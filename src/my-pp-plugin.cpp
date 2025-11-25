@@ -4,6 +4,7 @@
 #include "dr4/window.hpp"
 
 #include <cmath>
+#include <cassert>
 
 extern dr4::Window* window = nullptr;
 
@@ -11,14 +12,14 @@ const dr4::Color shape_color(255, 0, 0);
 
 namespace pp {
 
-bool Shape::OnMouseDown(const dr4::Event::MouseButton &evt) { return false; }
-bool Shape::OnMouseUp(const dr4::Event::MouseButton &evt) { return false; }
-bool Shape::OnMouseMove(const dr4::Event::MouseMove &evt) { return false; }
+// bool Shape::OnMouseDown(const dr4::Event::MouseButton &evt) { return false; }
+// bool Shape::OnMouseUp(const dr4::Event::MouseButton &evt) { return false; }
+// bool Shape::OnMouseMove(const dr4::Event::MouseMove &evt) { return false; }
 
-void Shape::OnSelect() {}
-void Shape::OnDeselect() {}
+// void Shape::OnSelect() {}
+// void Shape::OnDeselect() {}
 
-void Shape::DrawOn(dr4::Texture &tex) {}
+// void Shape::DrawOn(dr4::Texture &tex) const {}
 
 
 
@@ -83,17 +84,17 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 
 
 
-std::string_view Tool::Icon() const { return ""; };
-std::string_view Tool::Name() const { return ""; }
-bool Tool::IsCurrentlyDrawing() const { return false; }
+// std::string_view Tool::Icon() const { return ""; };
+// std::string_view Tool::Name() const { return ""; }
+// bool Tool::IsCurrentlyDrawing() const { return false; }
 
-void Tool::OnStart() {}
-void Tool::OnBreak() {}
-void Tool::OnEnd() {}
+// void Tool::OnStart() {}
+// void Tool::OnBreak() {}
+// void Tool::OnEnd() {}
 
-bool Tool::OnMouseDown(const dr4::Event::MouseButton &evt) { return false; }
-bool Tool::OnMouseUp(const dr4::Event::MouseButton &evt) { return false; }
-bool Tool::OnMouseMove(const dr4::Event::MouseMove &evt) { return false; }
+// bool Tool::OnMouseDown(const dr4::Event::MouseButton &evt) { return false; }
+// bool Tool::OnMouseUp(const dr4::Event::MouseButton &evt) { return false; }
+// bool Tool::OnMouseMove(const dr4::Event::MouseMove &evt) { return false; }
 
 
 
@@ -181,36 +182,38 @@ std::string_view LineTool::Name() const { return "Line"; }
 MyShape* LineTool::createShape() { return new LineShape(); }
 
 
+} // namespace pp
 
+namespace cum {
 
-
-std::vector<pp::Tool*> PPToolPlugin::CreateTools(Canvas *cvs) { return std::vector<pp::Tool*>(); }
-
-
-
-AbraCat_pp_plugin::AbraCat_pp_plugin() {
+cum::AbraCat_pp_plugin::AbraCat_pp_plugin() {
     name = description = "AbraCat pp plugin";
 }
 
-std::vector<pp::Tool*> AbraCat_pp_plugin::CreateTools(Canvas *cvs) {
-    std::vector<pp::Tool*> tools = { new RectTool(), new CircleTool(), new LineTool() };
-    for (Tool* tl: tools) {
-        MyTool* my_tool = dynamic_cast<MyTool*>(tl);
+std::vector<std::unique_ptr<pp::Tool>> cum::AbraCat_pp_plugin::CreateTools(pp::Canvas *cvs) {
+    std::vector<std::unique_ptr<pp::Tool>> tools;// = //{ new RectTool(), new CircleTool(), new LineTool() };
+    tools.push_back(std::unique_ptr<pp::Tool>(new pp::RectTool()));
+    tools.push_back(std::unique_ptr<pp::Tool>(new pp::CircleTool())); 
+    tools.push_back(std::unique_ptr<pp::Tool>(new pp::LineTool()));
+
+    for (std::unique_ptr<pp::Tool>& tl: tools) {
+        pp::MyTool* my_tool = dynamic_cast<pp::MyTool*>(&*tl);
+        assert(my_tool != nullptr);
         my_tool->SetCanvas(cvs);
     }
 
     return tools;
 }
 
-std::string_view AbraCat_pp_plugin::GetName() const { return name; }
-std::string_view AbraCat_pp_plugin::GetIdentifier() const { return name; }
-std::string_view &AbraCat_pp_plugin::GetDescription() const {std::string_view str(description); return str; }
-std::vector<std::string_view> AbraCat_pp_plugin::GetDependencies() const { return std::vector<std::string_view>(); }
-std::vector<std::string_view> AbraCat_pp_plugin::GetConflicts() const { return std::vector<std::string_view>(); }
-void AbraCat_pp_plugin::AfterLoad() {}
+std::string_view cum::AbraCat_pp_plugin::GetName() const { return name; }
+std::string_view cum::AbraCat_pp_plugin::GetIdentifier() const { return name; }
+std::string_view cum::AbraCat_pp_plugin::GetDescription() const {std::string_view str(description); return str; }
+std::vector<std::string_view> cum::AbraCat_pp_plugin::GetDependencies() const { return std::vector<std::string_view>(); }
+std::vector<std::string_view> cum::AbraCat_pp_plugin::GetConflicts() const { return std::vector<std::string_view>(); }
+void cum::AbraCat_pp_plugin::AfterLoad() {}
+
+} // namespace cum
 
 
 
-extern "C" AbraCat_pp_plugin* Create_PP_Plugin(void) { return new AbraCat_pp_plugin(); }
-
-} // namespace pp
+extern "C" cum::AbraCat_pp_plugin* Create_PP_Plugin(void) { return new cum::AbraCat_pp_plugin(); }

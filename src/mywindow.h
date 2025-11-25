@@ -35,6 +35,7 @@ public:
     virtual void Clear(Color color) override;
     virtual void Draw(const Texture &texture) override;
     virtual void Display() override;
+    virtual void Sleep(double time) override;
 
     
 

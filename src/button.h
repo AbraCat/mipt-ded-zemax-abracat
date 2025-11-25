@@ -14,7 +14,8 @@ namespace hui {
 class TextField : public hui::Widget
 {
 public:
-    TextField(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size);
+    TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size);
+    virtual ~TextField() noexcept override = default;
     // virtual void updateTexture() override;
     virtual void Redraw() const override;
 
@@ -49,7 +50,8 @@ private:
 class Button : public TextField
 {
 public:
-    Button(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
+    Button(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
+    virtual ~Button() noexcept override = default;
 
     virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
     virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
@@ -65,7 +67,8 @@ public:
 class ToggleButton : public Button
 {
 public:
-    ToggleButton(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
+    ToggleButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
+    virtual ~ToggleButton() noexcept override = default;
 
     virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
     virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;

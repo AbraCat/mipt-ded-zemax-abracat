@@ -24,7 +24,7 @@ class OptScene : public hui::Widget
 {
 public:
     // OptScene(Widget* parent, Vector tl, Vector br, OptController* control);
-    OptScene(hui::State* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size);
+    OptScene(hui::UI* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size);
     // void updateTexture();
     // virtual bool onIdle(IdleEvent* evt) override;
 

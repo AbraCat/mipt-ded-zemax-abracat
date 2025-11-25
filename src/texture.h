@@ -38,9 +38,9 @@ public:
 
 class MyCircle: public Circle {
 private:
-    Vec2f center;
+    Vec2f center, radius;
     Color border_color, fill_color;
-    float radius, thickness;
+    float thickness;
 
 public:
 
@@ -49,13 +49,13 @@ public:
     virtual Vec2f GetPos() const override;
 
     virtual void SetCenter(Vec2f center) override;
-    virtual void SetRadius(float radius) override;
+    virtual void SetRadius(Vec2f radius) override;
     virtual void SetFillColor(Color color) override;
     virtual void SetBorderColor(Color color) override;
     virtual void SetBorderThickness(float thickness) override;
     
     virtual Vec2f GetCenter() const override;
-    virtual float GetRadius() const override;
+    virtual Vec2f GetRadius() const override;
     virtual Color GetFillColor() const override;
     virtual Color GetBorderColor() const override;
     virtual float GetBorderThickness() const override;
@@ -119,7 +119,7 @@ public:
     virtual Color              GetColor() const override;
     virtual float              GetFontSize() const override;
     virtual VAlign             GetVAlign() const override;
-    virtual const Font        &GetFont() const override;
+    virtual const Font        *GetFont() const override;
 };
 
 class MyImage : public Image
@@ -168,8 +168,13 @@ public:
     virtual void SetZero(Vec2f pos) override;
     virtual Vec2f GetZero() const override;
 
+    virtual void SetClipRect(Rect2f rect) override;
+    virtual void RemoveClipRect() override;
+    virtual Rect2f GetClipRect() const override;
+
     int w, h;
     Vec2f pos, zero;
+    Rect2f clip_rect; // TODO
     SDL_Texture *t;
 };
 

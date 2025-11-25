@@ -16,8 +16,8 @@ namespace hui {
 class Desktop : public MyContainer
 {
 public:
-    Desktop(hui::State* state, dr4::Vec2f size, std::vector<pp::Tool*> tools);
-    ~Desktop();
+    Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp::Tool>>& tools);
+    virtual ~Desktop();
     dr4::Texture* giveTexture() const;
 
     // virtual void Redraw() override;
@@ -29,7 +29,7 @@ private:
     // WContainer *button_cont;
     // OptController* control;
 
-    std::vector<pp::Tool*> tools;
+    std::vector<std::unique_ptr<pp::Tool>>& tools;
 };
 
 }

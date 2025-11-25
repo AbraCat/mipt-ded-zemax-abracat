@@ -18,6 +18,9 @@ public:
     virtual void ShapeChanged(Shape *shape) override;
     virtual dr4::Window *GetWindow() override;
 
+    virtual void SetSelectedShape(Shape *shape) override;
+    virtual Shape *GetSelectedShape() const override;
+
     void DrawAllShapes();
 
 private:
