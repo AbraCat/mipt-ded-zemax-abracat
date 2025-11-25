@@ -1,10 +1,12 @@
 #ifndef I_CUM_MANAGER
 #define I_CUM_MANAGER
 
-#include "cum/plugin.hpp"
+#include <memory>
+#include <stdexcept>
 #include <string_view>
 #include <vector>
-
+#include <dlfcn.h>
+#include "cum/plugin.hpp"
 namespace cum {
 
 /**
@@ -15,15 +17,30 @@ namespace cum {
  * is not in a plugin.
  */
 class Manager {
-    std::vector<Plugin*> plugins;
+
+    // DO NOT REORDER!
+    // Otherwise .so handles will be destroyed before plugins,
+    // and nonexistent destructors will be called.
+    std::vector<std::unique_ptr<void, int (*)(void*)>> soHandles;
+    std::vector<std::unique_ptr<Plugin>> plugins;
+
+    typedef Plugin *(*CreatePluginFn)();
+
 public:
-    Manager();
-    ~Manager();
+
+    /** Exception thrown when `LoadFromFile()` fails. */
+    class LoadError : public std::runtime_error {
+        using std::runtime_error::runtime_error; // same constructor
+    };
+
+    /** Exception thrown when there is unmet dependency. */
+    class DependencyError : public std::runtime_error {
+        using std::runtime_error::runtime_error; // same constructor
+    };
 
     /**
      * @brief Load a plugin from file. 
-     * If plugin failed to load, will return NULL.
-     * TODO: report an error? Like "file does not exist".
+     * If file loading fails, will throw `LoadError`.
      */
     Plugin *LoadFromFile(const std::string_view path);
 
@@ -38,8 +55,8 @@ public:
      */
     template<typename Interface>
     Interface *GetAnyOfType() const {
-        for (auto plugin : plugins) {
-            Interface *impl = dynamic_cast<Interface>(plugin);
+        for (auto &plugin : plugins) {
+            Interface *impl = dynamic_cast<Interface*>(plugin.get());
             if (impl) return impl;
         }
         return NULL;
@@ -52,8 +69,8 @@ public:
     template<typename Interface>
     std::vector<Interface*> GetAllOfType() const {
         std::vector<Interface*> res;
-        for (auto plugin : plugins) {
-            Interface *impl = dynamic_cast<Interface>(plugin);
+        for (auto &plugin : plugins) {
+            Interface *impl = dynamic_cast<Interface*>(plugin.get());
             if (impl) res.push_back(impl);
         }
         return res;
@@ -62,7 +79,14 @@ public:
     /**
      * Get all the plugins
      */
-    const std::vector<Plugin*> GetAll() const;
+    const std::vector<std::unique_ptr<Plugin>> &GetAll() const;
+
+    /**
+     * All plugins which we want are now loaded.
+     * Check dependencies, runs `AfterLoad()`.
+     * If a dependency is missing, will throw `DependencyError`.
+     */
+    void TriggerAfterLoad();
 };
 
 };

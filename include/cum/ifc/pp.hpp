@@ -4,8 +4,9 @@
 #include "cum/plugin.hpp"
 #include "pp/canvas.hpp"
 #include "pp/tool.hpp"
+#include <memory>
 
-namespace pp {
+namespace cum {
 
 /**
  * @brief Plugin which provides tools for screenshotter.
@@ -13,14 +14,13 @@ namespace pp {
 class PPToolPlugin: public cum::Plugin {
 
 public:
-	
-    inline virtual ~PPToolPlugin() {};
+    inline virtual ~PPToolPlugin() = default;
 
     /** Create tools which will draw on given canvas */
-    virtual std::vector<pp::Tool*> CreateTools(Canvas *cvs);
+    virtual std::vector<std::unique_ptr<pp::Tool>> CreateTools(pp::Canvas *cvs) = 0;
 
 };
 
-}; // namespace hui
+}; // namespace cum
 
 #endif

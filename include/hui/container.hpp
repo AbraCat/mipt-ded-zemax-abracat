@@ -4,8 +4,6 @@
 #include "hui/event.hpp"
 #include "hui/widget.hpp"
 
-#include "hui/state.hpp" // non-standard
-
 namespace hui {
 
 /**
@@ -37,26 +35,25 @@ namespace hui {
  *
  */
 class Container : public Widget {
+
 public:
-    Container(State* state); // non-standard
+    Container(hui::UI *ui);
+    virtual ~Container();
 
 protected:
-
     void BecomeParentOf(Widget *child);
     void UnbecomeParentOf(Widget *child);
 
-    virtual EventResult PropogateToChildren(Event &event) = 0;
+    virtual EventResult PropagateToChildren(Event &event) = 0;
 
     // All those send the event to all children
-
-    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
-    virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
-    virtual EventResult OnMouseMove(MouseMoveEvent &evt) override;
-    virtual EventResult OnMouseWheel(MouseWheelEvent &evt) override;
-    virtual EventResult OnIdle(IdleEvent &evt) override;
-
+    EventResult OnMouseDown(MouseButtonEvent &evt) override;
+    EventResult OnMouseUp(MouseButtonEvent &evt) override;
+    EventResult OnMouseMove(MouseMoveEvent &evt) override;
+    EventResult OnMouseWheel(MouseWheelEvent &evt) override;
+    EventResult OnIdle(IdleEvent &evt) override;
 };
 
-};
+}; // namespace hui
 
-#endif
+#endif // I_HUI_CONTAINER

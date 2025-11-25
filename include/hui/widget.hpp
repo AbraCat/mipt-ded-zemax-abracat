@@ -1,5 +1,6 @@
 #ifndef I_HUI_WIDGET
 #define I_HUI_WIDGET
+#include <memory>
 
 #include "dr4/math/vec2.hpp"
 #include "dr4/math/rect.hpp"
@@ -9,7 +10,7 @@
 
 namespace hui {
 
-class State;
+class UI;
 class Container;
 class Event;
 
@@ -30,10 +31,11 @@ class Widget : public dr4::Drawable {
     /// @{
 
     friend class Container;
+    friend class UI;
 
 private:
     Widget *parent = nullptr;
-    State *const state;
+    UI *const ui;
 
     /// Set this widget's parent
     /// This is used by Container's BecomeParentOf()
@@ -41,11 +43,11 @@ private:
 
 public:
 
-    Widget(State *state_);
+    Widget(UI *ui_);
     virtual ~Widget();
 
     Widget *GetParent() const;
-    State *GetState() const;
+    UI *GetUI() const;
 
     /// @}
     //--------------------------------------------------------------------------
@@ -69,11 +71,16 @@ public:
     void SetSize(dr4::Vec2f size);
     dr4::Vec2f GetSize() const;
 
+    void SetPos(float x, float y) { SetPos(dr4::Vec2f(x, y)); }
     void SetPos(dr4::Vec2f pos) override final;
     dr4::Vec2f GetPos() const override final;
 
     void SetRect(dr4::Rect2f rect);
     dr4::Rect2f GetRect() const;
+
+
+    virtual dr4::Vec2f GetAbsolutePos() const;
+
 
     /// @}
     //--------------------------------------------------------------------------
@@ -84,11 +91,11 @@ public:
 
 private:
 
-    dr4::Texture *const texture;
+    const std::unique_ptr<dr4::Texture> texture;
 
     /// If true, Redraw() will be called inside next DrawOn()
     /// Because DrawOn() has const, this must be mutable.
-    mutable bool textureWillRedraw;
+    mutable bool textureWillRedraw = true;
 
     /// How much texture sticks out of the widget
     BorderMapped<float> extents;
@@ -97,7 +104,7 @@ protected:
 
     dr4::Texture &GetTexture() const;
     void SetTextureExtents(BorderMapped<float> extents_);
-    BorderMapped<float> &GetTextureExtents() const;
+    const BorderMapped<float> &GetTextureExtents() const;
 
     /**
      * @brief Redraw what is on the texture.
@@ -106,6 +113,7 @@ protected:
     virtual void Redraw() const;
 
 public:
+    dr4::Texture &GetFreshTexture();
 
     void DrawOn(dr4::Texture &texture) const override final;
     void ForceRedraw();
@@ -141,6 +149,7 @@ public:
     friend class KeyEvent;
     friend class TextEvent;
     friend class IdleEvent;
+    friend class HoverEvent;
 
 protected:
 
@@ -156,10 +165,9 @@ protected:
     virtual EventResult OnKeyDown(KeyEvent &evt);
     virtual EventResult OnKeyUp(KeyEvent &evt);
     virtual EventResult OnText(TextEvent &evt);
+
     virtual EventResult OnIdle(IdleEvent &evt);
-
     /// @}
-
 };
 
 }; // namespace hui
