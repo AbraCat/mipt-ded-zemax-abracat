@@ -26,6 +26,8 @@ private:
 
 extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
 
-}
+} // namespace cum
+
+extern "C" cum::Plugin *CreatePlugin();
 
 #endif // I_ABRACAT_DR4_PLUGIN

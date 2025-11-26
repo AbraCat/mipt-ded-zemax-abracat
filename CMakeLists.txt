@@ -47,14 +47,15 @@ add_subdirectory(sdl EXCLUDE_FROM_ALL)
 # target_link_libraries(main PRIVATE dr4_plugin pp_plugin)
 
 
+# TODO: libraries cum, dr4, hui, pp
 
-add_library(dr4_plugin SHARED src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
+add_library(dr4 SHARED src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
     src/window.cpp src/my-dr4-plugin.cpp)
-target_link_libraries(dr4_plugin PUBLIC SDL3::SDL3)
-target_include_directories(dr4_plugin PUBLIC ./include/ ./src)
+target_link_libraries(dr4 PUBLIC SDL3::SDL3)
+target_include_directories(dr4 PUBLIC ./include/ ./src)
 
-add_library(pp_plugin SHARED src/my-pp-plugin.cpp)
-target_include_directories(pp_plugin PUBLIC ./include/ ./src)
+add_library(pp SHARED src/my-pp-plugin.cpp)
+target_include_directories(pp PUBLIC ./include/ ./src)
 
 add_executable(main source/hui/widget.cpp source/hui/event.cpp source/hui/container.cpp source/hui/ui.cpp source/cum/manager.cpp
     src/main.cpp
@@ -64,4 +65,4 @@ add_executable(main source/hui/widget.cpp source/hui/event.cpp source/hui/contai
     )
 
 target_include_directories(main PRIVATE ./include/)
-target_link_libraries(main PRIVATE dr4_plugin pp_plugin)
+target_link_libraries(main PRIVATE dr4 pp)

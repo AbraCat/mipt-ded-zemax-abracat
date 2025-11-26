@@ -5,6 +5,8 @@
 #include "pp/canvas.hpp"
 #include "cum/ifc/pp.hpp"
 
+#include "dr4/window.hpp"
+
 #include <vector>
 
 namespace pp {
@@ -105,6 +107,8 @@ public:
     AbraCat_pp_plugin();
     virtual std::vector<std::unique_ptr<pp::Tool>> CreateTools(pp::Canvas *cvs) override;
 
+    void SetWindow(dr4::Window* window_);
+
     virtual std::string_view GetIdentifier() const override;
     virtual std::string_view GetName() const override;
     virtual std::string_view GetDescription() const override;
@@ -119,8 +123,9 @@ private:
 
 extern "C" AbraCat_pp_plugin* Create_PP_Plugin(void);
 
-
 } // namespace cum
+
+extern "C" cum::Plugin *CreatePlugin();
 
 
 #endif // ABRACAT_PP_PLUGIN_H

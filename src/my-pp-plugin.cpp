@@ -6,22 +6,13 @@
 #include <cmath>
 #include <cassert>
 
-extern dr4::Window* window = nullptr;
-
+static dr4::Window* window = nullptr;
 const dr4::Color shape_color(255, 0, 0);
 
+extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
+extern "C" cum::AbraCat_pp_plugin* Create_PP_Plugin(void) { return new cum::AbraCat_pp_plugin(); }
+
 namespace pp {
-
-// bool Shape::OnMouseDown(const dr4::Event::MouseButton &evt) { return false; }
-// bool Shape::OnMouseUp(const dr4::Event::MouseButton &evt) { return false; }
-// bool Shape::OnMouseMove(const dr4::Event::MouseMove &evt) { return false; }
-
-// void Shape::OnSelect() {}
-// void Shape::OnDeselect() {}
-
-// void Shape::DrawOn(dr4::Texture &tex) const {}
-
-
 
 MyShape::MyShape() {
     selected = false;
@@ -81,20 +72,6 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
     delete line;
 }
 
-
-
-
-// std::string_view Tool::Icon() const { return ""; };
-// std::string_view Tool::Name() const { return ""; }
-// bool Tool::IsCurrentlyDrawing() const { return false; }
-
-// void Tool::OnStart() {}
-// void Tool::OnBreak() {}
-// void Tool::OnEnd() {}
-
-// bool Tool::OnMouseDown(const dr4::Event::MouseButton &evt) { return false; }
-// bool Tool::OnMouseUp(const dr4::Event::MouseButton &evt) { return false; }
-// bool Tool::OnMouseMove(const dr4::Event::MouseMove &evt) { return false; }
 
 
 
@@ -190,6 +167,8 @@ cum::AbraCat_pp_plugin::AbraCat_pp_plugin() {
     name = description = "AbraCat pp plugin";
 }
 
+void cum::AbraCat_pp_plugin::SetWindow(dr4::Window* window_) { window = window_; }
+
 std::vector<std::unique_ptr<pp::Tool>> cum::AbraCat_pp_plugin::CreateTools(pp::Canvas *cvs) {
     std::vector<std::unique_ptr<pp::Tool>> tools;// = //{ new RectTool(), new CircleTool(), new LineTool() };
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::RectTool()));
@@ -213,7 +192,3 @@ std::vector<std::string_view> cum::AbraCat_pp_plugin::GetConflicts() const { ret
 void cum::AbraCat_pp_plugin::AfterLoad() {}
 
 } // namespace cum
-
-
-
-extern "C" cum::AbraCat_pp_plugin* Create_PP_Plugin(void) { return new cum::AbraCat_pp_plugin(); }

@@ -3,6 +3,7 @@
 #include "dr4/math/color.hpp"
 #include "cum/ifc/dr4.hpp"
 
+#include "cum/manager.hpp"
 #include "cum/ifc/pp.hpp"
 #include "mycanvas.h"
 
@@ -10,6 +11,10 @@
 
 #include "optical-scene.h"
 #include "desktop.h"
+
+#include "my-pp-plugin.h"
+
+#include <cassert>
 
 extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
 extern "C" cum::PPToolPlugin* Create_PP_Plugin(void);
@@ -54,10 +59,21 @@ int iterate_app(hui::Widget* root_widget, dr4::Texture* main_texture, pp::MyCanv
     return 0;
 }
 
+void setWindow(cum::Plugin* pp_plugin) {
+    cum::AbraCat_pp_plugin* my_pp_plugin = dynamic_cast<cum::AbraCat_pp_plugin*>(pp_plugin);
+    assert(my_pp_plugin != nullptr);
+    my_pp_plugin->SetWindow(window);
+}
+
 int main()
 {
     srand(1);
-    cum::DR4BackendPlugin* dr4_plugin = CreateDR4Backend();
+    cum::Manager* manager = new cum::Manager();
+    assert(manager->LoadFromFile("libdr4.so") != nullptr);
+    assert(manager->LoadFromFile("libpp.so") != nullptr);
+
+    cum::DR4BackendPlugin* dr4_plugin = manager->GetAnyOfType<cum::DR4BackendPlugin>();
+    assert(dr4_plugin != nullptr);
 
     window = dr4_plugin->CreateWindow();
     window->Open();
@@ -65,9 +81,12 @@ int main()
     main_texture->SetSize(desktop_w, desktop_h);
 
     hui::UI* state = new hui::UI(window);
-
     pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h), main_texture);
-    cum::PPToolPlugin* pp_plugin = Create_PP_Plugin();
+
+    cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
+    assert(pp_plugin != nullptr);
+    setWindow(pp_plugin);
+
     std::vector<std::unique_ptr<pp::Tool>> tools = pp_plugin->CreateTools(canvas);
 
     hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tools);
