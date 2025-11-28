@@ -6,15 +6,13 @@
 #include <cmath>
 #include <cassert>
 
-static dr4::Window* window = nullptr;
 const dr4::Color shape_color(255, 0, 0);
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
-extern "C" cum::AbraCat_pp_plugin* Create_PP_Plugin(void) { return new cum::AbraCat_pp_plugin(); }
 
 namespace pp {
 
-MyShape::MyShape() {
+MyShape::MyShape(Canvas* canvas) : canvas(canvas), window(canvas->GetWindow()) {
     selected = false;
     pos = size = dr4::Vec2f();
 }
@@ -30,7 +28,7 @@ void MyShape::OnDeselect() { selected = false; }
 
 
 
-RectShape::RectShape() : MyShape() {
+RectShape::RectShape(Canvas* canvas) : MyShape(canvas) {
     //
 }
 
@@ -42,7 +40,7 @@ void RectShape::DrawOn(dr4::Texture &tex) const {
     tex.Draw(*rect);
 }
 
-CircleShape::CircleShape() : MyShape() {
+CircleShape::CircleShape(Canvas* canvas) : MyShape(canvas) {
     //
 }
 
@@ -57,7 +55,7 @@ void CircleShape::DrawOn(dr4::Texture &tex) const {
     delete circle;
 }
 
-LineShape::LineShape() : MyShape() {
+LineShape::LineShape(Canvas* canvas) : MyShape(canvas) {
     //
 }
 
@@ -134,7 +132,7 @@ RectTool::RectTool() : MyTool() {
 std::string_view RectTool::Icon() const { return "R"; }
 std::string_view RectTool::Name() const { return "Rect"; }
 
-MyShape* RectTool::createShape() { return new RectShape(); }
+MyShape* RectTool::createShape() { return new RectShape(canvas); }
 
 
 
@@ -145,7 +143,7 @@ CircleTool::CircleTool() : MyTool() {
 std::string_view CircleTool::Icon() const { return "C"; }
 std::string_view CircleTool::Name() const { return "Circle"; }
 
-MyShape* CircleTool::createShape() { return new CircleShape(); }
+MyShape* CircleTool::createShape() { return new CircleShape(canvas); }
 
 
 
@@ -156,7 +154,7 @@ LineTool::LineTool() : MyTool() {
 std::string_view LineTool::Icon() const { return "L"; }
 std::string_view LineTool::Name() const { return "Line"; }
 
-MyShape* LineTool::createShape() { return new LineShape(); }
+MyShape* LineTool::createShape() { return new LineShape(canvas); }
 
 
 } // namespace pp
@@ -167,10 +165,8 @@ cum::AbraCat_pp_plugin::AbraCat_pp_plugin() {
     name = description = "AbraCat pp plugin";
 }
 
-void cum::AbraCat_pp_plugin::SetWindow(dr4::Window* window_) { window = window_; }
-
 std::vector<std::unique_ptr<pp::Tool>> cum::AbraCat_pp_plugin::CreateTools(pp::Canvas *cvs) {
-    std::vector<std::unique_ptr<pp::Tool>> tools;// = //{ new RectTool(), new CircleTool(), new LineTool() };
+    std::vector<std::unique_ptr<pp::Tool>> tools;
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::RectTool()));
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::CircleTool())); 
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::LineTool()));

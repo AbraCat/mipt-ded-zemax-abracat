@@ -1,7 +1,7 @@
 #ifndef MY_BUTTON_H
 #define MY_BUTTON_H
 
-#include "widget.h"
+// #include "widget.h"
 #include "reactor.h"
 
 #include "hui/widget.hpp"
@@ -29,23 +29,25 @@ private:
     std::string text;
 };
 
-// class InputField : public TextField
-// {
-// public:
-//     InputField(Widget* parent, Vector tl, Vector br, std::string text);
+class InputField : public TextField
+{
+public:
+    InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
 
-//     virtual bool mousePressEvent(MouseEvent* e) override;
-//     virtual bool keyboardEvent(KeyboardEvent* evt) override;
+    // virtual bool mousePressEvent(MouseEvent* e) override;
+    // virtual bool keyboardEvent(KeyboardEvent* evt) override;
+    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
+    virtual EventResult OnKeyDown(KeyEvent &evt) override;
 
-//     void update_text();
-//     virtual void action() = 0;
+    void update_text();
+    virtual void action() = 0;
 
-//     void setValidator(std::function<bool(std::string)> text_valid);
+    void setValidator(std::function<bool(std::string)> text_valid);
 
-//     bool focused;
-//     std::string init_text;
-//     std::function<bool(std::string)> text_valid;
-// };
+    bool focused;
+    std::string init_text;
+    std::function<bool(std::string)> text_valid;
+};
 
 class Button : public TextField
 {

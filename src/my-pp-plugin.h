@@ -13,7 +13,7 @@ namespace pp {
 
 class MyShape : public Shape {
 public:
-    MyShape();
+    MyShape(Canvas* canvas);
 
     void SetPos(dr4::Vec2f pos) override;
     dr4::Vec2f GetPos() const override;
@@ -26,23 +26,25 @@ public:
 protected:
     bool selected;
     dr4::Vec2f pos, size;
+    dr4::Window* window;
+    Canvas* canvas;
 };
 
 class RectShape : public MyShape {
 public:
-    RectShape();
+    RectShape(Canvas* canvas);
     virtual void DrawOn(dr4::Texture &tex) const override;
 };
 
 class CircleShape : public MyShape {
 public:
-    CircleShape();
+    CircleShape(Canvas* canvas);
     virtual void DrawOn(dr4::Texture &tex) const override;
 };
 
 class LineShape : public MyShape {
 public:
-    LineShape();
+    LineShape(Canvas* canvas);
     virtual void DrawOn(dr4::Texture &tex) const override;
 };
 
@@ -68,6 +70,7 @@ protected:
     bool is_drawing, is_selected;
     Canvas* canvas;
     MyShape* cur_shape;
+    dr4::Window* window;
 };
 
 class RectTool : public MyTool {
@@ -107,8 +110,6 @@ public:
     AbraCat_pp_plugin();
     virtual std::vector<std::unique_ptr<pp::Tool>> CreateTools(pp::Canvas *cvs) override;
 
-    void SetWindow(dr4::Window* window_);
-
     virtual std::string_view GetIdentifier() const override;
     virtual std::string_view GetName() const override;
     virtual std::string_view GetDescription() const override;
@@ -120,8 +121,6 @@ private:
     std::string name, description;
     // std::string_view descr_view;
 };
-
-extern "C" AbraCat_pp_plugin* Create_PP_Plugin(void);
 
 } // namespace cum
 

@@ -11,11 +11,12 @@
 #include <cmath>
 #include <cassert>
 
+const dr4::Color gray_color(127, 127, 127);
 const Vector sky_col = {0, 0.5, 0.75}, init_V = {0, 0, 10}, init_screen_tl = {-2, -1.15, 4};
 
 const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1;
 
-const int scene_w = 1000, scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
+const int scene_w = 500, scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
     obj_button_h = obj_list_w / 1.4, properties_h = scene_h * 0.7, obj_scroll_w = 50, 
     properties_w = 400, properties_left = scene_w + obj_list_w + obj_scroll_w,
     n_camera_buttons = 6, n_move_buttons = 6, max_n_objects = 10;
@@ -28,6 +29,10 @@ std::string doubleToStr(double val)
     out << std::fixed << val;
     return std::move(out).str();
 }
+
+namespace hui {
+
+#if 0
 
 ObjControlPanel::ObjControlPanel(Widget* parent, Vector tl, Vector br)
     : Widget(tl, br, parent)
@@ -152,55 +157,58 @@ void DeleteObjectButton::action()
     obj->scene->control->deleteObject(obj);
 }
 
-MoveCameraButton::MoveCameraButton(Widget* parent, OptScene* scene, Vector change, Vector color, std::string text)
-    : Button(parent, Vector(), Vector(), color, text), scene(scene), change(change)
+#endif // 0
+
+MoveCameraButton::MoveCameraButton(UI* ui, OptScene* scene, Vector change, dr4::Color color, std::string text)
+    : Button(ui, dr4::Vec2f(), dr4::Vec2f(), color, text), scene(scene), change(change)
 {
-    
+    //
 }
 
 void MoveCameraButton::action()
 {
     scene->moveCamera(change);
+    scene->ForceRedraw();
 }
 
 
-
-
-OptController::OptController(Widget* parent) : parent(parent)
+OptController::OptController(UI* ui, MyContainer* parent) : parent(parent)
 {
     // s = new OptScene(parent, {0, 0}, {scene_w, scene_h}, this);
-    s = nullptr;
+    s = new OptScene(ui, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
+    parent->addChild(s);
 
-    panel = new ObjControlPanel(parent, {properties_left, 0},
-        {properties_left + properties_w, scene_h + button_h});
+    // panel = new ObjControlPanel(parent, {properties_left, 0},
+    //     {properties_left + properties_w, scene_h + button_h});
 
-    cam_cont = new WContainer(parent, {0, scene_h}, {scene_w, scene_h + button_h}, n_camera_buttons, 0);
-    new MoveCameraButton(cam_cont, s, {0, 0, -cam_change_z}, gray_v, "forward");
-    new MoveCameraButton(cam_cont, s, {0, 0, cam_change_z}, gray_v, "back");
-    new MoveCameraButton(cam_cont, s, {-cam_change_x, 0, 0}, gray_v, "left");
-    new MoveCameraButton(cam_cont, s, {cam_change_x, 0, 0}, gray_v, "right");
-    new MoveCameraButton(cam_cont, s, {0, -cam_change_y, 0}, gray_v, "up");
-    new MoveCameraButton(cam_cont, s, {0, cam_change_y, 0}, gray_v, "down");
+    cam_cont = new WContainer(ui, {0, scene_h}, {scene_w, button_h}, n_camera_buttons, 0);
+    parent->addChild(cam_cont);
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, 0, -cam_change_z}, gray_color, "forward"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, 0, cam_change_z}, gray_color, "back"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {-cam_change_x, 0, 0}, gray_color, "left"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {cam_change_x, 0, 0}, gray_color, "right"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, -cam_change_y, 0}, gray_color, "up"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, cam_change_y, 0}, gray_color, "down"));
 
-    obj_cont = makeObjectContainer({scene_w, 0}, {scene_w + obj_list_w, scene_h + button_h});
-    obj_scroll = new ListScrollBar(parent, {scene_w + obj_list_w, 0},
-        {scene_w + obj_list_w + obj_scroll_w, scene_h + button_h}, obj_cont);
+    // obj_cont = makeObjectContainer({scene_w, 0}, {scene_w + obj_list_w, scene_h + button_h});
+    // obj_scroll = new ListScrollBar(parent, {scene_w + obj_list_w, 0},
+    //     {scene_w + obj_list_w + obj_scroll_w, scene_h + button_h}, obj_cont);
 }
 
-WList* OptController::makeObjectContainer(Vector tl, Vector br)
-{
-    int n_objects = s->surfaces.size() + s->sources.size();
+// WList* OptController::makeObjectContainer(Vector tl, Vector br)
+// {
+//     int n_objects = s->surfaces.size() + s->sources.size();
 
-    this->obj_cont = new WList(parent, tl, br, 1, obj_button_h);
+//     this->obj_cont = new WList(parent, tl, br, 1, obj_button_h);
     
-    for (OptObject* obj: s->surfaces)
-        new OptObjectButton(obj_cont, {}, {}, obj, panel);
-    for (OptObject* obj: s->sources)
-        new OptObjectButton(obj_cont, {}, {}, obj, panel);
-    return obj_cont;
+//     for (OptObject* obj: s->surfaces)
+//         new OptObjectButton(obj_cont, {}, {}, obj, panel);
+//     for (OptObject* obj: s->sources)
+//         new OptObjectButton(obj_cont, {}, {}, obj, panel);
+//     return obj_cont;
 
-    return nullptr;
-}
+//     return nullptr;
+// }
 
 void OptController::select(OptObject* obj)
 {
@@ -216,13 +224,13 @@ void OptController::deselect(OptObject* obj)
 
 void OptController::selected_changed()
 {
-    if (s->selected.size() == 1)
-        panel->setObject(*(s->selected).begin());
-    else
-        panel->setObject(nullptr);
+    // if (s->selected.size() == 1)
+    //     panel->setObject(*(s->selected).begin());
+    // else
+    //     panel->setObject(nullptr);
 
-    s->redraw_picture = 0;
-    s->updateTexture();
+    // s->redraw_picture = 0;
+    // s->updateTexture();
 }
 
 void OptController::deleteObject(OptObject* obj)
@@ -246,23 +254,23 @@ void OptController::deleteObject(OptObject* obj)
     }
 
     s->selected.erase(obj);
-    panel->setObject(nullptr);
+    // panel->setObject(nullptr);
 
-    obj_cont->removeChildByPredicate([obj](Widget* w){
-        OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
-        assert(button != nullptr);
-        return button->obj == obj;
-    });
-    obj_scroll->moveThumb(0);
+    // obj_cont->removeChildByPredicate([obj](Widget* w){
+    //     OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
+    //     assert(button != nullptr);
+    //     return button->obj == obj;
+    // });
+    // obj_scroll->moveThumb(0);
 
-    delete obj;
-    obj_cont->updateTextureRec();
-    s->updateTexture();
+    // delete obj;
+    // obj_cont->updateTextureRec();
+    // s->updateTexture();
 }
 
 void OptController::addObject(OptObject* obj)
 {
-    new OptObjectButton(obj_cont, {}, {}, obj, panel);
+    // new OptObjectButton(obj_cont, {}, {}, obj, panel);
 }
 
 std::vector<Surface*>::iterator OptController::addSphere(Vector pos, Vector color, double r, Material m)
@@ -284,3 +292,5 @@ std::vector<Source*>::iterator OptController::addSource(Vector pos, Vector color
     addObject(new_source);
     return s->sources.end() - 1;
 }
+
+} // namespace hui

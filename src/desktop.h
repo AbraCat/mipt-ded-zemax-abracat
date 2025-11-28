@@ -1,10 +1,8 @@
 #ifndef MY_APP_H
 #define MY_APP_H
 
-#include "widget.h"
 #include "button.h"
-// #include "optical-control.h"
-#include "optical-scene.h"
+#include "optical-control.h"
 
 #include "hui/widget.hpp"
 #include "wcontainer.h"
@@ -15,6 +13,7 @@ namespace hui {
 
 class Desktop : public MyContainer
 {
+    friend class OptController;
 public:
     Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp::Tool>>& tools);
     virtual ~Desktop();
@@ -27,7 +26,7 @@ public:
 
 private:
     // WContainer *button_cont;
-    // OptController* control;
+    OptController* control;
 
     std::vector<std::unique_ptr<pp::Tool>>& tools;
 };

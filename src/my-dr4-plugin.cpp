@@ -6,7 +6,6 @@ const int window_w = 1920, window_h = 1000;
 namespace cum {
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_DR4Backend(); }
-extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void) { return new cum::AbraCat_DR4Backend(); }
 
 AbraCat_DR4Backend::AbraCat_DR4Backend()
 {

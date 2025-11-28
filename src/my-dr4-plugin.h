@@ -24,8 +24,6 @@ private:
     // std::string_view descr_view;
 };
 
-extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
-
 } // namespace cum
 
 extern "C" cum::Plugin *CreatePlugin();

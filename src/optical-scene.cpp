@@ -10,6 +10,8 @@
 #include <cmath>
 #include <cassert>
 
+#include <SDL3/SDL.h>
+
 extern dr4::Window* window;
 
 const double ratio = 16.0 / 9.0, screen_size = 4, obj_change = 1;
@@ -25,12 +27,13 @@ bool d = 0;
 struct RenderThreadData
 {
     OptScene* scene;
+    dr4::Image* img;
     int thread_num;
     std::vector<IntVec>* thread_pix;
 };
 
-// void OptScene::updateTexture()
-// {
+void OptScene::Redraw2() const
+{
     // t->clear();
     // for (OptObject* obj: selected)
     // {
@@ -45,70 +48,70 @@ struct RenderThreadData
     //     return;
     // }
 
-    // pix_queue = std::vector<IntVec>(width * height);
-    // for (int y = 0; y < height; ++y)
-    //     for (int x = 0; x < width; ++x)
-    //         pix_queue[y * width + x] = IntVec(x, y);
+    pix_queue = std::vector<IntVec>(GetSize().x * GetSize().y + 1);
+    for (int y = 0; y < GetSize().y; ++y)
+        for (int x = 0; x < GetSize().x; ++x)
+            pix_queue[y * GetSize().x + x] = IntVec(x, y);
 
-    // std::random_device rd;
-    // std::mt19937 g(rd());
-    // std::shuffle(pix_queue.begin(), pix_queue.end(), g);
-// }
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(pix_queue.begin(), pix_queue.end(), g);
+}
 
-// int calcIdleThread(void* void_data)
-// {
-//     RenderThreadData* data = (RenderThreadData*)void_data;
-//     OptScene* s = data->scene;
+int calcIdleThread(void* void_data)
+{
+    RenderThreadData* data = (RenderThreadData*)void_data;
+    OptScene* s = data->scene;
 
-//     for (IntVec pix: *(data->thread_pix))
-//     {
-//         Vector p = s->pixels_to_screen(pix);
+    for (IntVec pix: *(data->thread_pix))
+    {
+        Vector p = s->pixels_to_screen(pix);
 
-//         Ray ray(s->V, p - s->V);
-//         Vector color = s->traceRay(ray, 0);
+        Ray ray(s->V, p - s->V);
+        Vector color = s->traceRay(ray, 0) * 255;
 
-//         s->pix_texture->setPix(pix.x, pix.y, color * 255);
-//     }
+        data->img->SetPixel(pix.x, pix.y, dr4::Color(color.x, color.y, color.z));
+    }
 
-//     return 0;
-// }
+    return 0;
+}
 
-// bool OptScene::onIdle(IdleEvent* evt)
-// {
-//     if (pix_queue.size() == 0) return 0;
+hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
+    if (pix_queue.size() == 0) return hui::EventResult::UNHANDLED;
 
-//     std::vector<std::vector<IntVec>> thread_pix(n_threads, std::vector<IntVec>());
-//     std::vector<SDL_Thread*> threads;
-//     RenderThreadData* thread_data = new RenderThreadData[n_threads];
+    std::vector<std::vector<IntVec>> thread_pix(n_threads, std::vector<IntVec>());
+    std::vector<SDL_Thread*> threads;
+    RenderThreadData* thread_data = new RenderThreadData[n_threads];
 
-//     for (int thread_num = 0; thread_num < n_threads; ++thread_num)
-//     {
-//         if (pix_queue.size() == 0) break;
+    for (int thread_num = 0; thread_num < n_threads; ++thread_num)
+    {
+        if (pix_queue.size() == 0) break;
 
-//         for (int n_pix = 0; n_pix < pix_per_frame; ++n_pix)
-//         {
-//             thread_pix[thread_num].push_back(pix_queue.back());
-//             pix_queue.pop_back();
-//             if (pix_queue.size() == 0) break;
-//         }
+        for (int n_pix = 0; n_pix < pix_per_frame; ++n_pix)
+        {
+            thread_pix[thread_num].push_back(pix_queue.back());
+            pix_queue.pop_back();
+            if (pix_queue.size() == 0) break;
+        }
 
-//         thread_data[thread_num].scene = this;
-//         thread_data[thread_num].thread_num = thread_num;
-//         thread_data[thread_num].thread_pix = &thread_pix[thread_num];
+        thread_data[thread_num].scene = this;
+        thread_data[thread_num].img = img; // TODO
+        thread_data[thread_num].thread_num = thread_num;
+        thread_data[thread_num].thread_pix = &thread_pix[thread_num];
 
-//         threads.push_back(SDL_CreateThread(calcIdleThread,
-//             std::to_string(thread_num).c_str(), &thread_data[thread_num]));
-//     }
+        threads.push_back(SDL_CreateThread(calcIdleThread,
+            std::to_string(thread_num).c_str(), &thread_data[thread_num]));
+    }
 
-//     for (int thread_num = 0; thread_num < n_threads; ++thread_num)
-//     {
-//         int status = 0;
-//         SDL_WaitThread(threads[thread_num], &status);
-//         assert(status == 0);
-//     }
+    for (int thread_num = 0; thread_num < n_threads; ++thread_num)
+    {
+        int status = 0;
+        SDL_WaitThread(threads[thread_num], &status);
+        assert(status == 0);
+    }
 
-//     return 0;
-// }
+    return hui::EventResult::UNHANDLED;
+}
 
 Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light)
 {
@@ -125,6 +128,8 @@ OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f si
     SetPos(pos);
     SetSize(size);
 
+    img = window->CreateImage();
+    img->SetSize(size);
     size_x = GetTexture().GetSize().x, size_y = GetTexture().GetSize().y;
 
     V = init_V;
@@ -154,16 +159,6 @@ dr4::Texture* OptScene::getTexture() const { return &GetTexture(); }
 
 void OptScene::Redraw() const
 {
-    // for (IntVec pix: *(data->thread_pix))
-//     {
-//         Vector p = s->pixels_to_screen(pix);
-
-//         Ray ray(s->V, p - s->V);
-//         Vector color = s->traceRay(ray, 0);
-
-//         s->pix_texture->setPix(pix.x, pix.y, color * 255);
-//     }
-
     dr4::Image* img = window->CreateImage();
     img->SetSize(dr4::Vec2f(size_x, size_y));
 

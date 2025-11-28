@@ -151,11 +151,25 @@ dr4::Event getMouseButtonEvent(SDL_Event event)
     return evt;
 }
 
-dr4::KeyCode getKeyCode(SDL_Keycode key)
+dr4::KeyCode getKeyCode(SDL_Keycode sdl_key)
 {
-    return dr4::KeyCode::KEYCODE_A;
+    int dr4_key = dr4::KeyCode::KEYCODE_UNKNOWN;
 
-    //
+    #define RANGE(lft, rgt, init)\
+    if (sdl_key >= lft && sdl_key <= rgt)\
+        dr4_key = init + sdl_key - lft;
+        
+    RANGE(SDLK_0, SDLK_9, dr4::KeyCode::KEYCODE_NUM0);
+    RANGE(SDLK_A, SDLK_Z, dr4::KeyCode::KEYCODE_A);
+
+    switch (sdl_key) {
+        case SDLK_BACKSPACE: dr4_key = dr4::KeyCode::KEYCODE_BACKSPACE; break;
+        case SDLK_RETURN: dr4_key = dr4::KeyCode::KEYCODE_ENTER; break;
+        case SDLK_ESCAPE: dr4_key = dr4::KeyCode::KEYCODE_ESCAPE; break;
+        case SDLK_PERIOD: dr4_key = dr4::KeyCode::KEYCODE_PERIOD; break;
+    }
+
+    return (dr4::KeyCode)dr4_key;
 }
 
 uint16_t getKeyMode(SDL_Keymod mod)

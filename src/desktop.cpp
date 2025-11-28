@@ -33,8 +33,9 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp
     SetSize(size);
 
 
-    OptScene* scene = new OptScene(state, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
-    addChild(scene);
+    // OptScene* scene = new OptScene(state, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
+    // addChild(scene);
+    control = new OptController(state, this);
 
     for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {
         std::unique_ptr<pp::Tool>& tool = tools[n_tool];
@@ -44,6 +45,9 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp
 
         addChild(tool_button);
     }
+
+    // InputField* field = new InputField(state, dr4::Vec2f(0, 600), dr4::Vec2f(200, 100), dr4::Color(0, 0, 0), "aboba");
+    // addChild(field);
 }
 
 Desktop::~Desktop()

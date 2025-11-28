@@ -136,7 +136,8 @@ void UI::ProcessEvent(dr4::Event &dr4Event) {
             }
         case dr4::Event::Type::QUIT: break;
         default:
-            std::cerr << "unknown event : " << static_cast<int>(dr4Event.type) << "\n";
+            // std::cerr << "unknown event : " << static_cast<int>(dr4Event.type) << "\n";
+            break;
     }
 }
 

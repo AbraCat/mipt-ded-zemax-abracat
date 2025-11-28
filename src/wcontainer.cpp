@@ -28,8 +28,6 @@ EventResult MyContainer::PropagateToChildren(Event &event) {
     return EventResult::UNHANDLED;
 }
 
-} // namespace hui
-
 
 
 // hui::ContainerWidget::ContainerWidget(hui::State *state, dr4::Vec2f pos, dr4::Vec2f size)
@@ -88,47 +86,63 @@ EventResult MyContainer::PropagateToChildren(Event &event) {
 
 
 
+WContainer::WContainer(UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int nChildren, bool vertical)
+    : MyContainer(ui)
+{
+    SetSize(size);
+    SetPos(pos);
+    // setWidgetBorderVisible(1);
+    this->vertical = vertical;
+    this->nChildren = nChildren;
+    this->padding = 0;
 
-// WContainer::WContainer(Widget* parent, Vector tl, Vector br, int nChildren, bool vertical)
-//     : Widget(tl, br, parent)
-// {
-//     setWidgetBorderVisible(1);
-//     this->vertical = vertical;
-//     this->nChildren = nChildren;
-//     this->padding = 0;
+    if (vertical)
+    {
+        this->childHeight = (size.y - padding * (nChildren + 1)) / nChildren;
+        this->childWidth = size.x - 2 * padding;
+    }
+    else
+    {
+        this->childWidth = (size.x - padding * (nChildren + 1)) / nChildren;
+        this->childHeight = size.y - 2 * padding;
+    }
+}
 
-//     if (vertical)
-//     {
-//         this->childHeight = (height - padding * (nChildren + 1)) / nChildren;
-//         this->childWidth = width - 2 * padding;
-//     }
-//     else
-//     {
-//         this->childWidth = (width - padding * (nChildren + 1)) / nChildren;
-//         this->childHeight = height - 2 * padding;
-//     }
-// }
+void WContainer::resizeChild(int nChild)
+{
+    Widget* w = children[nChild];
 
-// void WContainer::resizeChild(int nChild)
-// {
-//     Widget* w = children[nChild];
+    // if (vertical) w->resize(Vector(padding, padding * (nChild + 1) + childHeight * nChild), 
+    //     Vector(wh.x - padding, (padding + childHeight) * (nChild + 1)));
 
-//     if (vertical) w->resize(Vector(padding, padding * (nChild + 1) + childHeight * nChild), 
-//         Vector(wh.x - padding, (padding + childHeight) * (nChild + 1)));
+    // else w->resize(Vector(padding * (nChild + 1) + childWidth * nChild, padding), 
+    //     Vector((padding + childWidth) * (nChild + 1), wh.y - padding));
 
-//     else w->resize(Vector(padding * (nChild + 1) + childWidth * nChild, padding), 
-//         Vector((padding + childWidth) * (nChild + 1), wh.y - padding));
-// }
+    if (vertical) {
+        // w->resize(Vector(padding, padding * (nChild + 1) + childHeight * nChild), 
+        // Vector(wh.x - padding, (padding + childHeight) * (nChild + 1)));
 
-// void WContainer::addWidget(Widget* w)
-// {
-//     // assert(children.size() < nChildren);
-//     int nChild = children.size();
-//     Widget::addWidget(w);
+        w->SetPos(dr4::Vec2f(padding, padding * (nChild + 1) + childHeight * nChild));
+        w->SetSize(dr4::Vec2f(GetSize().x - padding * 2, childHeight));
+    }
+    else {
+        // w->resize(Vector(padding * (nChild + 1) + childWidth * nChild, padding), 
+        // Vector((padding + childWidth) * (nChild + 1), wh.y - padding));
 
-//     w->t->setVisibleIn(this);
-//     resizeChild(nChild);    
-// }
+        w->SetPos(dr4::Vec2f(padding * (nChild + 1) + childWidth * nChild, padding));
+        w->SetSize(dr4::Vec2f(childWidth, GetSize().y - padding * 2));
+    }
+}
+
+void WContainer::addChild(Widget* w)
+{
+    // assert(children.size() < nChildren);
+    int nChild = children.size();
+    MyContainer::addChild(w);
+
+    // w->t->setVisibleIn(this);
+    resizeChild(nChild);    
+}
 
 
 
@@ -191,3 +205,5 @@ EventResult MyContainer::PropagateToChildren(Event &event) {
 //     return e->dispatch(this);
 // }
 
+
+} // namespace hui

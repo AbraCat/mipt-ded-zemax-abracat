@@ -1,15 +1,13 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <SDL3/SDL.h>
-
 #include <vector>
 #include <string>
 #include <functional>
 
 #include "myvector.h"
 #include "event.h"
-#include "texture.h"
+#include "dr4/texture.hpp"
 
 class Widget;
 class Event;
@@ -75,7 +73,7 @@ public:
     virtual bool mouseReleaseEvent(MouseEvent* e);
     virtual bool keyboardEvent(KeyboardEvent* e);
 // protected:
-    Texture *t;
+    dr4::Texture *t;
 
     Vector tl, br, wh, absTL;
     int width, height;

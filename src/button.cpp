@@ -1,7 +1,8 @@
 #include "button.h"
-#include "sdl-adapter.h"
+// #include "sdl-adapter.h"
 
 #include "dr4/window.hpp"
+#include "hui/ui.hpp"
 
 #include <cassert>
 
@@ -38,8 +39,8 @@ void TextField::Redraw() const
     GetTexture().Draw(*text_drawable);
 }
 
-void TextField::SetFieldColor(dr4::Color color) { this->color = color; }//Redraw(); }
-void TextField::SetText(std::string text) { this->text = text; }//Redraw(); }
+void TextField::SetFieldColor(dr4::Color color) { this->color = color; ForceRedraw(); }//Redraw(); }
+void TextField::SetText(std::string text) { this->text = text; ForceRedraw(); }//Redraw(); }
 std::string TextField::getText() { return text; }
 
 
@@ -122,57 +123,81 @@ EventResult ToggleButton::OnMouseUp(MouseButtonEvent &evt)
 
 
 
-#if 0
+#if 1
 
-InputField::InputField(Widget* parent, Vector tl, Vector br, std::string text)
-    : TextField(parent, tl, br, text)
+char KeycodeToChar(dr4::KeyCode code) {
+    char chr = '\0';
+
+    if (code >= dr4::KeyCode::KEYCODE_A && code <= dr4::KeyCode::KEYCODE_Z) {
+        chr = 'a' + code - dr4::KeyCode::KEYCODE_A;
+    }
+    if (code >= dr4::KeyCode::KEYCODE_NUM0 && code <= dr4::KeyCode::KEYCODE_NUM9) {
+        chr = '0' + code - dr4::KeyCode::KEYCODE_NUM0;
+    }
+
+    switch (code) {
+        case dr4::KeyCode::KEYCODE_PERIOD: chr = '.'; break;
+    }
+
+    return chr;
+}
+
+InputField::InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text)
+    : TextField(state, pos, size)
 {
     focused = 0;
     this->text_valid = std::function([](std::string s){ return true; });
+    SetFieldColor(color);
+    SetText(text);
 }
 
-bool InputField::mousePressEvent(MouseEvent* e)
+EventResult InputField::OnMouseDown(MouseButtonEvent &evt)
 {
-    bool in_abs_rect = inAbsRect({e->x, e->y});
+    bool in_abs_rect = GetRect().Contains(evt.pos);//inAbsRect({e->x, e->y});
 
     if (in_abs_rect && !focused)
     {
-        state->focused = this;
+        // state->focused = this;
+        GetUI()->ReportFocus(this);
         focused = true;
 
-        SetFieldColor(gray_v);
+        SetFieldColor(dr4::Color(127, 127, 127)); // gray
         init_text = getText();
-        return 0;
+        return EventResult::UNHANDLED;
     }
 
     if (!in_abs_rect && focused)
         update_text();
 
-    return 0;
+    return EventResult::UNHANDLED;
 }
 
-bool InputField::keyboardEvent(KeyboardEvent* evt)
+EventResult InputField::OnKeyDown(KeyEvent &evt)
 {
-    if (evt->key == key_enter)
+    if (evt.key == dr4::KeyCode::KEYCODE_ENTER)
     {
         update_text();
-        return 1;
+        return EventResult::HANDLED;
     }
 
     std::string cur_text = getText();
-    if (evt->key == SDLK_BACKSPACE)
+    if (evt.key == dr4::KeyCode::KEYCODE_BACKSPACE)
         SetText(cur_text.substr(0, cur_text.size() - 1));
-    else
-        SetText(getText() + std::string(1, evt->key));
+    else {
+        char chr = KeycodeToChar(evt.key);
+        if (chr != '\0')
+            SetText(getText() + std::string(1, KeycodeToChar(evt.key)));
+    }
 
-    return 1;
+    return EventResult::HANDLED;
 }
 
 void InputField::update_text()
 {
-    SetFieldColor(blackV);
+    SetFieldColor(dr4::Color(0, 0, 0)); // black
     focused = 0;
-    if (state->focused == this) state->focused = nullptr;
+    // if (state->focused == this) state->focused = nullptr;
+    if (GetUI()->GetFocused() == this) GetUI()->ReportFocus(nullptr);
 
     std::string new_text = getText();
     if (getText() != init_text)

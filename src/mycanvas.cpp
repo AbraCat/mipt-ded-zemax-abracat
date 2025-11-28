@@ -1,5 +1,5 @@
 #include "mycanvas.h"
-#include "mywindow.h"
+// #include "mywindow.h"
 
 #include <cassert>
 

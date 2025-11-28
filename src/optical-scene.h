@@ -27,6 +27,8 @@ public:
     OptScene(hui::UI* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size);
     // void updateTexture();
     // virtual bool onIdle(IdleEvent* evt) override;
+    virtual hui::EventResult OnIdle(hui::IdleEvent &evt) override;
+    
 
     dr4::Texture* getTexture() const;
 
@@ -46,6 +48,7 @@ public:
 
 protected:
     virtual void Redraw() const override;
+    void Redraw2() const;
 
 public:
 // private:
@@ -59,7 +62,8 @@ public:
     int size_x, size_y;
 
     // OptController* control;
-    // std::vector<IntVec> pix_queue;
+    dr4::Image* img;
+    mutable std::vector<IntVec> pix_queue;
     // PixelTexture *pix_texture;
 };
 

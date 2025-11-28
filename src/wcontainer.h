@@ -14,31 +14,27 @@ public:
     virtual ~MyContainer();
     void Redraw() const override;
 
-    void addChild(Widget* w);
+    virtual void addChild(Widget* w);
     virtual EventResult PropagateToChildren(Event &event) override;
 
-private:
+protected:
     std::vector<Widget*> children;
 };
 
-}
 
 
+class WContainer : public MyContainer
+{
+public:
+    WContainer(UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int nChildren, bool vertical);
 
+    void resizeChild(int n_child);
+    virtual void addChild(Widget* widget) override;
 
-
-// class WContainer : public Widget
-// {
-// public:
-//     WContainer(Widget* parent, Vector tl, Vector br, int nChildren, bool vertical);
-
-//     void resizeChild(int n_child);
-//     virtual void addWidget(Widget* widget) override;
-
-// protected:
-//     bool vertical;
-//     int nChildren, padding, childWidth, childHeight;
-// };
+protected:
+    bool vertical;
+    int nChildren, padding, childWidth, childHeight;
+};
 
 // class WList : public WContainer
 // {
@@ -54,5 +50,7 @@ private:
 // private:
 //     double scroll_frac, child_len;
 // };
+
+} // namespace hui
 
 #endif // W_CONTAINER_H

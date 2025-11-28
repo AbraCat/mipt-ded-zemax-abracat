@@ -16,31 +16,27 @@
 
 #include <cassert>
 
-extern "C" cum::DR4BackendPlugin* CreateDR4Backend(void);
-extern "C" cum::PPToolPlugin* Create_PP_Plugin(void);
-
 extern dr4::Window* window = nullptr;
 const int desktop_w = 1900, desktop_h = 1000;
 
-hui::Event* dr4ToHuiEvent(dr4::Event evt);
-
-int iterate_app(hui::Widget* root_widget, dr4::Texture* main_texture, pp::MyCanvas* canvas,
+int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
+    hui::Widget* root_widget = ui->GetRoot();
     std::optional<dr4::Event> event;
+
     while ((event = window->PollEvent()).has_value())
     {
         dr4::Event evt = event.value();
 
-        if (evt.type == dr4::Event::Type::QUIT || evt.type == dr4::Event::Type::KEY_DOWN)
+        if (evt.type == dr4::Event::Type::QUIT ||
+            evt.type == dr4::Event::Type::KEY_DOWN && evt.key.sym == dr4::KeyCode::KEYCODE_ESCAPE)
         {
             window->Close();
             delete window;
             return 1;
         }
 
-        hui::Event* hui_event = dr4ToHuiEvent(evt);
-        if (hui_event != nullptr) hui_event->Apply(*root_widget);
-
+        ui->ProcessEvent(evt);
         for (std::unique_ptr<pp::Tool>& tl: tools) {
             if (evt.type == dr4::Event::Type::MOUSE_DOWN)
                 tl->OnMouseDown(evt.mouseButton);
@@ -51,18 +47,12 @@ int iterate_app(hui::Widget* root_widget, dr4::Texture* main_texture, pp::MyCanv
         }
     }
 
-    root_widget->DrawOn(*main_texture);
+    main_texture->Draw(*ui);
     canvas->DrawAllShapes();
 
     window->Draw(*main_texture);
     window->Display();
     return 0;
-}
-
-void setWindow(cum::Plugin* pp_plugin) {
-    cum::AbraCat_pp_plugin* my_pp_plugin = dynamic_cast<cum::AbraCat_pp_plugin*>(pp_plugin);
-    assert(my_pp_plugin != nullptr);
-    my_pp_plugin->SetWindow(window);
 }
 
 int main()
@@ -80,38 +70,19 @@ int main()
     dr4::Texture* main_texture = window->CreateTexture();
     main_texture->SetSize(desktop_w, desktop_h);
 
-    hui::UI* state = new hui::UI(window);
     pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h), main_texture);
-
     cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
     assert(pp_plugin != nullptr);
-    setWindow(pp_plugin);
-
     std::vector<std::unique_ptr<pp::Tool>> tools = pp_plugin->CreateTools(canvas);
 
+    hui::UI* state = new hui::UI(window);
     hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tools);
-
+    state->SetRoot(root_widget);
     while (true)
     {
-        if (iterate_app(root_widget, main_texture, canvas, tools)) return 0;
+        if (iterate_app(state, main_texture, canvas, tools)) return 0;
     }
 
     delete main_texture;
-    // delete root_widget;
-    // for (pp::Tool* tl: tools) delete tl;
     return 0;
-}
-
-hui::Event* dr4ToHuiEvent(dr4::Event evt) {
-    switch (evt.type) {
-        case dr4::Event::Type::MOUSE_DOWN: case dr4::Event::Type::MOUSE_UP:
-        {
-            hui::MouseButtonEvent* event = new hui::MouseButtonEvent();
-            event->pos = evt.mouseButton.pos;
-            event->pressed = (evt.type == dr4::Event::Type::MOUSE_DOWN);
-            return event;
-        }
-    }
-
-    return nullptr;
 }
