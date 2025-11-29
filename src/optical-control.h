@@ -5,47 +5,46 @@
 #include "button.h"
 #include "wcontainer.h"
 
-namespace hui {
 
-// class ObjControlPanel;
-// class OptPropWidget;
+class ObjControlPanel;
+class OptPropWidget;
 
-// class OptPropField : public InputField
-// {
-// public:
-//     OptPropField(OptPropWidget* parent, Vector tl, Vector br, OptObject* obj, OptProperty prop);
-//     virtual void action() override;
+class OptPropField : public InputField
+{
+public:
+    OptPropField(OptPropWidget* parent, hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, OptProperty prop);
+    virtual void action() override;
 
-// // private:
-//     OptObject* obj;
-//     OptProperty prop;
-// };
+// private:
+    OptObject* obj;
+    OptProperty prop;
+};
 
-// class OptPropWidget : public Widget
-// {
-// public:
-//     OptPropWidget(Widget* parent, Vector tl, Vector br, OptObject* obj, OptProperty prop);
+class OptPropWidget : public MyContainer
+{
+public:
+    OptPropWidget(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, OptProperty prop);
 
-// // private:
-//     TextField *name_field;
-//     OptPropField *val_field;
-// };
+// private:
+    TextField *name_field;
+    OptPropField *val_field;
+};
 
-// class OptObjectButton : public ToggleButton
-// {
-// public:
-//     OptObjectButton(Widget* parent, Vector tl, Vector br, OptObject* obj, ObjControlPanel* panel);
-//     virtual void action() override;
-//     virtual void deactivate() override;
+class OptObjectButton : public ToggleButton
+{
+public:
+    OptObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, ObjControlPanel* panel);
+    virtual void action() override;
+    virtual void deactivate() override;
 
-// // private:
-//     OptObject* obj;
-// };
+// private:
+    OptObject* obj;
+};
 
 class MoveCameraButton : public Button
 {
 public:
-    MoveCameraButton(UI* ui, OptScene* scene, Vector change, dr4::Color color, std::string text);
+    MoveCameraButton(hui::UI* ui, OptScene* scene, Vector change, dr4::Color color, std::string text);
     virtual void action() override;
 
 private:
@@ -53,49 +52,49 @@ private:
     Vector change;
 };
 
-// class MoveObjectButton : public Button
-// {
-// public:
-//     MoveObjectButton(Widget* parent, Vector tl, Vector br, OptObject* obj, Vector change,
-//         std::string text, ObjControlPanel* panel);
+class MoveObjectButton : public Button
+{
+public:
+    MoveObjectButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, Vector change,
+        std::string text, ObjControlPanel* panel);
 
-//     virtual void action() override;
+    virtual void action() override;
 
-// private:
-//     OptObject* obj;
-//     Vector change;
-//     ObjControlPanel* panel;
-// };
+private:
+    OptObject* obj;
+    Vector change;
+    ObjControlPanel* panel;
+};
 
-// class DeleteObjectButton : public Button
-// {
-// public:
-//     DeleteObjectButton(Widget* parent, Vector tl, Vector br, OptObject* obj, std::string text);
-//     virtual void action() override;
+class DeleteObjectButton : public Button
+{
+public:
+    DeleteObjectButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, std::string text);
+    virtual void action() override;
 
-// private:
-//     OptObject* obj;
-// };
+private:
+    OptObject* obj;
+};
 
 
 
-// class ObjControlPanel : public Widget
-// {
-// public:
-//     ObjControlPanel(Widget* parent, Vector tl, Vector br);
-//     void setObject(OptObject* obj);
-//     void setDisplayedVal(OptPropEnum prop, double val);
+class ObjControlPanel : public MyContainer
+{
+public:
+    ObjControlPanel(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size);
+    void setObject(OptObject* obj);
+    void setDisplayedVal(OptPropEnum prop, double val);
 
-// private:
-//     OptObject *obj;
-//     MyContainer *prop_cont, *button_cont;
-// };
+private:
+    OptObject *obj;
+    WContainer *prop_cont, *button_cont;
+};
 
 class OptController
 {
 public:
-    OptController(UI* ui, MyContainer* parent);
-    // WList* makeObjectContainer(Vector tl, Vector br);
+    OptController(hui::UI* ui, MyContainer* parent);
+    WContainer* makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size);
 
     void addObject(OptObject* obj);
     std::vector<Surface*>::iterator addSphere(Vector pos, Vector color, double r, Material m = plastic);
@@ -107,15 +106,16 @@ public:
 
     void deleteObject(OptObject* obj);
 
-    Widget* parent;
+    hui::Widget* parent;
 
     OptScene* s;
     MyContainer *cam_cont;
     // WList *obj_cont;
+    WContainer* obj_cont;
     // ListScrollBar *obj_scroll;
-    // ObjControlPanel* panel;
+    ObjControlPanel* panel;
 };
 
-} // namespace hui
+// } // namespace hui
 
 #endif // OPTICAL_CONTROL_H

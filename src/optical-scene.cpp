@@ -145,14 +145,14 @@ OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f si
     redraw_picture = 1;
 
     surfaces.push_back(new PlaneSurface(2, white_col, "plane", this));
-    sources.push_back(new SphereSource(gray_col * 0.5, {0, -1, 4}, 1, "source", this));
+    // sources.push_back(new SphereSource(gray_col * 0.5, {0, -1, 4}, 1, "source", this));
 
-    surfaces.push_back(new SphereSurface({-1, 0, 0}, 0.5, gray_col, "sphere", this));
-    surfaces.push_back(new SphereSurface({1, -0.5, 0}, 0.5, gray_col, "sphere", this));
-    surfaces.push_back(new SphereSurface({0.3, 1, 0}, 0.5, gray_col, "sphere", this));
-    surfaces.push_back(new SphereSurface({0, 0, -12}, 5, gray_col, "sphere", this));
-    surfaces.push_back(new SphereSurface({0, 0, -2}, 0.3, purple_col, "sphere", this));
-    surfaces.push_back(new SphereSurface({0, 0, 3}, 1, white_col, "sphere", this, glass));
+    // surfaces.push_back(new SphereSurface({-1, 0, 0}, 0.5, gray_col, "sphere", this));
+    // surfaces.push_back(new SphereSurface({1, -0.5, 0}, 0.5, gray_col, "sphere", this));
+    // surfaces.push_back(new SphereSurface({0.3, 1, 0}, 0.5, gray_col, "sphere", this));
+    // surfaces.push_back(new SphereSurface({0, 0, -12}, 5, gray_col, "sphere", this));
+    // surfaces.push_back(new SphereSurface({0, 0, -2}, 0.3, purple_col, "sphere", this));
+    // surfaces.push_back(new SphereSurface({0, 0, 3}, 1, white_col, "sphere", this, glass));
 }
 
 dr4::Texture* OptScene::getTexture() const { return &GetTexture(); }

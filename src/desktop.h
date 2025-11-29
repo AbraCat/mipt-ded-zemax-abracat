@@ -19,7 +19,7 @@ public:
     virtual ~Desktop();
     dr4::Texture* giveTexture() const;
 
-    // virtual void Redraw() override;
+    virtual void Redraw() const override;
 
     // virtual void updateTexture() override;
     // virtual bool onIdle(IdleEvent* e) override;

@@ -16,6 +16,15 @@
 
 #include <cassert>
 
+/*
+TODO
+object deletion
+multithreaded ray tracing
+rectangles around selected objects
+text tool
+scrollable list
+*/
+
 extern dr4::Window* window = nullptr;
 const int desktop_w = 1900, desktop_h = 1000;
 

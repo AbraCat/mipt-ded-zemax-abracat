@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <string>
 
-namespace hui {
+// namespace hui {
 
 class TextField : public hui::Widget
 {
@@ -36,8 +36,8 @@ public:
 
     // virtual bool mousePressEvent(MouseEvent* e) override;
     // virtual bool keyboardEvent(KeyboardEvent* evt) override;
-    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
-    virtual EventResult OnKeyDown(KeyEvent &evt) override;
+    virtual hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
+    virtual hui::EventResult OnKeyDown(hui::KeyEvent &evt) override;
 
     void update_text();
     virtual void action() = 0;
@@ -55,8 +55,8 @@ public:
     Button(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
     virtual ~Button() noexcept override = default;
 
-    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
-    virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
+    virtual hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
+    virtual hui::EventResult OnMouseUp(hui::MouseButtonEvent &evt) override;
 
     virtual void action() = 0;
     virtual void unpress();
@@ -72,12 +72,12 @@ public:
     ToggleButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
     virtual ~ToggleButton() noexcept override = default;
 
-    virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
-    virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
+    virtual hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
+    virtual hui::EventResult OnMouseUp(hui::MouseButtonEvent &evt) override;
 
     virtual void deactivate() = 0;
 };
 
-} // namespace hui
+// } // namespace hui
 
 #endif // MY_BUTTON_H

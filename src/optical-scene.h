@@ -11,7 +11,7 @@
 
 #include "hui/widget.hpp"
 
-// class OptController;
+class OptController;
 
 using SurfaceIt = std::vector<Surface*>::iterator;
 using SourceIt = std::vector<Source*>::iterator;
@@ -61,7 +61,7 @@ public:
 
     int size_x, size_y;
 
-    // OptController* control;
+    OptController* control;
     dr4::Image* img;
     mutable std::vector<IntVec> pix_queue;
     // PixelTexture *pix_texture;

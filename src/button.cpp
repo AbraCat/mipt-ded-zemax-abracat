@@ -6,12 +6,16 @@
 
 #include <cassert>
 
+using hui::EventResult;
+using hui::MouseButtonEvent;
+using hui::KeyEvent;
+
 const double unpressColorCoeff = 0.7;
 const int key_enter = 13;
 
 extern dr4::Window* window;
 
-namespace hui {
+// namespace hui {
 
 TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
     : Widget(state)//, color(color), text(text)
@@ -24,6 +28,7 @@ TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
 
 void TextField::Redraw() const
 {
+    // printf("redraw text field %f %f %f %f\n", GetPos().x, GetPos().y, GetSize().x, GetSize().y);
     const int text_h = 10;
 
     dr4::Rectangle* rect = window->CreateRectangle();
@@ -221,4 +226,4 @@ void InputField::setValidator(std::function<bool(std::string)> text_valid)
 
 #endif // 0
 
-} // namespace hui
+// } // namespace hui

@@ -66,3 +66,4 @@ add_executable(main source/hui/widget.cpp source/hui/event.cpp source/hui/contai
 
 target_include_directories(main PRIVATE ./include/)
 target_link_libraries(main PRIVATE dr4 pp)
+target_compile_options(main PRIVATE -Wno-narrowing)

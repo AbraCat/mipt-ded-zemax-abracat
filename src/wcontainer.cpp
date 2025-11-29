@@ -1,19 +1,56 @@
 #include "wcontainer.h"
 
-namespace hui {
+#include "hui/ui.hpp"
 
-MyContainer::MyContainer(UI* state) : Container(state) {
-    //
+#include <cassert>
+
+using namespace hui;
+
+MyContainer::MyContainer(UI* state, dr4::Vec2f pos, dr4::Vec2f size) : Container(state) {
+    SetSize(size);
+    SetPos(pos);
+
+    // draw_border = fill_rect = false;
+    draw_rect = false;
 } 
 
 MyContainer::~MyContainer() {
     for (Widget* w: children) delete w;
 }
 
+// void MyContainer::setDrawBorder(bool draw, dr4::Color color) {
+//     draw_border = draw;
+//     border_col = color;
+// }
+
+// void MyContainer::setFillRect(bool fill, dr4::Color color) {
+//     fill_rect = fill;
+//     fill_col = color;
+// }
+
+void MyContainer::setDrawRect(bool draw_rect, dr4::Color fill_col, dr4::Color border_col) {
+    this->draw_rect = draw_rect;
+    this->fill_col = fill_col;
+    this->border_col = border_col;
+}
+
 void MyContainer::Redraw() const {
+    if (draw_rect) {
+        dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
+        rect->SetSize(GetSize());
+        rect->SetFillColor(fill_col);
+        rect->SetBorderColor(border_col);
+        GetTexture().Draw(*rect);
+    }
+
+
     for (Widget* w: children) {
         GetTexture().Draw(*w);
     }
+}
+
+void MyContainer::clearChildren() {
+    children.clear();
 }
 
 void MyContainer::addChild(Widget* w) {
@@ -21,11 +58,26 @@ void MyContainer::addChild(Widget* w) {
     Container::BecomeParentOf(w);
 }
 
-EventResult MyContainer::PropagateToChildren(Event &event) {
+EventResult MyContainer::PropagateToChildren(hui::Event &event) {
     for (Widget* w: children) {
         if (event.Apply(*w) == EventResult::HANDLED) return EventResult::HANDLED;
     }
     return EventResult::UNHANDLED;
+}
+
+int MyContainer::removeChildByPredicate(std::function<bool(Widget*)> predicate)
+{
+    for (int n_child = 0; n_child < children.size(); ++n_child)
+    {
+        if (predicate(children[n_child]))
+        {
+            children.erase(children.begin() + n_child);
+            return n_child;
+        }
+    }
+
+    assert(0);
+    return -1;
 }
 
 
@@ -95,6 +147,7 @@ WContainer::WContainer(UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int nChildren, b
     this->vertical = vertical;
     this->nChildren = nChildren;
     this->padding = 0;
+    setDrawRect(true);
 
     if (vertical)
     {
@@ -132,6 +185,8 @@ void WContainer::resizeChild(int nChild)
         w->SetPos(dr4::Vec2f(padding * (nChild + 1) + childWidth * nChild, padding));
         w->SetSize(dr4::Vec2f(childWidth, GetSize().y - padding * 2));
     }
+
+    w->ForceRedraw();
 }
 
 void WContainer::addChild(Widget* w)
@@ -141,7 +196,19 @@ void WContainer::addChild(Widget* w)
     MyContainer::addChild(w);
 
     // w->t->setVisibleIn(this);
-    resizeChild(nChild);    
+    resizeChild(nChild);   
+    // w->ForceRedraw(); 
+}
+
+int WContainer::removeChildByPredicate(std::function<bool(Widget*)> predicate)
+{
+    int n_removed = MyContainer::removeChildByPredicate(predicate);
+    assert(n_removed != -1);
+
+    for (int n_child = n_removed; n_child < children.size(); ++n_child)
+        resizeChild(n_child);
+
+    return n_removed;
 }
 
 
@@ -204,6 +271,3 @@ void WContainer::addChild(Widget* w)
 //         if (w->handleEvent(e)) return 1;
 //     return e->dispatch(this);
 // }
-
-
-} // namespace hui
