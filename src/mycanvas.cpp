@@ -32,9 +32,13 @@ void MyCanvas::DelShape(Shape *shape) {
         }
     }
 }
+void MyCanvas::setWidget(hui::Widget* w) {
+    this->widget = w;
+    this->texture = &w->GetFreshTexture();
+}
 
 void MyCanvas::ShapeChanged(Shape *shape) {
-    // redraw
+    widget->ForceRedraw();
 }
 
 dr4::Window *MyCanvas::GetWindow() { return window; }

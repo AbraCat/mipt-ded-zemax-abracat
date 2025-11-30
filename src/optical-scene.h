@@ -4,6 +4,7 @@
 #include <set>
 
 #include "optical-object.h"
+#include "mycanvas.h"
 // #include "wcontainer.h"
 // #include "plane.h"
 // #include "button.h"
@@ -23,22 +24,19 @@ extern const double ratio;
 class OptScene : public hui::Widget
 {
 public:
-    // OptScene(Widget* parent, Vector tl, Vector br, OptController* control);
     OptScene(hui::UI* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size);
-    // void updateTexture();
-    // virtual bool onIdle(IdleEvent* evt) override;
     virtual hui::EventResult OnIdle(hui::IdleEvent &evt) override;
     void needsRerender();
 
     dr4::Texture* getTexture() const;
+    FixedVec getRect(OptObject* obj) const;
 
     Vector screen_to_pixels(Vector p) const;
     Vector pixels_to_screen(IntVec pix) const;
 
-    FixedVec getRect(OptObject* obj) const;
-
     void setV(Vector V);
     void moveCamera(Vector change);
+    void attachCanvas(pp::MyCanvas* cvs);
 
     Vector traceRay(Ray ray, int depth) const;
     Surface* getIntersectedSurface(Ray ray, double *t_ptr) const;
@@ -64,6 +62,7 @@ public:
     mutable bool needs_rerender;
     dr4::Image* img;
     mutable std::vector<IntVec> pix_queue;
+    pp::MyCanvas* canvas;
     // PixelTexture *pix_texture;
 };
 

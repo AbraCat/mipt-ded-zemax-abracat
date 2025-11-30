@@ -3,6 +3,7 @@
 
 #include "pp/shape.hpp"
 #include "pp/canvas.hpp"
+#include "hui/widget.hpp"
 
 #include <vector>
 
@@ -18,8 +19,8 @@ public:
     virtual void ShapeChanged(Shape *shape) override;
     virtual dr4::Window *GetWindow() override;
 
-    void setTexture(dr4::Texture* texture) { this->texture = texture; };
-    dr4::Texture* getTexture() const { return texture; }
+    void setWidget(hui::Widget* w);
+    hui::Widget* getWidget() const { return widget; }
     virtual void SetSelectedShape(Shape *shape) override;
     virtual Shape *GetSelectedShape() const override;
 
@@ -28,8 +29,9 @@ public:
 private:
     dr4::Vec2f size;
     dr4::Window* window;
-    std::vector<Shape*> shapes;
     dr4::Texture* texture;
+    hui::Widget* widget;
+    std::vector<Shape*> shapes;
     ControlsTheme theme;
 };
 

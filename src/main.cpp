@@ -69,7 +69,7 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
     canvas->DrawAllShapes();
     window->Draw(*main_texture);
     window->Display();
-    
+
     std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
     return 0;
 }
@@ -90,7 +90,6 @@ int main()
     main_texture->SetSize(desktop_w, desktop_h);
 
     pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h));
-    canvas->setTexture(main_texture);
     cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
     assert(pp_plugin != nullptr);
     std::vector<std::unique_ptr<pp::Tool>> tools = pp_plugin->CreateTools(canvas);
@@ -98,6 +97,7 @@ int main()
     hui::UI* state = new hui::UI(window);
     hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tools);
     state->SetRoot(root_widget);
+    root_widget->getOptController()->getScene()->attachCanvas(canvas);
 
     while (true)
     {

@@ -121,14 +121,15 @@ static char KeycodeToChar(dr4::KeyCode code) {
 bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     if (evt.sym == dr4::KeyCode::KEYCODE_ENTER) {
         selected = false;
-        return true;
     }
-    if (evt.sym == dr4::KeyCode::KEYCODE_BACKSPACE) {
+    else if (evt.sym == dr4::KeyCode::KEYCODE_BACKSPACE) {
         if (text.size() > 0) text = text.substr(0, text.size() - 1);
-        return true;
+    }
+    else {
+        text += KeycodeToChar(evt.sym);
     }
 
-    text += KeycodeToChar(evt.sym);
+    canvas->ShapeChanged(this);
     return true;
 }
 

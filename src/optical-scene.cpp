@@ -55,6 +55,11 @@ static void drawRectBorder(FixedVec rect, dr4::Texture& texture, dr4::Window* wi
     texture.Draw(*right_line);
 }
 
+void OptScene::attachCanvas(pp::MyCanvas* cvs) {
+    this->canvas = cvs;
+    canvas->setWidget(this);
+}
+
 void OptScene::Redraw() const
 {
     if (needs_rerender) {
@@ -79,6 +84,8 @@ void OptScene::Redraw() const
         drawRectBorder(rect, GetTexture(), GetUI()->GetWindow());
         // t->addRect(rect, red_v, 0);
     }
+
+    canvas->DrawAllShapes();
 }
 
 int calcIdleThread(void* void_data)
