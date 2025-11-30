@@ -15,18 +15,19 @@
 #include "my-pp-plugin.h"
 
 #include <cassert>
+#include <thread>
+#include <chrono>
 
 /*
 TODO
-object deletion
-multithreaded ray tracing
-rectangles around selected objects
 text tool
+adding object
+saving scene state to file
 scrollable list
 */
 
 extern dr4::Window* window = nullptr;
-const int desktop_w = 1900, desktop_h = 1000;
+const int desktop_w = 1900, desktop_h = 1000, fps = 30;
 
 int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
@@ -56,11 +57,15 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
         }
     }
 
+    hui::IdleEvent* idle_evt = new hui::IdleEvent();
+    ui->OnIdle(*idle_evt);
+
     main_texture->Draw(*ui);
     canvas->DrawAllShapes();
 
     window->Draw(*main_texture);
     window->Display();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
     return 0;
 }
 

@@ -28,7 +28,7 @@ public:
     // void updateTexture();
     // virtual bool onIdle(IdleEvent* evt) override;
     virtual hui::EventResult OnIdle(hui::IdleEvent &evt) override;
-    
+    void needsRerender();
 
     dr4::Texture* getTexture() const;
 
@@ -48,7 +48,6 @@ public:
 
 protected:
     virtual void Redraw() const override;
-    void Redraw2() const;
 
 public:
 // private:
@@ -62,6 +61,7 @@ public:
     int size_x, size_y;
 
     OptController* control;
+    mutable bool needs_rerender;
     dr4::Image* img;
     mutable std::vector<IntVec> pix_queue;
     // PixelTexture *pix_texture;

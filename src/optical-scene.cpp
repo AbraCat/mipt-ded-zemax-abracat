@@ -1,11 +1,10 @@
 #include "optical-scene.h"
-// #include "texture.h"
 #include "dr4/window.hpp"
+#include "hui/ui.hpp"
 
 #include <algorithm>
 #include <random>
 #include <sstream>
-
 #include <limits>
 #include <cmath>
 #include <cassert>
@@ -32,30 +31,54 @@ struct RenderThreadData
     std::vector<IntVec>* thread_pix;
 };
 
-void OptScene::Redraw2() const
+void drawRectBorder(FixedVec rect, dr4::Texture& texture, dr4::Window* window) {
+    dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
+        *left_line = window->CreateLine(), *right_line = window->CreateLine();
+
+    top_line->SetStart(dr4::Vec2f(rect.p1.x, rect.p1.y));
+    top_line->SetEnd(dr4::Vec2f(rect.p2.x, rect.p1.y));
+    bottom_line->SetStart(dr4::Vec2f(rect.p1.x, rect.p2.y));
+    bottom_line->SetEnd(dr4::Vec2f(rect.p2.x, rect.p2.y));
+    left_line->SetStart(dr4::Vec2f(rect.p1.x, rect.p1.y));
+    left_line->SetEnd(dr4::Vec2f(rect.p1.x, rect.p2.y));
+    right_line->SetStart(dr4::Vec2f(rect.p2.x, rect.p1.y));
+    right_line->SetEnd(dr4::Vec2f(rect.p2.x, rect.p2.y));
+
+
+    top_line->SetColor(dr4::Color(255, 0, 0));
+    bottom_line->SetColor(dr4::Color(255, 0, 0));
+    left_line->SetColor(dr4::Color(255, 0, 0));
+    right_line->SetColor(dr4::Color(255, 0, 0));
+    texture.Draw(*top_line);
+    texture.Draw(*bottom_line);
+    texture.Draw(*left_line);
+    texture.Draw(*right_line);
+}
+
+void OptScene::Redraw() const
 {
-    // t->clear();
-    // for (OptObject* obj: selected)
-    // {
-    //     if (!obj->has_rect) continue;
-    //     FixedVec rect = getRect(obj);
-    //     t->addRect(rect, red_v, 0);
-    // }
+    if (needs_rerender) {
+        pix_queue = std::vector<IntVec>();//(GetSize().x * GetSize().y + 1);
+        for (int y = 0; y < GetSize().y; ++y)
+            for (int x = 0; x < GetSize().x; ++x) {
+                // pix_queue[y * GetSize().x + x] = IntVec(x, y);
+                pix_queue.push_back(IntVec(x, y));
+            }
 
-    // if (!redraw_picture)
-    // {
-    //     redraw_picture = 1;
-    //     return;
-    // }
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(pix_queue.begin(), pix_queue.end(), g);
+        needs_rerender = false;
+    }
+    GetTexture().Draw(*img);
 
-    pix_queue = std::vector<IntVec>(GetSize().x * GetSize().y + 1);
-    for (int y = 0; y < GetSize().y; ++y)
-        for (int x = 0; x < GetSize().x; ++x)
-            pix_queue[y * GetSize().x + x] = IntVec(x, y);
-
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(pix_queue.begin(), pix_queue.end(), g);
+    for (OptObject* obj: selected)
+    {
+        if (!obj->has_rect) continue;
+        FixedVec rect = getRect(obj);
+        drawRectBorder(rect, GetTexture(), GetUI()->GetWindow());
+        // t->addRect(rect, red_v, 0);
+    }
 }
 
 int calcIdleThread(void* void_data)
@@ -95,7 +118,7 @@ hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
         }
 
         thread_data[thread_num].scene = this;
-        thread_data[thread_num].img = img; // TODO
+        thread_data[thread_num].img = img;
         thread_data[thread_num].thread_num = thread_num;
         thread_data[thread_num].thread_pix = &thread_pix[thread_num];
 
@@ -110,6 +133,7 @@ hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
         assert(status == 0);
     }
 
+    ForceRedraw();
     return hui::EventResult::UNHANDLED;
 }
 
@@ -129,8 +153,9 @@ OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f si
     SetSize(size);
 
     img = window->CreateImage();
-    img->SetSize(size);
+    img->SetSize(dr4::Vec2f(size.x + 5, size.y + 5));
     size_x = GetTexture().GetSize().x, size_y = GetTexture().GetSize().y;
+    needs_rerender = true;
 
     V = init_V;
     screen_tl = init_screen_tl;
@@ -145,39 +170,10 @@ OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f si
     redraw_picture = 1;
 
     surfaces.push_back(new PlaneSurface(2, white_col, "plane", this));
-    // sources.push_back(new SphereSource(gray_col * 0.5, {0, -1, 4}, 1, "source", this));
-
-    // surfaces.push_back(new SphereSurface({-1, 0, 0}, 0.5, gray_col, "sphere", this));
-    // surfaces.push_back(new SphereSurface({1, -0.5, 0}, 0.5, gray_col, "sphere", this));
-    // surfaces.push_back(new SphereSurface({0.3, 1, 0}, 0.5, gray_col, "sphere", this));
-    // surfaces.push_back(new SphereSurface({0, 0, -12}, 5, gray_col, "sphere", this));
-    // surfaces.push_back(new SphereSurface({0, 0, -2}, 0.3, purple_col, "sphere", this));
-    // surfaces.push_back(new SphereSurface({0, 0, 3}, 1, white_col, "sphere", this, glass));
 }
 
+void OptScene::needsRerender() { needs_rerender = true; ForceRedraw(); }
 dr4::Texture* OptScene::getTexture() const { return &GetTexture(); }
-
-void OptScene::Redraw() const
-{
-    dr4::Image* img = window->CreateImage();
-    img->SetSize(dr4::Vec2f(size_x, size_y));
-
-    for (int x = 0; x < size_x - 1; ++x)
-    {
-        for (int y = 0; y < size_y - 1; ++y)
-        {
-            Vector p = pixels_to_screen(IntVec(x, y));
-
-            Ray ray(V, p - V);
-            Vector traced_color = traceRay(ray, 0);
-            Vector color = limitVector(traced_color, 0, 1) * 255;
-
-            img->SetPixel(x, y, dr4::Color(color.x, color.y, color.z, 255));
-        }
-    }
-    
-    GetTexture().Draw(*img);
-}
 
 Vector OptScene::screen_to_pixels(Vector p) const
 {
@@ -311,6 +307,7 @@ void OptScene::moveCamera(Vector change)
 {
     V += change;
     screen_tl += change;
+    needsRerender();
 }
 
 // } // namespace hui

@@ -116,7 +116,7 @@ OptPropField::OptPropField(OptPropWidget* parent, hui::UI *ui, dr4::Vec2f pos, d
 void OptPropField::action()
 {
     obj->setProperty(prop.prop, std::stod(getText()));
-    obj->scene->ForceRedraw();
+    obj->scene->needsRerender();
 }
 
 OptObjectButton::OptObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, ObjControlPanel* panel)
@@ -145,7 +145,7 @@ void MoveObjectButton::action()
     panel->setDisplayedVal(OPT_POS_Y, obj->pos.y);
     panel->setDisplayedVal(OPT_POS_Z, obj->pos.z);
 
-    obj->scene->ForceRedraw();
+    obj->scene->needsRerender();
 }
 
 DeleteObjectButton::DeleteObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, std::string text)
@@ -169,7 +169,7 @@ MoveCameraButton::MoveCameraButton(hui::UI* ui, OptScene* scene, Vector change, 
 void MoveCameraButton::action()
 {
     scene->moveCamera(change);
-    scene->ForceRedraw();
+    scene->needsRerender();
 }
 
 
@@ -234,9 +234,9 @@ void OptController::selected_changed()
     else
         panel->setObject(nullptr);
 
-    s->redraw_picture = 0;
+    // s->redraw_picture = 0;
     // s->updateTexture();
-    // s->ForceRedraw();
+    s->ForceRedraw();
 }
 
 void OptController::deleteObject(OptObject* obj)
@@ -272,7 +272,7 @@ void OptController::deleteObject(OptObject* obj)
     delete obj;
     // obj_cont->updateTextureRec();
     obj_cont->ForceRedraw();
-    s->ForceRedraw();
+    s->needsRerender();
 }
 
 void OptController::addObject(OptObject* obj)
