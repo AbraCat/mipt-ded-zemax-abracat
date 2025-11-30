@@ -48,6 +48,16 @@ public:
     virtual void DrawOn(dr4::Texture &tex) const override;
 };
 
+class TextShape : public MyShape {
+public:
+    TextShape(Canvas* cvs);
+
+    virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
+    virtual void DrawOn(dr4::Texture &) const override;
+private:
+    std::string text;
+};
+
 
 
 class MyTool : public Tool {
@@ -71,6 +81,22 @@ protected:
     Canvas* canvas;
     MyShape* cur_shape;
     dr4::Window* window;
+};
+
+class TextTool : public MyTool {
+public:
+    TextTool();
+    virtual MyShape* createShape() override;
+
+    virtual std::string_view Icon() const override;
+    virtual std::string_view Name() const override;
+
+    virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
+    virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
+    virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
+
+protected:
+    TextShape* cur_text_shape;
 };
 
 class RectTool : public MyTool {

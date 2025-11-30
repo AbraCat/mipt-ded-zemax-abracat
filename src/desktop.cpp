@@ -34,7 +34,7 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp
 
         Button* tool_button = new ToolWidget(state, &*tool, 
             dr4::Vec2f(opt_control_w, tool_but_h * n_tool), dr4::Vec2f(button_w, tool_but_h),
-            dr4::Color(255, 0, 0), std::string(tool->Name()));
+            dr4::Color(127, 127, 127), std::string(tool->Name()));
 
         addChild(tool_button);
     }

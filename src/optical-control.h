@@ -103,8 +103,9 @@ public:
     void select(OptObject* obj);
     void deselect(OptObject* obj);
     void selected_changed();
-
     void deleteObject(OptObject* obj);
+
+    OptScene* getScene() const { return s; }
 
     hui::Widget* parent;
 

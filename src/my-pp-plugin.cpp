@@ -10,6 +10,32 @@ const dr4::Color shape_color(255, 0, 0);
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
 
+
+static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window) {
+    dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
+        *left_line = window->CreateLine(), *right_line = window->CreateLine();
+    dr4::Vec2f p1 = rect.pos, p2 = rect.pos + rect.size;
+
+    top_line->SetStart(dr4::Vec2f(p1.x, p1.y));
+    top_line->SetEnd(dr4::Vec2f(p2.x, p1.y));
+    bottom_line->SetStart(dr4::Vec2f(p1.x, p2.y));
+    bottom_line->SetEnd(dr4::Vec2f(p2.x, p2.y));
+    left_line->SetStart(dr4::Vec2f(p1.x, p1.y));
+    left_line->SetEnd(dr4::Vec2f(p1.x, p2.y));
+    right_line->SetStart(dr4::Vec2f(p2.x, p1.y));
+    right_line->SetEnd(dr4::Vec2f(p2.x, p2.y));
+
+
+    top_line->SetColor(dr4::Color(255, 0, 0));
+    bottom_line->SetColor(dr4::Color(255, 0, 0));
+    left_line->SetColor(dr4::Color(255, 0, 0));
+    right_line->SetColor(dr4::Color(255, 0, 0));
+    texture.Draw(*top_line);
+    texture.Draw(*bottom_line);
+    texture.Draw(*left_line);
+    texture.Draw(*right_line);
+}
+
 namespace pp {
 
 MyShape::MyShape(Canvas* canvas) : canvas(canvas), window(canvas->GetWindow()) {
@@ -65,11 +91,111 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
     line->SetStart(pos);
     line->SetEnd(pos + size);
     line->SetColor(shape_color);
+    line->SetThickness(3);
     
     tex.Draw(*line);
     delete line;
 }
 
+TextShape::TextShape(Canvas* cvs) : MyShape(cvs) {
+    text = "text";
+}
+
+static char KeycodeToChar(dr4::KeyCode code) {
+    char chr = '\0';
+
+    if (code >= dr4::KeyCode::KEYCODE_A && code <= dr4::KeyCode::KEYCODE_Z) {
+        chr = 'a' + code - dr4::KeyCode::KEYCODE_A;
+    }
+    if (code >= dr4::KeyCode::KEYCODE_NUM0 && code <= dr4::KeyCode::KEYCODE_NUM9) {
+        chr = '0' + code - dr4::KeyCode::KEYCODE_NUM0;
+    }
+
+    switch (code) {
+        case dr4::KeyCode::KEYCODE_PERIOD: chr = '.'; break;
+    }
+
+    return chr;
+}
+
+bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
+    if (evt.sym == dr4::KeyCode::KEYCODE_ENTER) {
+        selected = false;
+        return true;
+    }
+    if (evt.sym == dr4::KeyCode::KEYCODE_BACKSPACE) {
+        if (text.size() > 0) text = text.substr(0, text.size() - 1);
+        return true;
+    }
+
+    text += KeycodeToChar(evt.sym);
+    return true;
+}
+
+void TextShape::DrawOn(dr4::Texture &texture) const {
+    if (selected) {
+        dr4::Rect2f rect(pos, size);
+        drawRectBorder(rect, texture, window);
+    }
+
+    dr4::Text* text_drawable = window->CreateText();
+    dr4::Vec2f text_pos(GetPos().x + std::min(0.0f, GetSize().x), GetPos().y + std::min(0.0f, GetSize().y));
+    text_drawable->SetPos(text_pos);
+    text_drawable->SetText(text);
+    texture.Draw(*text_drawable);
+}
+
+
+
+
+
+
+TextTool::TextTool() : MyTool() {
+    //
+}
+
+std::string_view TextTool::Icon() const { return "T"; }
+std::string_view TextTool::Name() const { return "Text"; }
+
+bool TextTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
+    if (cur_shape != nullptr) {
+        dr4::Event::KeyEvent key_evt;
+        key_evt.mods = 0;
+        key_evt.sym = dr4::KeyCode::KEYCODE_ENTER;
+        this->OnKeyDown(key_evt);
+    }
+
+    return MyTool::OnMouseDown(evt);
+}
+
+bool TextTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
+    if (!is_selected || !is_drawing) return false;
+
+    cur_shape->SetSize(evt.pos - cur_shape->GetPos());
+    canvas->ShapeChanged(cur_shape);
+
+    is_drawing = false;
+    return true;
+}
+
+bool TextTool::OnKeyDown(const dr4::Event::KeyEvent &evt) {
+    if (cur_shape != nullptr) {
+        if (evt.sym == dr4::KeyCode::KEYCODE_ENTER) {
+            bool result = cur_shape->OnKeyDown(evt);
+            cur_shape->OnDeselect();
+            canvas->ShapeChanged(cur_shape);
+
+            cur_shape = nullptr;
+            return result;
+        }
+
+        return cur_shape->OnKeyDown(evt);
+    }
+
+    return false;
+}
+
+MyShape* TextTool::createShape() { return new TextShape(canvas); }
 
 
 
@@ -98,6 +224,7 @@ bool MyTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
     cur_shape = createShape();
     cur_shape->SetPos(evt.pos);
     canvas->AddShape(cur_shape);
+    cur_shape->OnSelect();
 
     is_drawing = true;
     return true;
@@ -108,6 +235,7 @@ bool MyTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
 
     cur_shape->SetSize(evt.pos - cur_shape->GetPos());
     canvas->ShapeChanged(cur_shape);
+    cur_shape->OnDeselect();
 
     cur_shape = nullptr;
     is_drawing = false;
@@ -170,6 +298,7 @@ std::vector<std::unique_ptr<pp::Tool>> cum::AbraCat_pp_plugin::CreateTools(pp::C
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::RectTool()));
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::CircleTool())); 
     tools.push_back(std::unique_ptr<pp::Tool>(new pp::LineTool()));
+    tools.push_back(std::unique_ptr<pp::Tool>(new pp::TextTool()));
 
     for (std::unique_ptr<pp::Tool>& tl: tools) {
         pp::MyTool* my_tool = dynamic_cast<pp::MyTool*>(&*tl);

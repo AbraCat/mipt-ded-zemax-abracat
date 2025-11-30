@@ -130,7 +130,7 @@ EventResult ToggleButton::OnMouseUp(MouseButtonEvent &evt)
 
 #if 1
 
-char KeycodeToChar(dr4::KeyCode code) {
+static char KeycodeToChar(dr4::KeyCode code) {
     char chr = '\0';
 
     if (code >= dr4::KeyCode::KEYCODE_A && code <= dr4::KeyCode::KEYCODE_Z) {
@@ -158,7 +158,7 @@ InputField::InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Col
 
 EventResult InputField::OnMouseDown(MouseButtonEvent &evt)
 {
-    bool in_abs_rect = GetRect().Contains(evt.pos);//inAbsRect({e->x, e->y});
+    bool in_abs_rect = GetRect().Contains(evt.pos);
 
     if (in_abs_rect && !focused)
     {

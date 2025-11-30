@@ -10,7 +10,7 @@ namespace pp {
 
 class MyCanvas : public Canvas {
 public:
-    MyCanvas(dr4::Window* window, dr4::Vec2f size, dr4::Texture* texture);
+    MyCanvas(dr4::Window* window, dr4::Vec2f size);
 
     virtual ControlsTheme GetControlsTheme() const;
     virtual void AddShape(Shape *shape) override;
@@ -18,6 +18,8 @@ public:
     virtual void ShapeChanged(Shape *shape) override;
     virtual dr4::Window *GetWindow() override;
 
+    void setTexture(dr4::Texture* texture) { this->texture = texture; };
+    dr4::Texture* getTexture() const { return texture; }
     virtual void SetSelectedShape(Shape *shape) override;
     virtual Shape *GetSelectedShape() const override;
 

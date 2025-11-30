@@ -8,8 +8,8 @@ namespace pp {
 ControlsTheme Canvas::GetControlsTheme() const { return ControlsTheme(); }
 
 
-MyCanvas::MyCanvas(dr4::Window* window, dr4::Vec2f size, dr4::Texture* texture)
-    : size(size), window(window), texture(texture) {
+MyCanvas::MyCanvas(dr4::Window* window, dr4::Vec2f size)
+    : size(size), window(window), texture(nullptr) {
     // texture = window->CreateTexture();
     // texture->SetSize(size);
     // texture->SetPos(dr4::Vec2f());

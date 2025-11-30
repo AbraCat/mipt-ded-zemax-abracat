@@ -17,7 +17,9 @@ class Desktop : public MyContainer
 public:
     Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp::Tool>>& tools);
     virtual ~Desktop();
+
     dr4::Texture* giveTexture() const;
+    OptController* getOptController() const { return control; }
 
     virtual void Redraw() const override;
 

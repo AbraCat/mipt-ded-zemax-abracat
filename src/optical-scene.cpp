@@ -13,12 +13,12 @@
 
 extern dr4::Window* window;
 
+
+
 const double ratio = 16.0 / 9.0, screen_size = 4, obj_change = 1;
 const int max_depth = 8, n_diffuse_rays = 1, n_shadow_rays = 1, n_move_buttons = 6, obj_button_h = 100,
     n_threads = 1, pix_per_frame = 5e4, select_rect_size = 75;
-
 const Vector sky_col = {0, 0.5, 0.75}, init_V = {0, 0, 10}, init_screen_tl = {-2, -1.15, 4};
-
 const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1;
 
 bool d = 0;
@@ -31,7 +31,7 @@ struct RenderThreadData
     std::vector<IntVec>* thread_pix;
 };
 
-void drawRectBorder(FixedVec rect, dr4::Texture& texture, dr4::Window* window) {
+static void drawRectBorder(FixedVec rect, dr4::Texture& texture, dr4::Window* window) {
     dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
         *left_line = window->CreateLine(), *right_line = window->CreateLine();
 

@@ -21,12 +21,14 @@
 /*
 TODO
 text tool
-adding object
+adding objects
 saving scene state to file
 scrollable list
 */
 
 extern dr4::Window* window = nullptr;
+extern const double ratio;
+extern const int scene_w;
 const int desktop_w = 1900, desktop_h = 1000, fps = 30;
 
 int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
@@ -46,7 +48,6 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
             return 1;
         }
 
-        ui->ProcessEvent(evt);
         for (std::unique_ptr<pp::Tool>& tl: tools) {
             if (evt.type == dr4::Event::Type::MOUSE_DOWN)
                 tl->OnMouseDown(evt.mouseButton);
@@ -54,7 +55,11 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
                 tl->OnMouseUp(evt.mouseButton);
             else if (evt.type == dr4::Event::Type::MOUSE_MOVE)
                 tl->OnMouseMove(evt.mouseMove);
+            else if (evt.type == dr4::Event::Type::KEY_DOWN)
+                tl->OnKeyDown(evt.key);
         }
+
+        ui->ProcessEvent(evt);
     }
 
     hui::IdleEvent* idle_evt = new hui::IdleEvent();
@@ -62,9 +67,9 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
 
     main_texture->Draw(*ui);
     canvas->DrawAllShapes();
-
     window->Draw(*main_texture);
     window->Display();
+    
     std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
     return 0;
 }
@@ -84,7 +89,8 @@ int main()
     dr4::Texture* main_texture = window->CreateTexture();
     main_texture->SetSize(desktop_w, desktop_h);
 
-    pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h), main_texture);
+    pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h));
+    canvas->setTexture(main_texture);
     cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
     assert(pp_plugin != nullptr);
     std::vector<std::unique_ptr<pp::Tool>> tools = pp_plugin->CreateTools(canvas);
@@ -92,6 +98,7 @@ int main()
     hui::UI* state = new hui::UI(window);
     hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tools);
     state->SetRoot(root_widget);
+
     while (true)
     {
         if (iterate_app(state, main_texture, canvas, tools)) return 0;
