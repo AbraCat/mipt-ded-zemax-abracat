@@ -179,7 +179,9 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
 {
     s = new OptScene(ui, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio));
     s->control = this; // TODO pass in scene constructor
-    parent->addChild(s);
+    cvs_widget = new CanvasWidget(ui, {0, 0}, s);
+    // parent->addChild(s);
+    parent->addChild(cvs_widget);
 
     panel = new ObjControlPanel(ui, {properties_left, 0},
         {properties_w, scene_h + button_h});

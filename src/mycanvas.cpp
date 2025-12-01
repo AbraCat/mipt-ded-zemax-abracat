@@ -1,6 +1,8 @@
 #include "mycanvas.h"
 // #include "mywindow.h"
 
+#include "hui/ui.hpp"
+
 #include <cassert>
 
 namespace pp {
@@ -32,6 +34,7 @@ void MyCanvas::DelShape(Shape *shape) {
         }
     }
 }
+
 void MyCanvas::setWidget(hui::Widget* w) {
     this->widget = w;
     this->texture = &w->GetFreshTexture();
@@ -55,3 +58,21 @@ void MyCanvas::SetSelectedShape(Shape *shape) {} // TODO
 Shape *MyCanvas::GetSelectedShape() const { return nullptr; }
 
 } // namespace pp
+
+
+
+
+CanvasWidget::CanvasWidget(hui::UI* ui, dr4::Vec2f pos, Widget* w)
+    : MyContainer(ui, pos, w->GetSize())
+{
+    this->w = w;
+    this->cvs = new pp::MyCanvas(GetUI()->GetWindow(), w->GetSize());
+    cvs->setWidget(this);
+    // cvs.sett
+    addChild(w);
+}
+
+void CanvasWidget::Redraw() const {
+    w->DrawOn(GetTexture());
+    cvs->DrawAllShapes();
+}

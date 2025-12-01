@@ -219,7 +219,7 @@ void MyTool::OnBreak() {
     // redraw ?
 }
 
-bool MyTool::OnMouseDown(const dr4::Event::MouseButton &evt) { 
+bool MyTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
     if (!is_selected) return false;
 
     cur_shape = createShape();

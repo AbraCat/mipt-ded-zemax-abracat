@@ -36,7 +36,6 @@ public:
 
     void setV(Vector V);
     void moveCamera(Vector change);
-    void attachCanvas(pp::MyCanvas* cvs);
 
     Vector traceRay(Ray ray, int depth) const;
     Surface* getIntersectedSurface(Ray ray, double *t_ptr) const;
@@ -61,9 +60,8 @@ public:
     OptController* control;
     mutable bool needs_rerender;
     dr4::Image* img;
+    dr4::Texture* picture;
     mutable std::vector<IntVec> pix_queue;
-    pp::MyCanvas* canvas;
-    // PixelTexture *pix_texture;
 };
 
 #endif // OPTICAL_SCENE_H

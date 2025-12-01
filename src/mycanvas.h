@@ -5,6 +5,8 @@
 #include "pp/canvas.hpp"
 #include "hui/widget.hpp"
 
+#include "wcontainer.h"
+
 #include <vector>
 
 namespace pp {
@@ -21,6 +23,8 @@ public:
 
     void setWidget(hui::Widget* w);
     hui::Widget* getWidget() const { return widget; }
+    // void setTexture(dr4::Texture* texture) { this->texture = texture; }
+    // dr4::Texture* getTexture() const { return texture; }
     virtual void SetSelectedShape(Shape *shape) override;
     virtual Shape *GetSelectedShape() const override;
 
@@ -36,6 +40,17 @@ private:
 };
 
 } // namespace pp
+
+class CanvasWidget : public MyContainer {
+public:
+    CanvasWidget(hui::UI* ui, dr4::Vec2f pos, Widget* w);
+    virtual void Redraw() const override;
+    pp::MyCanvas* getCanvas() const { return cvs; }
+
+protected:
+    Widget* w;
+    pp::MyCanvas* cvs;
+};
 
 
 #endif // MY_CANVAS_H

@@ -12,8 +12,8 @@ const int button_w = 200;
 
 namespace hui {
 
-Desktop::Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp::Tool>>& tools) :
-    MyContainer(state), tools(tools)
+Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) :
+    MyContainer(state)
 {
     // setFillRect(1);
     SetSize(size);
@@ -27,6 +27,8 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, std::vector<std::unique_ptr<pp
     control->addSphere({0, 0, -12}, gray_col, 5);
     control->addSphere({0, 0, -2}, purple_col, 0.3);
     control->addSphere({0, 0, 3}, white_col, 1, glass);
+
+    tools = pp_plugin->CreateTools(control->getCanvas());
 
     const int tool_but_h = opt_control_h / tools.size();
     for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {

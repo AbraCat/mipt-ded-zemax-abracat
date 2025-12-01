@@ -29,9 +29,9 @@ scrollable list
 extern dr4::Window* window = nullptr;
 extern const double ratio;
 extern const int scene_w;
-const int desktop_w = 1900, desktop_h = 1000, fps = 30;
+const int desktop_w = 1900, desktop_h = 1000, fps = 5;
 
-int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
+int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
     hui::Widget* root_widget = ui->GetRoot();
     std::optional<dr4::Event> event;
@@ -49,12 +49,14 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
         }
 
         for (std::unique_ptr<pp::Tool>& tl: tools) {
-            if (evt.type == dr4::Event::Type::MOUSE_DOWN)
+            if (evt.type == dr4::Event::Type::MOUSE_DOWN) {
                 tl->OnMouseDown(evt.mouseButton);
+            }
             else if (evt.type == dr4::Event::Type::MOUSE_UP)
                 tl->OnMouseUp(evt.mouseButton);
-            else if (evt.type == dr4::Event::Type::MOUSE_MOVE)
+            else if (evt.type == dr4::Event::Type::MOUSE_MOVE) {
                 tl->OnMouseMove(evt.mouseMove);
+            }
             else if (evt.type == dr4::Event::Type::KEY_DOWN)
                 tl->OnKeyDown(evt.key);
         }
@@ -66,7 +68,6 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture, pp::MyCanvas* canvas,
     ui->OnIdle(*idle_evt);
 
     main_texture->Draw(*ui);
-    canvas->DrawAllShapes();
     window->Draw(*main_texture);
     window->Display();
 
@@ -89,19 +90,16 @@ int main()
     dr4::Texture* main_texture = window->CreateTexture();
     main_texture->SetSize(desktop_w, desktop_h);
 
-    pp::MyCanvas* canvas = new pp::MyCanvas(window, dr4::Vec2f(desktop_w, desktop_h));
     cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
     assert(pp_plugin != nullptr);
-    std::vector<std::unique_ptr<pp::Tool>> tools = pp_plugin->CreateTools(canvas);
 
     hui::UI* state = new hui::UI(window);
-    hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), tools);
+    hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), pp_plugin);
     state->SetRoot(root_widget);
-    root_widget->getOptController()->getScene()->attachCanvas(canvas);
 
     while (true)
     {
-        if (iterate_app(state, main_texture, canvas, tools)) return 0;
+        if (iterate_app(state, main_texture, root_widget->getTools())) return 0;
     }
 
     delete main_texture;
