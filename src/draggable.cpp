@@ -52,7 +52,7 @@ EventResult DraggableWidget::OnMouseMove(MouseMoveEvent &evt) {
     if (new_pos.y + GetSize().y > drag_rect.pos.y + drag_rect.size.y)
         new_pos.y = drag_rect.pos.y + drag_rect.size.y - GetSize().y;
 
-    SetPos(new_pos);
+    movePos(new_pos);
     ForceRedraw();
 
     prev_widget_pos = GetPos();

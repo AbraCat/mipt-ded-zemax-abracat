@@ -5,29 +5,34 @@
 
 const double scroll_on_click = 0.1;
 
-ScrollBar::ScrollBar(Widget* parent, Vector tl, Vector br, double init_frac) : Widget(tl, br, parent)
+ScrollBar::ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_frac) : MyContainer(ui, pos, size)
 {
+    width = size.x;
+    height = size.y;
     assert(height > width * 3);
-    setTextureBorderVisible(1);
-    setFillRect(1);
+    setDrawRect(true);
 
-    this->up_button = new ScrollButton({}, {width, width}, this, 1);
-    this->down_button = new ScrollButton({0, height - width}, wh, this, 0);
+    this->up_button = new ScrollButton(ui, {}, {width, width}, this, 1);
+    this->down_button = new ScrollButton(ui, {0, height - width}, {width, width}, this, 0);
+    addChild(up_button);
+    addChild(down_button);
 
-    this->thumb = new ScrollThumb({0, width}, {width, width * 2}, this);
-    thumb->setDraggable({0, width}, {width, height - width});
+    this->thumb = new ScrollThumb(ui, {0, width}, {width, width}, this);
+    addChild(thumb);
+    thumb->setDraggable(true);
+    thumb->setDragRect(dr4::Rect2f({0, width}, {width, height - width * 2}));
     frac_pos = 0;
 
     moveThumb(init_frac);
 }
 
-double ScrollBar::posToFrac(Vector thumbTL)
+double ScrollBar::posToFrac(dr4::Vec2f thumbTL)
 {
     int range = height - width * 3;
     return (thumbTL.y - width) * 1.0 / range;
 }
 
-Vector ScrollBar::fracToPos(double frac)
+dr4::Vec2f ScrollBar::fracToPos(double frac)
 {
     int range = height - width * 3;
     return {0, frac * range + width};
@@ -42,7 +47,7 @@ void ScrollBar::moveThumb(double frac_change)
     thumb->movePos(fracToPos(frac_pos));
 }
 
-void ScrollBar::thumbMoved(Vector newThumbTL)
+void ScrollBar::thumbMoved(dr4::Vec2f newThumbTL)
 {
     frac_pos = posToFrac(newThumbTL);
     action(frac_pos);
@@ -50,13 +55,13 @@ void ScrollBar::thumbMoved(Vector newThumbTL)
 
 void ScrollBar::action(double frac_pos)
 {
-    //
+    printf("action %lf\n", frac_pos);
 }
 
 
 
-ScrollButton::ScrollButton(Vector tl, Vector br, ScrollBar* bar, bool up, Vector color) : 
-    Button(bar, tl, br, color, ""), up(up), bar(bar)
+ScrollButton::ScrollButton(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, bool up, dr4::Color color) : 
+    Button(ui, pos, size, color, ""), up(up), bar(bar)
 {
     //
 }
@@ -69,24 +74,20 @@ void ScrollButton::action()
 
 
 
-ScrollThumb::ScrollThumb(Vector tl, Vector br, ScrollBar* bar, Vector color) :
-    Button(bar, tl, br, color, ""), bar(bar)
+ScrollThumb::ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color) :
+    DraggableWidget(ui, pos, size), bar(bar)
 {
     //
 }
 
-void ScrollThumb::movePos(Vector newTL)
+void ScrollThumb::movePos(dr4::Vec2f newTL)
 {
-    Widget::movePos(newTL);
+    DraggableWidget::movePos(newTL);
     bar->thumbMoved(newTL);
 }
 
-void ScrollThumb::action()
-{
-    //
-}
 
-
+#if 0
 
 MoveScrollBar::MoveScrollBar(Widget* parent, Vector tl, Vector br, Widget* w, 
     double amplitude, bool x_axis) : ScrollBar(parent, tl, br)
@@ -172,3 +173,5 @@ ListScrollBar::ListScrollBar(Widget* parent, Vector tl, Vector br, WList* list)
 }
 
 void ListScrollBar::action(double frac) { list->scroll(frac); }
+
+#endif // 0

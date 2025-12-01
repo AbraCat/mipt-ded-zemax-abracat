@@ -3,32 +3,34 @@
 
 #include "wcontainer.h"
 #include "button.h"
+#include "draggable.h"
 
 class ScrollThumb;
 class ScrollButton;
 
-class ScrollBar : public Widget
+class ScrollBar : public MyContainer
 {
 public:
-    ScrollBar(Widget* parent, Vector tl, Vector br, double init_frac = 0.5);
+    ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_frac = 0.5);
 
-    double posToFrac(Vector thumbTL);
-    Vector fracToPos(double frac);
+    double posToFrac(dr4::Vec2f thumbPos);
+    dr4::Vec2f fracToPos(double frac);
 
     void moveThumb(double frac_change);
-    void thumbMoved(Vector newThumbTL);
+    void thumbMoved(dr4::Vec2f newThumbPos);
     virtual void action(double frac_pos);
 
 private:
     double frac_pos;
     ScrollButton *up_button, *down_button;
     ScrollThumb *thumb;
+    double width, height;
 };
 
 class ScrollButton : public Button
 {
 public:
-    ScrollButton(Vector tl, Vector br, ScrollBar* bar, bool up, Vector color = {127, 127, 127});
+    ScrollButton(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, bool up, dr4::Color color = {127, 127, 127});
     virtual void action() override;
 
 private:
@@ -36,12 +38,11 @@ private:
     ScrollBar *bar;
 };
 
-class ScrollThumb : public Button
+class ScrollThumb : public DraggableWidget
 {
 public:
-    ScrollThumb(Vector tl, Vector br, ScrollBar* bar, Vector color = {63, 63, 63});
-    virtual void action() override;
-    virtual void movePos(Vector newTL) override;
+    ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color = {63, 63, 63});
+    void movePos(dr4::Vec2f new_pos) override;
 
 private:
     ScrollBar *bar;
@@ -49,43 +50,42 @@ private:
 
 
 
-class MoveScrollBar : public ScrollBar
-{
-public:
-    MoveScrollBar(Widget* parent, Vector tl, Vector br, Widget* w, double amplitude, bool x_axis);
+// class MoveScrollBar : public ScrollBar
+// {
+// public:
+//     MoveScrollBar(Widget* parent, Vector tl, Vector br, Widget* w, double amplitude, bool x_axis);
 
-    virtual void action(double frac) override;
-    int fracToMovement(double frac);
-
-private:
-    Widget *w;
-    bool x_axis;
-    double init_scale_x, amplitude;
-    Vector init_centre;
-};
-
-class ScaleScrollBar : public ScrollBar
-{
-public:
-    ScaleScrollBar(Widget* parent, Vector tl, Vector br, Widget* w, double scale_amplitude);
-    virtual void action(double frac) override;
-
-    double fracToScale(double frac, bool x);
-    double scaleToFrac(double scale, bool x);
-
-private:
-    Widget *w;
-    double init_scale_x, init_scale_y, scale_amplitude;
-};
-
-class ListScrollBar : public ScrollBar
-{
-public:
-    ListScrollBar(Widget* parent, Vector tl, Vector br, WList* list);
-    virtual void action(double frac) override;
+//     virtual void action(double frac) override;
+//     int fracToMovement(double frac);
 
 // private:
-    WList* list;
-};
+//     Widget *w;
+//     bool x_axis;
+//     double init_scale_x, amplitude;
+//     Vector init_centre;
+// };
+
+// class ScaleScrollBar : public ScrollBar
+// {
+// public:
+//     ScaleScrollBar(Widget* parent, Vector tl, Vector br, Widget* w, double scale_amplitude);
+//     virtual void action(double frac) override;
+
+//     double fracToScale(double frac, bool x);
+//     double scaleToFrac(double scale, bool x);
+
+// private:
+//     Widget *w;
+//     double init_scale_x, init_scale_y, scale_amplitude;
+// };
+
+// class ListScrollBar : public ScrollBar
+// {
+// public:
+//     ListScrollBar(Widget* parent, Vector tl, Vector br, WList* list);
+//     virtual void action(double frac) override;
+
+// // private:
+//     WList* list;
 
 #endif // SCROLL_BAR_H

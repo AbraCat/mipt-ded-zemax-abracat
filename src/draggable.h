@@ -17,6 +17,7 @@ public:
     virtual EventResult OnMouseDown(MouseButtonEvent &evt) override;
     virtual EventResult OnMouseUp(MouseButtonEvent &evt) override;
     virtual EventResult OnMouseMove(MouseMoveEvent &evt) override;
+    virtual void movePos(dr4::Vec2f new_pos) { SetPos(new_pos); }
     virtual void Redraw() const override;
 
 protected:

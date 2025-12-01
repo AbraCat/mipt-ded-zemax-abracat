@@ -1,7 +1,7 @@
 #include "desktop.h"
 #include "button.h"
 #include "tool-widget.h"
-#include "draggable.h"
+#include "scroll.h"
 
 #include "hui/ui.hpp"
 
@@ -37,10 +37,13 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     }
     addChild(tools_container);
 
-    DraggableWidget* drag = new DraggableWidget(state, {0, opt_control_h}, {100, 100});
-    addChild(drag);
-    drag->setDraggable(true);
-    drag->setDragRect(dr4::Rect2f(0, opt_control_h, 500, 300));
+    ScrollBar* bar = new ScrollBar(state, {0, opt_control_h}, {50, 300});
+    addChild(bar);
+
+    // DraggableWidget* drag = new DraggableWidget(state, {0, opt_control_h}, {100, 100});
+    // addChild(drag);
+    // drag->setDraggable(true);
+    // drag->setDragRect(dr4::Rect2f(0, opt_control_h, 500, 300));
 }
 
 Desktop::~Desktop()
