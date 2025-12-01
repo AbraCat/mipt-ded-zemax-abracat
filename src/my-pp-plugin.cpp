@@ -36,6 +36,51 @@ static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window*
     texture.Draw(*right_line);
 }
 
+static char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
+    char chr = '\0';
+    bool shift = mods & dr4::KeyMode::KEYMOD_SHIFT, caps = mods & dr4::KeyMode::KEYMOD_CAPS;
+    bool capital = shift && !caps || !shift && caps;
+
+    #define RANGE(code_lft, code_rgt, chr_lft, chr_lft_capital)\
+        if (code >= dr4::KeyCode::KEYCODE_ ## code_lft && code <= dr4::KeyCode::KEYCODE_ ## code_rgt) {\
+            chr = (capital ? chr_lft_capital : chr_lft) + code - dr4::KeyCode::KEYCODE_ ## code_lft;\
+        }
+    #define CASE(dr4_code, character, char_capital)\
+        case dr4::KeyCode::KEYCODE_ ## dr4_code: chr = (capital ? char_capital : character); break;
+
+    RANGE(A, Z, 'a', 'A')
+
+    switch (code) {
+        CASE(NUM0, '0', ')')
+        CASE(NUM1, '1', '!')
+        CASE(NUM2, '2', '@')
+        CASE(NUM3, '3', '#')
+        CASE(NUM4, '4', '$')
+        CASE(NUM5, '5', '%')
+        CASE(NUM6, '6', '^')
+        CASE(NUM7, '7', '&')
+        CASE(NUM8, '8', '*')
+        CASE(NUM9, '9', '(')
+
+        CASE(SEMICOLON, ';', ':')
+        CASE(COMMA, ',', '<')
+        CASE(PERIOD, '.', '>')
+        CASE(LBRACKET, '[', '{')
+        CASE(RBRACKET, ']', '}')
+        CASE(QUOTE, '\'', '"')
+        CASE(SLASH, '/', '?')
+        CASE(BACKSLASH, '\\', '|')
+        CASE(TILDE, '`', '~')
+        CASE(EQUAL, '=', '+')
+        CASE(HYPHEN, '-', '_')
+        CASE(SPACE, ' ', ' ')
+    }
+
+    #undef RANGE
+    #undef CASE
+    return chr;
+}
+
 namespace pp {
 
 MyShape::MyShape(Canvas* canvas) : canvas(canvas), window(canvas->GetWindow()) {
@@ -101,23 +146,6 @@ TextShape::TextShape(Canvas* cvs) : MyShape(cvs) {
     text = "text";
 }
 
-static char KeycodeToChar(dr4::KeyCode code) {
-    char chr = '\0';
-
-    if (code >= dr4::KeyCode::KEYCODE_A && code <= dr4::KeyCode::KEYCODE_Z) {
-        chr = 'a' + code - dr4::KeyCode::KEYCODE_A;
-    }
-    if (code >= dr4::KeyCode::KEYCODE_NUM0 && code <= dr4::KeyCode::KEYCODE_NUM9) {
-        chr = '0' + code - dr4::KeyCode::KEYCODE_NUM0;
-    }
-
-    switch (code) {
-        case dr4::KeyCode::KEYCODE_PERIOD: chr = '.'; break;
-    }
-
-    return chr;
-}
-
 bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     if (evt.sym == dr4::KeyCode::KEYCODE_ENTER) {
         selected = false;
@@ -126,7 +154,8 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
         if (text.size() > 0) text = text.substr(0, text.size() - 1);
     }
     else {
-        text += KeycodeToChar(evt.sym);
+        char chr = KeycodeToChar(evt.sym, evt.mods);
+        if (chr != '\0') text += chr;
     }
 
     canvas->ShapeChanged(this);
@@ -157,7 +186,7 @@ TextTool::TextTool() : MyTool() {
 }
 
 std::string_view TextTool::Icon() const { return "T"; }
-std::string_view TextTool::Name() const { return "Text"; }
+std::string_view TextTool::Name() const { return "text"; }
 
 bool TextTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
     if (cur_shape != nullptr) {
@@ -260,7 +289,7 @@ RectTool::RectTool() : MyTool() {
 }
 
 std::string_view RectTool::Icon() const { return "R"; }
-std::string_view RectTool::Name() const { return "Rect"; }
+std::string_view RectTool::Name() const { return "rect"; }
 
 MyShape* RectTool::createShape() { return new RectShape(canvas); }
 
@@ -271,7 +300,7 @@ CircleTool::CircleTool() : MyTool() {
 }
 
 std::string_view CircleTool::Icon() const { return "C"; }
-std::string_view CircleTool::Name() const { return "Circle"; }
+std::string_view CircleTool::Name() const { return "circle"; }
 
 MyShape* CircleTool::createShape() { return new CircleShape(canvas); }
 
@@ -282,7 +311,7 @@ LineTool::LineTool() : MyTool() {
 }
 
 std::string_view LineTool::Icon() const { return "L"; }
-std::string_view LineTool::Name() const { return "Line"; }
+std::string_view LineTool::Name() const { return "line"; }
 
 MyShape* LineTool::createShape() { return new LineShape(canvas); }
 

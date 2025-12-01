@@ -15,8 +15,6 @@ const int key_enter = 13;
 
 extern dr4::Window* window;
 
-// namespace hui {
-
 TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
     : Widget(state)//, color(color), text(text)
 {
@@ -136,22 +134,48 @@ EventResult ToggleButton::OnMouseUp(MouseButtonEvent &evt)
 
 
 
-#if 1
-
-static char KeycodeToChar(dr4::KeyCode code) {
+static char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
     char chr = '\0';
+    bool shift = mods & dr4::KeyMode::KEYMOD_SHIFT, caps = mods & dr4::KeyMode::KEYMOD_CAPS;
+    bool capital = shift && !caps || !shift && caps;
 
-    if (code >= dr4::KeyCode::KEYCODE_A && code <= dr4::KeyCode::KEYCODE_Z) {
-        chr = 'a' + code - dr4::KeyCode::KEYCODE_A;
-    }
-    if (code >= dr4::KeyCode::KEYCODE_NUM0 && code <= dr4::KeyCode::KEYCODE_NUM9) {
-        chr = '0' + code - dr4::KeyCode::KEYCODE_NUM0;
-    }
+    #define RANGE(code_lft, code_rgt, chr_lft, chr_lft_capital)\
+        if (code >= dr4::KeyCode::KEYCODE_ ## code_lft && code <= dr4::KeyCode::KEYCODE_ ## code_rgt) {\
+            chr = (capital ? chr_lft_capital : chr_lft) + code - dr4::KeyCode::KEYCODE_ ## code_lft;\
+        }
+    #define CASE(dr4_code, character, char_capital)\
+        case dr4::KeyCode::KEYCODE_ ## dr4_code: chr = (capital ? char_capital : character); break;
+
+    RANGE(A, Z, 'a', 'A')
 
     switch (code) {
-        case dr4::KeyCode::KEYCODE_PERIOD: chr = '.'; break;
+        CASE(NUM0, '0', ')')
+        CASE(NUM1, '1', '!')
+        CASE(NUM2, '2', '@')
+        CASE(NUM3, '3', '#')
+        CASE(NUM4, '4', '$')
+        CASE(NUM5, '5', '%')
+        CASE(NUM6, '6', '^')
+        CASE(NUM7, '7', '&')
+        CASE(NUM8, '8', '*')
+        CASE(NUM9, '9', '(')
+
+        CASE(SEMICOLON, ';', ':')
+        CASE(COMMA, ',', '<')
+        CASE(PERIOD, '.', '>')
+        CASE(LBRACKET, '[', '{')
+        CASE(RBRACKET, ']', '}')
+        CASE(QUOTE, '\'', '"')
+        CASE(SLASH, '/', '?')
+        CASE(BACKSLASH, '\\', '|')
+        CASE(TILDE, '`', '~')
+        CASE(EQUAL, '=', '+')
+        CASE(HYPHEN, '-', '_')
+        CASE(SPACE, ' ', ' ')
     }
 
+    #undef RANGE
+    #undef CASE
     return chr;
 }
 
@@ -197,9 +221,9 @@ EventResult InputField::OnKeyDown(KeyEvent &evt)
     if (evt.key == dr4::KeyCode::KEYCODE_BACKSPACE)
         SetText(cur_text.substr(0, cur_text.size() - 1));
     else {
-        char chr = KeycodeToChar(evt.key);
+        char chr = KeycodeToChar(evt.key, evt.mods);
         if (chr != '\0')
-            SetText(getText() + std::string(1, KeycodeToChar(evt.key)));
+            SetText(getText() + std::string(1, chr));
     }
 
     return EventResult::HANDLED;
@@ -231,7 +255,3 @@ void InputField::setValidator(std::function<bool(std::string)> text_valid)
 {
     this->text_valid = text_valid;
 }
-
-#endif // 0
-
-// } // namespace hui

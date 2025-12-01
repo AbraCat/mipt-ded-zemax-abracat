@@ -161,20 +161,80 @@ dr4::KeyCode getKeyCode(SDL_Keycode sdl_key)
         
     RANGE(SDLK_0, SDLK_9, dr4::KeyCode::KEYCODE_NUM0);
     RANGE(SDLK_A, SDLK_Z, dr4::KeyCode::KEYCODE_A);
+    RANGE(SDLK_F1, SDLK_F12, dr4::KeyCode::KEYCODE_F1);
+    #undef RANGE
 
+    #define CASE(dr4key, sdlkey) case SDLK_ ## sdlkey: dr4_key = dr4::KeyCode::KEYCODE_ ## dr4key; break;
     switch (sdl_key) {
-        case SDLK_BACKSPACE: dr4_key = dr4::KeyCode::KEYCODE_BACKSPACE; break;
-        case SDLK_RETURN: dr4_key = dr4::KeyCode::KEYCODE_ENTER; break;
-        case SDLK_ESCAPE: dr4_key = dr4::KeyCode::KEYCODE_ESCAPE; break;
-        case SDLK_PERIOD: dr4_key = dr4::KeyCode::KEYCODE_PERIOD; break;
+        CASE(BACKSPACE, BACKSPACE)
+        CASE(ENTER, RETURN)
+        CASE(ESCAPE, ESCAPE)
+        CASE(SEMICOLON, SEMICOLON)
+        CASE(COMMA, COMMA)
+        CASE(PERIOD, PERIOD)
+        CASE(LBRACKET, LEFTBRACKET)
+        CASE(RBRACKET, RIGHTBRACKET)
+        CASE(QUOTE, APOSTROPHE)
+        CASE(SLASH, SLASH)
+        CASE(BACKSLASH, BACKSLASH)
+        CASE(TILDE, TILDE)
+        CASE(EQUAL, EQUALS)
+        CASE(HYPHEN, MINUS)
+        CASE(SPACE, SPACE)
+        CASE(TAB, TAB)
+        CASE(LEFT, LEFT)
+        CASE(RIGHT, RIGHT)
+        CASE(UP, UP)
+        CASE(DOWN, DOWN)
     }
+    #undef CASE
+
+    /*
+    KEYCODE_LCONTROL,
+    KEYCODE_LSHIFT,
+    KEYCODE_LALT,
+    KEYCODE_LSYSTEM,
+    KEYCODE_RCONTROL,
+    KEYCODE_RSHIFT,
+    KEYCODE_RALT,
+    KEYCODE_RSYSTEM,
+    KEYCODE_MENU,
+
+    KEYCODE_PAGEUP,
+    KEYCODE_PAGEDOWN,
+    KEYCODE_END,
+    KEYCODE_HOME,
+    KEYCODE_INSERT,
+    KEYCODE_DELETE,
+    KEYCODE_ADD,
+    KEYCODE_SUBTRACT,
+    KEYCODE_MULTIPLY,
+    KEYCODE_DIVIDE,
+    KEYCODE_NUMPAD0 - KEYCODE_NUMPAD9,
+    KEYCODE_F13,
+    KEYCODE_F14,
+    KEYCODE_F15,
+    KEYCODE_PAUSE,
+    */
 
     return (dr4::KeyCode)dr4_key;
 }
 
 uint16_t getKeyMode(SDL_Keymod mod)
 {
-    return dr4::KeyMode::KEYMOD_NONE;
+    uint16_t dr4_mod = 0;
+    
+    #define CASE(dr4mod, sdlmod) if (mod & SDL_KMOD_ ## sdlmod) dr4_mod |= dr4::KeyMode::KEYMOD_ ## dr4mod;
+    CASE(LSHIFT, LSHIFT)
+    CASE(RSHIFT, RSHIFT)
+    CASE(LALT, LALT)
+    CASE(RALT, RALT)
+    CASE(LCTRL, LCTRL)
+    CASE(RCTRL, RCTRL)
+    CASE(CAPS, CAPS)
+    #undef CASE
+
+    return dr4_mod;
 }
 
 dr4::Event getKeyboardEvent(SDL_Event event)

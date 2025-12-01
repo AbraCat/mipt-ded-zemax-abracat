@@ -20,11 +20,8 @@
 
 /*
 TODO
-text tool
-adding objects
 scrollable list
 linking
-keyboard keys
 saving scene state to file
 */
 
