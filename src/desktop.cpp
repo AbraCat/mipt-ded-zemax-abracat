@@ -23,9 +23,9 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     control->addSphere({-1, 0, 0}, gray_col, 0.5);
     control->addSphere({1, -0.5, 0}, gray_col, 0.5);
     control->addSphere({0.3, 1, 0}, gray_col, 0.5);
-    control->addSphere({0, 0, -12}, gray_col, 5);
-    control->addSphere({0, 0, -2}, purple_col, 0.3);
-    control->addSphere({0, 0, 3}, white_col, 1, glass);
+    // control->addSphere({0, 0, -12}, gray_col, 5);
+    // control->addSphere({0, 0, -2}, purple_col, 0.3);
+    // control->addSphere({0, 0, 3}, white_col, 1, glass);
 
     tools = pp_plugin->CreateTools(control->getCanvas());
     tools_container = new WContainer(GetUI(), {opt_control_w, 0}, {tool_button_w, tools_h}, tools.size(), 1);

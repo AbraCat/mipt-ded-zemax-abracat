@@ -22,7 +22,7 @@ void Container::UnbecomeParentOf(Widget *child) {
 }
 
 EventResult Container::OnMouseDown(MouseButtonEvent &evt) {
-    if (GetRect().Contains(evt.pos)) {
+    if (true) {//GetRect().Contains(evt.pos)) { // deviation from standard
         evt.pos -= GetPos();
         if (PropagateToChildren(evt) == EventResult::HANDLED) {
             evt.pos += GetPos();

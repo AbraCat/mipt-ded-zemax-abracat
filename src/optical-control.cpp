@@ -15,7 +15,8 @@ const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5,
     std_src_col = Vector(0.5, 0.5, 0.5);
 
 extern const int scene_w = 1000;
-const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1;
+const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
+    std_sphere_radius = 0.5, std_src_radius = 0.5;
 const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
     obj_button_h = obj_list_w / 1.4, properties_h = scene_h * 0.7, obj_scroll_w = 50, 
     properties_w = 400, properties_left = scene_w + obj_list_w + obj_scroll_w,
@@ -163,7 +164,7 @@ void DeleteObjectButton::action()
 
 AddObjectButton::AddObjectButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptObjectType type,
     std::string text, OptController* control)
-    : Button(state, pos, size, dr4::Color(127, 127, 127), text), control(control)
+    : Button(state, pos, size, dr4::Color(0, 255, 127), text), control(control)
 {
     this->type = type;
 }
@@ -172,10 +173,10 @@ void AddObjectButton::action() {
     OptObject* obj = nullptr;
     switch (type) {
         case OPT_OBJ_SHPERE:
-            obj = *control->addSphere(std_sphere_pos, std_sphere_col, 1);
+            obj = *control->addSphere(std_sphere_pos, std_sphere_col, std_sphere_radius);
             break;
         case OPT_OBJ_SOURCE:
-            obj = *control->addSource(std_src_pos, std_src_col, 1);
+            obj = *control->addSource(std_src_pos, std_src_col, std_src_radius);
             break;
     }
     if (obj == nullptr) return;

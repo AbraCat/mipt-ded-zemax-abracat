@@ -83,7 +83,7 @@ EventResult Button::OnMouseDown(MouseButtonEvent &evt)
     SetFieldColor(press_color);
     ForceRedraw();
     action();
-    return EventResult::HANDLED;
+    return EventResult::UNHANDLED;
 }
 
 EventResult Button::OnMouseUp(MouseButtonEvent &evt)
@@ -192,15 +192,16 @@ EventResult InputField::OnMouseDown(MouseButtonEvent &evt)
 {
     bool in_abs_rect = GetRect().Contains(evt.pos);
 
-    if (in_abs_rect && !focused)
+    if (in_abs_rect)
     {
-        // state->focused = this;
         GetUI()->ReportFocus(this);
-        focused = true;
+        if (!focused) {
+            focused = true;
 
-        SetFieldColor(dr4::Color(127, 127, 127)); // gray
-        init_text = getText();
-        return EventResult::UNHANDLED;
+            SetFieldColor(dr4::Color(127, 127, 127)); // gray
+            init_text = getText();
+            return EventResult::UNHANDLED;
+        }
     }
 
     if (!in_abs_rect && focused)
@@ -233,7 +234,6 @@ void InputField::update_text()
 {
     SetFieldColor(dr4::Color(0, 0, 0)); // black
     focused = 0;
-    // if (state->focused == this) state->focused = nullptr;
     if (GetUI()->GetFocused() == this) GetUI()->ReportFocus(nullptr);
 
     std::string new_text = getText();
@@ -247,8 +247,8 @@ void InputField::update_text()
         {
             SetText(init_text);
         }
-
     }
+    ForceRedraw();
 }
 
 void InputField::setValidator(std::function<bool(std::string)> text_valid)

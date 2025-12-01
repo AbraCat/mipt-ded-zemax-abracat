@@ -18,11 +18,6 @@
 #include <thread>
 #include <chrono>
 
-/*
-TODO
-saving scene state to file
-*/
-
 extern dr4::Window* window = nullptr;
 extern const double ratio;
 extern const int scene_w;

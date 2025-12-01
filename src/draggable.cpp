@@ -29,20 +29,22 @@ void DraggableWidget::setDraggable(bool draggable) {
 }
 
 EventResult DraggableWidget::OnMouseDown(MouseButtonEvent &evt) {
+    if (!GetRect().Contains(evt.pos)) return hui::EventResult::UNHANDLED;
+    
     is_dragged = true;
     prev_widget_pos = GetPos();
     prev_event_pos = evt.pos;
 
-    return hui::EventResult::HANDLED;
+    return hui::EventResult::UNHANDLED;
 }
 
 EventResult DraggableWidget::OnMouseUp(MouseButtonEvent &evt) {
     is_dragged = false;
-    return hui::EventResult::HANDLED;
+    return hui::EventResult::UNHANDLED;
 }
 
 EventResult DraggableWidget::OnMouseMove(MouseMoveEvent &evt) {
-    if (!is_dragged) return hui::EventResult::HANDLED;
+    if (!is_dragged) return hui::EventResult::UNHANDLED;
     dr4::Vec2f new_pos = prev_widget_pos + (evt.pos - prev_event_pos);
 
     if (new_pos.x < drag_rect.pos.x) new_pos.x = drag_rect.pos.x;
@@ -57,5 +59,5 @@ EventResult DraggableWidget::OnMouseMove(MouseMoveEvent &evt) {
 
     prev_widget_pos = GetPos();
     prev_event_pos = evt.pos;
-    return hui::EventResult::HANDLED;
+    return hui::EventResult::UNHANDLED;
 }
