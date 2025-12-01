@@ -25,13 +25,10 @@ public:
 
     virtual void Redraw() const override;
 
-    // virtual void updateTexture() override;
-    // virtual bool onIdle(IdleEvent* e) override;
-
 private:
     // WContainer *button_cont;
     OptController* control;
-
+    WContainer* tools_container;
     std::vector<std::unique_ptr<pp::Tool>> tools;
 };
 

@@ -11,7 +11,7 @@ const dr4::Color shape_color(255, 0, 0);
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
 
 
-static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window) {
+static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window, dr4::Color color) {
     dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
         *left_line = window->CreateLine(), *right_line = window->CreateLine();
     dr4::Vec2f p1 = rect.pos, p2 = rect.pos + rect.size;
@@ -26,10 +26,10 @@ static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window*
     right_line->SetEnd(dr4::Vec2f(p2.x, p2.y));
 
 
-    top_line->SetColor(dr4::Color(255, 0, 0));
-    bottom_line->SetColor(dr4::Color(255, 0, 0));
-    left_line->SetColor(dr4::Color(255, 0, 0));
-    right_line->SetColor(dr4::Color(255, 0, 0));
+    top_line->SetColor(color);
+    bottom_line->SetColor(color);
+    left_line->SetColor(color);
+    right_line->SetColor(color);
     texture.Draw(*top_line);
     texture.Draw(*bottom_line);
     texture.Draw(*left_line);
@@ -136,13 +136,14 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
 void TextShape::DrawOn(dr4::Texture &texture) const {
     if (selected) {
         dr4::Rect2f rect(pos, size);
-        drawRectBorder(rect, texture, window);
+        drawRectBorder(rect, texture, window, dr4::Color(0, 0, 0));
     }
 
     dr4::Text* text_drawable = window->CreateText();
     dr4::Vec2f text_pos(GetPos().x + std::min(0.0f, GetSize().x), GetPos().y + std::min(0.0f, GetSize().y));
     text_drawable->SetPos(text_pos);
     text_drawable->SetText(text);
+    text_drawable->SetColor(dr4::Color(0, 255, 0));
     texture.Draw(*text_drawable);
 }
 

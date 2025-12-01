@@ -28,7 +28,6 @@ TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
 
 void TextField::Redraw() const
 {
-    // printf("redraw text field %f %f %f %f\n", GetPos().x, GetPos().y, GetSize().x, GetSize().y);
     const int text_h = 10;
 
     dr4::Rectangle* rect = window->CreateRectangle();
@@ -63,6 +62,16 @@ Button::Button(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color
 
     SetText(text);
     SetFieldColor(unpress_color);
+}
+
+void Button::imitatePress(bool down) {
+    MouseButtonEvent evt;
+    evt.pressed = down;
+    evt.pos = GetPos() + GetSize() / 2;
+    evt.button = dr4::MouseButtonType::LEFT;
+
+    if (down) OnMouseDown(evt);
+    else OnMouseUp(evt);
 }
 
 EventResult Button::OnMouseDown(MouseButtonEvent &evt)
@@ -108,7 +117,6 @@ ToggleButton::ToggleButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size,
 EventResult ToggleButton::OnMouseDown(MouseButtonEvent &evt)
 {
     // Widget::mousePressEvent(e);
-
     if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
 
     is_pressed = !is_pressed;

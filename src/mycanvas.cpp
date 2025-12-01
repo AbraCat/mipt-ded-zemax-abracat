@@ -12,9 +12,6 @@ ControlsTheme Canvas::GetControlsTheme() const { return ControlsTheme(); }
 
 MyCanvas::MyCanvas(dr4::Window* window, dr4::Vec2f size)
     : size(size), window(window), texture(nullptr) {
-    // texture = window->CreateTexture();
-    // texture->SetSize(size);
-    // texture->SetPos(dr4::Vec2f());
 
     theme.shapeColor = dr4::Color(255, 0, 0);
 }
@@ -23,7 +20,6 @@ ControlsTheme MyCanvas::GetControlsTheme() const { return theme; }
 
 void MyCanvas::AddShape(Shape *shape) {
     shapes.push_back(shape);
-    // draw
 }
 
 void MyCanvas::DelShape(Shape *shape) {
@@ -50,11 +46,9 @@ void MyCanvas::DrawAllShapes() {
     for (Shape* sh: shapes) {
         texture->Draw(*sh);
     }
-
-    // window->Draw(*texture);
 }
 
-void MyCanvas::SetSelectedShape(Shape *shape) {} // TODO
+void MyCanvas::SetSelectedShape(Shape *shape) {}
 Shape *MyCanvas::GetSelectedShape() const { return nullptr; }
 
 } // namespace pp
@@ -68,7 +62,6 @@ CanvasWidget::CanvasWidget(hui::UI* ui, dr4::Vec2f pos, Widget* w)
     this->w = w;
     this->cvs = new pp::MyCanvas(GetUI()->GetWindow(), w->GetSize());
     cvs->setWidget(this);
-    // cvs.sett
     addChild(w);
 }
 

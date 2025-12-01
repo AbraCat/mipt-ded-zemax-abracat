@@ -22,7 +22,7 @@ const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
     n_camera_buttons = 6, n_move_buttons = 6, max_n_objects = 10;
 
 extern const int opt_control_w = scene_w + obj_list_w + obj_scroll_w + properties_w,
-    opt_control_h = scene_h + button_h;
+    opt_control_h = scene_h + button_h, tools_h = opt_control_h * 0.7, tool_button_w = 200;
 
 
 std::string doubleToStr(double val)
@@ -161,6 +161,35 @@ void DeleteObjectButton::action()
     obj->scene->control->deleteObject(obj);
 }
 
+AddObjectButton::AddObjectButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptObjectType type,
+    std::string text, OptController* control)
+    : Button(state, pos, size, dr4::Color(127, 127, 127), text), control(control)
+{
+    this->type = type;
+}
+
+void AddObjectButton::action() {
+    OptObject* obj = nullptr;
+    switch (type) {
+        case OPT_OBJ_SHPERE:
+            obj = *control->addSphere(Vector(0, 0, 0), Vector(0.5, 0.5, 0.5), 1);
+            break;
+        case OPT_OBJ_SOURCE:
+            obj = *control->addSource(Vector(0, -1, 0), Vector(0.5, 0.5, 0.5), 1);
+            break;
+    }
+
+    if (obj != nullptr) {
+        for (hui::Widget* w: control->obj_cont->children) {
+            OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
+            assert(button != nullptr);
+
+            if (button->obj == obj || button->obj != obj && button->isPressed()) button->imitatePress(true);
+        }
+        control->s->needsRerender();
+    }
+}
+
 
 MoveCameraButton::MoveCameraButton(hui::UI* ui, OptScene* scene, Vector change, dr4::Color color, std::string text)
     : Button(ui, dr4::Vec2f(), dr4::Vec2f(), color, text), scene(scene), change(change)
@@ -195,6 +224,11 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
     cam_cont->addChild(new MoveCameraButton(ui, s, {cam_change_x, 0, 0}, gray_color, "right"));
     cam_cont->addChild(new MoveCameraButton(ui, s, {0, -cam_change_y, 0}, gray_color, "up"));
     cam_cont->addChild(new MoveCameraButton(ui, s, {0, cam_change_y, 0}, gray_color, "down"));
+
+    WContainer* add_but_cont = new WContainer(ui, {opt_control_w, tools_h}, {tool_button_w, opt_control_h - tools_h}, 2, true);
+    add_but_cont->addChild(new AddObjectButton(ui, {}, {}, OPT_OBJ_SHPERE, "Add sphere", this));
+    add_but_cont->addChild(new AddObjectButton(ui, {}, {}, OPT_OBJ_SOURCE, "Add source", this));
+    parent->addChild(add_but_cont);
 
     obj_cont = makeObjectContainer({scene_w, 0}, {obj_list_w, scene_h + button_h});
     parent->addChild(obj_cont);
@@ -281,8 +315,9 @@ void OptController::deleteObject(OptObject* obj)
 
 void OptController::addObject(OptObject* obj)
 {
-    // new OptObjectButton(obj_cont, {}, {}, obj, panel);
-    obj_cont->addChild(new OptObjectButton(s->GetUI(), {}, {}, obj, panel));
+    OptObjectButton* button = new OptObjectButton(s->GetUI(), {}, dr4::Vec2f(100, 100), obj, panel);
+    obj_cont->addChild(button);
+    obj_cont->ForceRedraw();
 }
 
 std::vector<Surface*>::iterator OptController::addSphere(Vector pos, Vector color, double r, Material m)

@@ -43,7 +43,6 @@ void MyContainer::Redraw() const {
         GetTexture().Draw(*rect);
     }
 
-
     for (Widget* w: children) {
         GetTexture().Draw(*w);
     }

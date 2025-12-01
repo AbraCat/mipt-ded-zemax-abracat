@@ -76,6 +76,18 @@ private:
     OptObject* obj;
 };
 
+class AddObjectButton : public Button
+{
+public:
+    AddObjectButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptObjectType type,
+        std::string text, OptController* control);
+    virtual void action() override;
+
+private:
+    OptController* control;
+    OptObjectType type;
+};
+
 
 
 class ObjControlPanel : public MyContainer

@@ -12,6 +12,12 @@ class Material;
 
 extern const Material glass, plastic, std_material;
 
+enum OptObjectType {
+    OPT_OBJ_PLANE,
+    OPT_OBJ_SHPERE,
+    OPT_OBJ_SOURCE
+};
+
 enum OptPropEnum
 {
     OPT_DIFFUSE_PORTION,

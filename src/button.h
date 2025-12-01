@@ -55,9 +55,11 @@ public:
     Button(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
     virtual ~Button() noexcept override = default;
 
+    void imitatePress(bool down);
     virtual hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
     virtual hui::EventResult OnMouseUp(hui::MouseButtonEvent &evt) override;
 
+    bool isPressed() const { return is_pressed; }
     virtual void action() = 0;
     virtual void unpress();
 
