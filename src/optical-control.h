@@ -4,6 +4,7 @@
 #include "optical-scene.h"
 #include "button.h"
 #include "wcontainer.h"
+#include "scroll.h"
 
 
 class ObjControlPanel;
@@ -106,7 +107,7 @@ class OptController
 {
 public:
     OptController(hui::UI* ui, MyContainer* parent);
-    WContainer* makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size);
+    WList* makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size);
 
     void addObject(OptObject* obj);
     std::vector<Surface*>::iterator addSphere(Vector pos, Vector color, double r, Material m = plastic);
@@ -125,9 +126,8 @@ public:
     OptScene* s;
     CanvasWidget* cvs_widget;
     MyContainer *cam_cont;
-    // WList *obj_cont;
-    WContainer* obj_cont;
-    // ListScrollBar *obj_scroll;
+    WList *obj_cont;
+    WidgetScrollBar *obj_scroll;
     ObjControlPanel* panel;
 };
 

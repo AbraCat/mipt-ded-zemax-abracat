@@ -48,19 +48,17 @@ protected:
     int nChildren, padding, childWidth, childHeight;
 };
 
-// class WList : public WContainer
-// {
-// public:
-//     WList(Widget* parent, Vector tl, Vector br, bool vertical, double child_len);
-
-//     virtual int removeChildByPredicate(std::function<bool(Widget*)> predicate) override;
-//     virtual Vector propagatedAbsTL() override;
-//     virtual bool handleEvent(Event* e) override;
+class WList : public WContainer
+{
+public:
+    WList(hui::UI* ui, dr4::Vec2f pos, bool vertical, double child_len, double edge_len);
+    void resize();
     
-//     void scroll(double frac);
+    virtual void addChild(Widget* widget) override;
+    virtual int removeChildByPredicate(std::function<bool(Widget*)> predicate) override;
 
-// private:
-//     double scroll_frac, child_len;
-// };
+private:
+    double scroll_frac, child_len, edge_len;
+};
 
 #endif // W_CONTAINER_H

@@ -20,7 +20,6 @@
 
 /*
 TODO
-scrollable list
 saving scene state to file
 */
 

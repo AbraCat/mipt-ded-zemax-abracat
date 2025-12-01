@@ -16,17 +16,16 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     MyContainer(state)
 {
     SetSize(size);
-    setDrawRect(true);
 
     control = new OptController(state, this);
     control->addSource({0, -1, 4}, green_col * 0.5, src_size);
 
-    // control->addSphere({-1, 0, 0}, gray_col, 0.5);
-    // control->addSphere({1, -0.5, 0}, gray_col, 0.5);
-    // control->addSphere({0.3, 1, 0}, gray_col, 0.5);
-    // control->addSphere({0, 0, -12}, gray_col, 5);
-    // control->addSphere({0, 0, -2}, purple_col, 0.3);
-    // control->addSphere({0, 0, 3}, white_col, 1, glass);
+    control->addSphere({-1, 0, 0}, gray_col, 0.5);
+    control->addSphere({1, -0.5, 0}, gray_col, 0.5);
+    control->addSphere({0.3, 1, 0}, gray_col, 0.5);
+    control->addSphere({0, 0, -12}, gray_col, 5);
+    control->addSphere({0, 0, -2}, purple_col, 0.3);
+    control->addSphere({0, 0, 3}, white_col, 1, glass);
 
     tools = pp_plugin->CreateTools(control->getCanvas());
     tools_container = new WContainer(GetUI(), {opt_control_w, 0}, {tool_button_w, tools_h}, tools.size(), 1);
@@ -36,14 +35,6 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
             dr4::Color(127, 127, 127), "Draw " + std::string(tool->Name())));
     }
     addChild(tools_container);
-
-    ScrollBar* bar = new ScrollBar(state, {0, opt_control_h}, {50, 300});
-    addChild(bar);
-
-    // DraggableWidget* drag = new DraggableWidget(state, {0, opt_control_h}, {100, 100});
-    // addChild(drag);
-    // drag->setDraggable(true);
-    // drag->setDragRect(dr4::Rect2f(0, opt_control_h, 500, 300));
 }
 
 Desktop::~Desktop()

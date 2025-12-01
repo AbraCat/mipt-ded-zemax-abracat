@@ -1,7 +1,5 @@
 #include "optical-control.h"
-
-
-// #include "optical-scene.h"
+#include "scroll.h"
 
 #include <algorithm>
 #include <random>
@@ -13,6 +11,8 @@
 
 const dr4::Color gray_color(127, 127, 127), red_color(255, 0, 0);
 const Vector sky_col = {0, 0.5, 0.75}, init_V = {0, 0, 10}, init_screen_tl = {-2, -1.15, 4};
+const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5, 0.5), std_src_pos = Vector(0, -1, 0),
+    std_src_col = Vector(0.5, 0.5, 0.5);
 
 extern const int scene_w = 1000;
 const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1;
@@ -172,22 +172,22 @@ void AddObjectButton::action() {
     OptObject* obj = nullptr;
     switch (type) {
         case OPT_OBJ_SHPERE:
-            obj = *control->addSphere(Vector(0, 0, 0), Vector(0.5, 0.5, 0.5), 1);
+            obj = *control->addSphere(std_sphere_pos, std_sphere_col, 1);
             break;
         case OPT_OBJ_SOURCE:
-            obj = *control->addSource(Vector(0, -1, 0), Vector(0.5, 0.5, 0.5), 1);
+            obj = *control->addSource(std_src_pos, std_src_col, 1);
             break;
     }
+    if (obj == nullptr) return;
 
-    if (obj != nullptr) {
-        for (hui::Widget* w: control->obj_cont->children) {
-            OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
-            assert(button != nullptr);
+    for (hui::Widget* w: control->obj_cont->children) {
+        OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
+        assert(button != nullptr);
 
-            if (button->obj == obj || button->obj != obj && button->isPressed()) button->imitatePress(true);
-        }
-        control->s->needsRerender();
+        if (button->obj == obj || button->obj != obj && button->isPressed()) button->imitatePress(true);
     }
+    control->s->needsRerender();
+    control->obj_scroll->moveThumb(0);
 }
 
 
@@ -230,18 +230,22 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
     add_but_cont->addChild(new AddObjectButton(ui, {}, {}, OPT_OBJ_SOURCE, "Add source", this));
     parent->addChild(add_but_cont);
 
-    obj_cont = makeObjectContainer({scene_w, 0}, {obj_list_w, scene_h + button_h});
-    parent->addChild(obj_cont);
-    // obj_scroll = new ListScrollBar(parent, {scene_w + obj_list_w, 0},
-    //     {scene_w + obj_list_w + obj_scroll_w, scene_h + button_h}, obj_cont);
+    obj_cont = makeObjectContainer({0, 0}, {obj_list_w, obj_button_h});//scene_h + button_h + 300});
+    assert(obj_cont != nullptr);
+    ScrollableWidget* obj_scrollable = new ScrollableWidget(obj_cont, {scene_w, 0}, {obj_list_w, scene_h + button_h});
+    parent->addChild(obj_scrollable);
+
+    obj_scroll = new WidgetScrollBar(ui, {scene_w + obj_list_w, 0},
+        {obj_scroll_w, scene_h + button_h}, obj_scrollable);
+    parent->addChild(obj_scroll);
 }
 
-WContainer* OptController::makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size)
+WList* OptController::makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size)
 {
     int n_objects = s->surfaces.size() + s->sources.size();
 
     // this->obj_cont = new WList(parent, tl, br, 1, obj_button_h);
-    this->obj_cont = new WContainer(parent->GetUI(), pos, size, 10, 1); // TODO n_children ?
+    this->obj_cont = new WList(parent->GetUI(), pos, true, size.y, size.x); // TODO n_children ?
     
     for (OptObject* obj: s->surfaces)
         obj_cont->addChild(new OptObjectButton(s->GetUI(), {}, {}, obj, panel));
@@ -305,10 +309,9 @@ void OptController::deleteObject(OptObject* obj)
         assert(button != nullptr);
         return button->obj == obj;
     });
-    // obj_scroll->moveThumb(0);
+    obj_scroll->moveThumb(0);
 
     delete obj;
-    // obj_cont->updateTextureRec();
     obj_cont->ForceRedraw();
     s->needsRerender();
 }

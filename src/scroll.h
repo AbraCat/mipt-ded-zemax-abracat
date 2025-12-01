@@ -11,7 +11,7 @@ class ScrollButton;
 class ScrollBar : public MyContainer
 {
 public:
-    ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_frac = 0.5);
+    ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_frac = 0.0);
 
     double posToFrac(dr4::Vec2f thumbPos);
     dr4::Vec2f fracToPos(double frac);
@@ -43,9 +43,33 @@ class ScrollThumb : public DraggableWidget
 public:
     ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color = {63, 63, 63});
     void movePos(dr4::Vec2f new_pos) override;
+    void Redraw() const override;
 
 private:
     ScrollBar *bar;
+    dr4::Color color;
+};
+
+
+
+
+class ScrollableWidget : public MyContainer {
+public:
+    ScrollableWidget(hui::Widget* scrolled, dr4::Vec2f pos, dr4::Vec2f size, bool vertical = true);
+    void scroll(double frac);
+
+protected:
+    Widget* scrolled;
+    bool vertical;
+};
+
+class WidgetScrollBar : public ScrollBar {
+public:
+    WidgetScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollableWidget* scrollable);
+    virtual void action(double frac_pos) override;
+
+protected:
+    ScrollableWidget* scrollable;
 };
 
 
@@ -87,5 +111,6 @@ private:
 
 // // private:
 //     WList* list;
+// };
 
 #endif // SCROLL_BAR_H

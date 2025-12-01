@@ -1,5 +1,7 @@
 #include "scroll.h"
 
+#include "hui/ui.hpp"
+
 #include <cassert>
 #include <cmath>
 
@@ -55,7 +57,7 @@ void ScrollBar::thumbMoved(dr4::Vec2f newThumbTL)
 
 void ScrollBar::action(double frac_pos)
 {
-    printf("action %lf\n", frac_pos);
+    //
 }
 
 
@@ -75,7 +77,7 @@ void ScrollButton::action()
 
 
 ScrollThumb::ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color) :
-    DraggableWidget(ui, pos, size), bar(bar)
+    DraggableWidget(ui, pos, size), bar(bar), color(color)
 {
     //
 }
@@ -84,6 +86,46 @@ void ScrollThumb::movePos(dr4::Vec2f newTL)
 {
     DraggableWidget::movePos(newTL);
     bar->thumbMoved(newTL);
+}
+
+void ScrollThumb::Redraw() const {
+    dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
+    rect->SetPos({0, 0});
+    rect->SetSize(GetSize());
+    rect->SetFillColor(color);
+    rect->SetBorderColor(dr4::Color(255, 255, 255));
+    GetTexture().Draw(*rect);
+}
+
+
+
+
+
+
+WidgetScrollBar::WidgetScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollableWidget* scrollable)
+    : ScrollBar(ui, pos, size), scrollable(scrollable) {
+    //
+}
+
+void WidgetScrollBar::action(double frac_pos) {
+    scrollable->scroll(frac_pos);
+}
+
+
+
+
+
+ScrollableWidget::ScrollableWidget(hui::Widget* scrolled, dr4::Vec2f pos, dr4::Vec2f size, bool vertical)
+    : MyContainer(scrolled->GetUI(), pos, size), scrolled(scrolled), vertical(vertical) {
+    setDrawRect(true);
+    addChild(scrolled);
+}
+
+void ScrollableWidget::scroll(double frac) {
+    if (vertical) scrolled->SetPos({0, (GetSize().y - scrolled->GetSize().y) * frac});
+    else scrolled->SetPos({(GetSize().x - scrolled->GetSize().x) * frac, 0});
+
+    scrolled->ForceRedraw();
 }
 
 

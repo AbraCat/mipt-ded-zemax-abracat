@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cassert>
 
-const dr4::Color shape_color(255, 0, 0);
+const dr4::Color shape_color(127, 0, 127), text_color(255, 0, 0), text_border_col(0, 0, 0);
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
 
@@ -165,14 +165,14 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
 void TextShape::DrawOn(dr4::Texture &texture) const {
     if (selected) {
         dr4::Rect2f rect(pos, size);
-        drawRectBorder(rect, texture, window, dr4::Color(0, 0, 0));
+        drawRectBorder(rect, texture, window, text_border_col);
     }
 
     dr4::Text* text_drawable = window->CreateText();
     dr4::Vec2f text_pos(GetPos().x + std::min(0.0f, GetSize().x), GetPos().y + std::min(0.0f, GetSize().y));
     text_drawable->SetPos(text_pos);
     text_drawable->SetText(text);
-    text_drawable->SetColor(dr4::Color(0, 255, 0));
+    text_drawable->SetColor(text_color);
     texture.Draw(*text_drawable);
 }
 

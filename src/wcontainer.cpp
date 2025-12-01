@@ -190,13 +190,11 @@ void WContainer::resizeChild(int nChild)
 
 void WContainer::addChild(Widget* w)
 {
-    // assert(children.size() < nChildren);
     int nChild = children.size();
     MyContainer::addChild(w);
+    resizeChild(nChild);
 
-    // w->t->setVisibleIn(this);
-    resizeChild(nChild);   
-    // w->ForceRedraw(); 
+    //
 }
 
 int WContainer::removeChildByPredicate(std::function<bool(Widget*)> predicate)
@@ -213,60 +211,37 @@ int WContainer::removeChildByPredicate(std::function<bool(Widget*)> predicate)
 
 
 
-// WList::WList(Widget* parent, Vector tl, Vector br, bool vertical, double child_len)
-//     : WContainer(parent, tl, br, 1, vertical), child_len(child_len)
-// {
-//     setFillRect(1);
-//     scroll_frac = 0;
+WList::WList(hui::UI* ui, dr4::Vec2f pos, bool vertical, double child_len, double edge_len)
+    : WContainer(ui, pos, {edge_len, 0}, 0, vertical), child_len(child_len), edge_len(edge_len)
+{
+    // setFillRect(1);
+    scroll_frac = 0;
 
-//     if (vertical)
-//     {
-//         childWidth = width;
-//         childHeight = child_len;
-//     }
-//     else
-//     {
-//         childHeight = height;
-//         childWidth = child_len;
-//     }
-// }
+    if (vertical)
+    {
+        childWidth = edge_len;
+        childHeight = child_len;
+    }
+    else
+    {
+        childHeight = edge_len;
+        childWidth = child_len;
+    }
+}
 
-// int WList::removeChildByPredicate(std::function<bool(Widget*)> predicate)
-// {
-//     int n_removed = Widget::removeChildByPredicate(predicate);
+void WList::resize() {
+    if (vertical) SetSize({edge_len, child_len * children.size()});
+    else SetSize({child_len * children.size(), edge_len});
+}
 
-//     for (int n_child = n_removed; n_child < children.size(); ++n_child)
-//         resizeChild(n_child);
+void WList::addChild(Widget* widget) {
+    WContainer::addChild(widget);
+    resize();
+}
 
-//     updateTextureRec();
-//     return n_removed;
-// }
-
-// Vector WList::propagatedAbsTL()
-// {
-//     if (vertical)
-//         return Vector(absTL.x, absTL.y - scroll_frac * (child_len * children.size() - height));
-//     else
-//         return Vector(absTL.x - scroll_frac * (child_len * children.size() - width), absTL.y);
-// }
-
-// void WList::scroll(double frac)
-// {
-//     scroll_frac = frac;
-//     propagateAbsPos();
-//     t->updated = 1;
-// }
-
-// bool WList::handleEvent(Event* e)
-// {
-//     MouseEvent* press_evt = dynamic_cast<MouseEvent*>(e);
-//     if (press_evt != NULL && press_evt->type == MOUSE_DOWN &&
-//         !inAbsRect(Vector(press_evt->x, press_evt->y)))
-//     {
-//         return e->dispatch(this);
-//     }
-
-//     for (Widget* w: children)
-//         if (w->handleEvent(e)) return 1;
-//     return e->dispatch(this);
-// }
+int WList::removeChildByPredicate(std::function<bool(Widget*)> predicate)
+{
+    int n_removed = WContainer::removeChildByPredicate(predicate);
+    resize();
+    return n_removed;
+}
