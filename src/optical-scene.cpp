@@ -5,11 +5,10 @@
 #include <algorithm>
 #include <random>
 #include <sstream>
+#include <thread>
 #include <limits>
 #include <cmath>
 #include <cassert>
-
-#include <SDL3/SDL.h>
 
 extern dr4::Window* window;
 
@@ -103,7 +102,8 @@ hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
     if (pix_queue.size() == 0) return hui::EventResult::UNHANDLED;
 
     std::vector<std::vector<IntVec>> thread_pix(n_threads, std::vector<IntVec>());
-    std::vector<SDL_Thread*> threads;
+    // std::vector<SDL_Thread*> threads;
+    std::vector<std::thread> threads;
     RenderThreadData* thread_data = new RenderThreadData[n_threads];
 
     for (int thread_num = 0; thread_num < n_threads; ++thread_num)
@@ -122,14 +122,16 @@ hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
         thread_data[thread_num].thread_num = thread_num;
         thread_data[thread_num].thread_pix = &thread_pix[thread_num];
 
-        threads.push_back(SDL_CreateThread(calcIdleThread,
-            std::to_string(thread_num).c_str(), &thread_data[thread_num]));
+        // threads.push_back(SDL_CreateThread(calcIdleThread,
+        //     std::to_string(thread_num).c_str(), &thread_data[thread_num]));
+        threads.push_back(std::thread(calcIdleThread, thread_data + thread_num));
     }
 
     for (int thread_num = 0; thread_num < n_threads; ++thread_num)
     {
         int status = 0;
-        SDL_WaitThread(threads[thread_num], &status);
+        // SDL_WaitThread(threads[thread_num], &status);
+        threads[thread_num].join();
         assert(status == 0);
     }
 

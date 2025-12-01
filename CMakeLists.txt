@@ -8,47 +8,6 @@ set(CMAKE_LIbrARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 add_subdirectory(sdl EXCLUDE_FROM_ALL)
 
-# add_executable(hello WIN32 main.cpp sdl-adapter.cpp plane.cpp texture.cpp event.cpp widget.cpp wcontainer.cpp
-#     myvector.cpp reactor.cpp desktop.cpp button.cpp scroll.cpp optical-scene.cpp optical-object.cpp
-#     optical-control.cpp
-    
-#     window.cpp)
-
-# add_executable(hello WIN32 src/main.cpp src/sdl-adapter.cpp src/texture.cpp src/event.cpp src/widget.cpp src/wcontainer.cpp
-#     src/myvector.cpp src/desktop.cpp src/optical-scene.cpp src/optical-object.cpp
-    
-#     src/window.cpp src/my-dr4-plugin.cpp)
-
-# add_executable(hello WIN32 src/main.cpp src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
-    
-#     src/window.cpp src/my-dr4-plugin.cpp)
-
-# target_link_libraries(hello PRIVATE SDL3::SDL3)
-# target_include_directories(hello PRIVATE ./include/ ./src)
-# target_compile_options(hello PRIVATE -Wno-narrowing)
-
-
-
-# BEFORE MERGING DRAFT2
-
-# add_library(dr4_plugin SHARED src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
-#     src/window.cpp src/my-dr4-plugin.cpp)
-# target_link_libraries(dr4_plugin PUBLIC SDL3::SDL3)
-# target_include_directories(dr4_plugin PUBLIC ./include/ ./src)
-
-# add_library(pp_plugin SHARED src/my-pp-plugin.cpp)
-# target_include_directories(pp_plugin PUBLIC ./include/ ./src)
-
-# add_executable(main src/main.cpp src/hui/widget.cpp src/hui/event.cpp src/hui/container.cpp
-#     src/wcontainer.cpp src/desktop.cpp src/button.cpp src/optical-object.cpp src/optical-scene.cpp
-#     src/mycanvas.cpp src/tool-widget.cpp)
-
-# target_include_directories(main PRIVATE ./include/)
-# target_link_libraries(main PRIVATE dr4_plugin pp_plugin)
-
-
-# TODO: libraries cum, dr4, hui, pp
-
 add_library(dr4 SHARED src/sdl-adapter.cpp src/texture.cpp src/myvector.cpp
     src/window.cpp src/my-dr4-plugin.cpp)
 target_link_libraries(dr4 PUBLIC SDL3::SDL3)
@@ -58,12 +17,9 @@ add_library(pp SHARED src/my-pp-plugin.cpp)
 target_include_directories(pp PUBLIC ./include/ ./src)
 
 add_executable(main source/hui/widget.cpp source/hui/event.cpp source/hui/container.cpp source/hui/ui.cpp source/cum/manager.cpp
-    src/main.cpp
+    src/main.cpp src/myvector.cpp
     src/wcontainer.cpp src/desktop.cpp src/button.cpp src/optical-object.cpp src/optical-scene.cpp src/optical-control.cpp
     src/mycanvas.cpp src/tool-widget.cpp
-    
     )
-
 target_include_directories(main PRIVATE ./include/)
-target_link_libraries(main PRIVATE dr4 pp)
 target_compile_options(main PRIVATE -Wno-narrowing)

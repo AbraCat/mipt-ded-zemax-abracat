@@ -21,14 +21,16 @@
 /*
 TODO
 scrollable list
-linking
 saving scene state to file
 */
 
 extern dr4::Window* window = nullptr;
 extern const double ratio;
 extern const int scene_w;
+
 const int desktop_w = 1900, desktop_h = 1000, fps = 30;
+const std::string dr4_path = "build/libdr4.so";
+const std::string pp_path = "build/libpp.so";
 
 int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
@@ -82,8 +84,8 @@ int main()
 {
     srand(1);
     cum::Manager* manager = new cum::Manager();
-    assert(manager->LoadFromFile("libdr4.so") != nullptr);
-    assert(manager->LoadFromFile("libpp.so") != nullptr);
+    assert(manager->LoadFromFile(dr4_path) != nullptr);
+    assert(manager->LoadFromFile(pp_path) != nullptr);
 
     cum::DR4BackendPlugin* dr4_plugin = manager->GetAnyOfType<cum::DR4BackendPlugin>();
     assert(dr4_plugin != nullptr);
