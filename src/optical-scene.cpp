@@ -12,8 +12,6 @@
 
 extern dr4::Window* window;
 
-
-
 const double ratio = 16.0 / 9.0, screen_size = 4, obj_change = 1;
 const int max_depth = 8, n_diffuse_rays = 1, n_shadow_rays = 1, n_move_buttons = 6, obj_button_h = 100,
     n_threads = 1, pix_per_frame = 5e4, select_rect_size = 75;
@@ -57,10 +55,9 @@ static void drawRectBorder(FixedVec rect, dr4::Texture& texture, dr4::Window* wi
 void OptScene::Redraw() const
 {
     if (needs_rerender) {
-        pix_queue = std::vector<IntVec>();//(GetSize().x * GetSize().y + 1);
+        pix_queue = std::vector<IntVec>();
         for (int y = 0; y < GetSize().y; ++y)
             for (int x = 0; x < GetSize().x; ++x) {
-                // pix_queue[y * GetSize().x + x] = IntVec(x, y);
                 pix_queue.push_back(IntVec(x, y));
             }
 
@@ -76,7 +73,6 @@ void OptScene::Redraw() const
         if (!obj->has_rect) continue;
         FixedVec rect = getRect(obj);
         drawRectBorder(rect, GetTexture(), GetUI()->GetWindow());
-        // t->addRect(rect, red_v, 0);
     }
 }
 
@@ -102,7 +98,6 @@ hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
     if (pix_queue.size() == 0) return hui::EventResult::UNHANDLED;
 
     std::vector<std::vector<IntVec>> thread_pix(n_threads, std::vector<IntVec>());
-    // std::vector<SDL_Thread*> threads;
     std::vector<std::thread> threads;
     RenderThreadData* thread_data = new RenderThreadData[n_threads];
 
@@ -122,15 +117,12 @@ hui::EventResult OptScene::OnIdle(hui::IdleEvent &evt) {
         thread_data[thread_num].thread_num = thread_num;
         thread_data[thread_num].thread_pix = &thread_pix[thread_num];
 
-        // threads.push_back(SDL_CreateThread(calcIdleThread,
-        //     std::to_string(thread_num).c_str(), &thread_data[thread_num]));
         threads.push_back(std::thread(calcIdleThread, thread_data + thread_num));
     }
 
     for (int thread_num = 0; thread_num < n_threads; ++thread_num)
     {
         int status = 0;
-        // SDL_WaitThread(threads[thread_num], &status);
         threads[thread_num].join();
         assert(status == 0);
     }

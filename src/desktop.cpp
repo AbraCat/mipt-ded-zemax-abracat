@@ -1,6 +1,7 @@
 #include "desktop.h"
 #include "button.h"
 #include "tool-widget.h"
+#include "draggable.h"
 
 #include "hui/ui.hpp"
 
@@ -15,6 +16,7 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     MyContainer(state)
 {
     SetSize(size);
+    setDrawRect(true);
 
     control = new OptController(state, this);
     control->addSource({0, -1, 4}, green_col * 0.5, src_size);
@@ -34,6 +36,11 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
             dr4::Color(127, 127, 127), "Draw " + std::string(tool->Name())));
     }
     addChild(tools_container);
+
+    DraggableWidget* drag = new DraggableWidget(state, {0, opt_control_h}, {100, 100});
+    addChild(drag);
+    drag->setDraggable(true);
+    drag->setDragRect(dr4::Rect2f(0, opt_control_h, 500, 300));
 }
 
 Desktop::~Desktop()
