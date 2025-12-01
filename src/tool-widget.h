@@ -6,7 +6,7 @@
 
 namespace hui {
 
-class ToolWidget : public ToggleButton {
+class ToolWidget : public ExclusiveButton {
 public:
     ToolWidget(hui::UI *state, pp::Tool* tool, dr4::Vec2f pos, dr4::Vec2f size,
             dr4::Color color, std::string text);

@@ -77,7 +77,7 @@ public:
     virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
 
 protected:
-    bool is_drawing, is_selected;
+    bool is_resizing_shape, is_drawing, is_selected;
     Canvas* canvas;
     MyShape* cur_shape;
     dr4::Window* window;

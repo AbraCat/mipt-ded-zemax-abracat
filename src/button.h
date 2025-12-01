@@ -1,8 +1,7 @@
 #ifndef MY_BUTTON_H
 #define MY_BUTTON_H
 
-// #include "widget.h"
-#include "reactor.h"
+#include "wcontainer.h"
 
 #include "hui/widget.hpp"
 
@@ -80,6 +79,12 @@ public:
     virtual void deactivate() = 0;
 };
 
-// } // namespace hui
+
+
+class ExclusiveButton : public ToggleButton {
+public:
+    ExclusiveButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
+    virtual void action() override;
+};
 
 #endif // MY_BUTTON_H

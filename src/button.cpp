@@ -11,7 +11,7 @@ using hui::MouseButtonEvent;
 using hui::KeyEvent;
 
 const double unpressColorCoeff = 0.7;
-const int key_enter = 13;
+const int letter_width = 17.3;
 
 extern dr4::Window* window;
 
@@ -114,8 +114,8 @@ ToggleButton::ToggleButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size,
 
 EventResult ToggleButton::OnMouseDown(MouseButtonEvent &evt)
 {
-    // Widget::mousePressEvent(e);
-    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
+    // printf("down start\n");
+    if (!GetRect().Contains(evt.pos)) {return EventResult::UNHANDLED;}//{ printf("down end\n"); return EventResult::UNHANDLED; }
 
     is_pressed = !is_pressed;
     SetFieldColor(is_pressed ? press_color : unpress_color);
@@ -123,12 +123,12 @@ EventResult ToggleButton::OnMouseDown(MouseButtonEvent &evt)
 
     if (is_pressed) action();
     else deactivate();
+    // printf("down end\n");
     return EventResult::UNHANDLED;
 }
 
 EventResult ToggleButton::OnMouseUp(MouseButtonEvent &evt)
 {
-    // Widget::mouseReleaseEvent(e);
     return EventResult::UNHANDLED;
 }
 
@@ -223,7 +223,7 @@ EventResult InputField::OnKeyDown(KeyEvent &evt)
         SetText(cur_text.substr(0, cur_text.size() - 1));
     else {
         char chr = KeycodeToChar(evt.key, evt.mods);
-        if (chr != '\0')
+        if (chr != '\0' && getText().size() * letter_width < GetSize().x)
             SetText(getText() + std::string(1, chr));
     }
 
@@ -254,4 +254,23 @@ void InputField::update_text()
 void InputField::setValidator(std::function<bool(std::string)> text_valid)
 {
     this->text_valid = text_valid;
+}
+
+
+
+
+ExclusiveButton::ExclusiveButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text)
+    : ToggleButton(state, pos, size, color, text) {
+    //
+}
+
+void ExclusiveButton::action() {
+    MyContainer* parent = dynamic_cast<MyContainer*>(GetParent());
+    assert(parent != nullptr);
+
+    for (hui::Widget* w: parent->children) {
+        ToggleButton* button = dynamic_cast<ToggleButton*>(w);
+        assert(button != nullptr);
+        if (button != this && button->isPressed()) button->imitatePress(true);
+    }
 }

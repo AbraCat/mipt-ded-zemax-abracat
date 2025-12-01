@@ -6,10 +6,10 @@
 #include <cmath>
 #include <cassert>
 
+const int letter_width = 17.3;
 const dr4::Color shape_color(127, 0, 127), text_color(255, 0, 0), text_border_col(0, 0, 0);
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
-
 
 static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window, dr4::Color color) {
     dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
@@ -107,7 +107,7 @@ void RectShape::DrawOn(dr4::Texture &tex) const {
     dr4::Rectangle* rect = window->CreateRectangle();
     rect->SetPos(pos);
     rect->SetSize(size);
-    rect->SetFillColor(dr4::Color(255, 0, 0));
+    rect->SetFillColor(shape_color);
     tex.Draw(*rect);
 }
 
@@ -135,7 +135,7 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 
     line->SetStart(pos);
     line->SetEnd(pos + size);
-    line->SetColor(shape_color);
+    line->SetColor(dr4::Color(255, 0, 0));
     line->SetThickness(3);
     
     tex.Draw(*line);
@@ -155,7 +155,7 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     }
     else {
         char chr = KeycodeToChar(evt.sym, evt.mods);
-        if (chr != '\0') text += chr;
+        if (text.size() * letter_width < std::fabs(GetSize().x) && chr != '\0') text += chr;
     }
 
     canvas->ShapeChanged(this);
@@ -202,10 +202,7 @@ bool TextTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
 bool TextTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
     if (!is_selected || !is_drawing) return false;
 
-    cur_shape->SetSize(evt.pos - cur_shape->GetPos());
-    canvas->ShapeChanged(cur_shape);
-
-    is_drawing = false;
+    is_resizing_shape = false;
     return true;
 }
 
@@ -217,6 +214,8 @@ bool TextTool::OnKeyDown(const dr4::Event::KeyEvent &evt) {
             canvas->ShapeChanged(cur_shape);
 
             cur_shape = nullptr;
+            is_drawing = false;
+            is_resizing_shape = false;
             return result;
         }
 
@@ -258,23 +257,24 @@ bool MyTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
     cur_shape->OnSelect();
 
     is_drawing = true;
+    is_resizing_shape = true;
     return true;
 }
 
 bool MyTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
     if (!is_selected || !is_drawing) return false;
 
-    cur_shape->SetSize(evt.pos - cur_shape->GetPos());
-    canvas->ShapeChanged(cur_shape);
     cur_shape->OnDeselect();
-
+    canvas->ShapeChanged(cur_shape);
     cur_shape = nullptr;
+
     is_drawing = false;
+    is_resizing_shape = false;
     return true;
 }
 
 bool MyTool::OnMouseMove(const dr4::Event::MouseMove &evt) {
-    if (!is_selected || !is_drawing) return false;
+    if (!is_selected || !is_resizing_shape) return false;
 
     cur_shape->SetSize(evt.pos - cur_shape->GetPos());
     canvas->ShapeChanged(cur_shape);

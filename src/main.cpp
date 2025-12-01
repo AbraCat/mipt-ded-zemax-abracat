@@ -1,18 +1,14 @@
 #include "dr4/window.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/math/color.hpp"
+#include "hui/ui.hpp"
 #include "cum/ifc/dr4.hpp"
-
 #include "cum/manager.hpp"
 #include "cum/ifc/pp.hpp"
+
 #include "mycanvas.h"
-
-#include "hui/ui.hpp"
-
 #include "optical-scene.h"
 #include "desktop.h"
-
-#include "my-pp-plugin.h"
 
 #include <cassert>
 #include <thread>
