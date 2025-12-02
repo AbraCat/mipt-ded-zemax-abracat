@@ -8,6 +8,9 @@
 #include <cmath>
 #include <cassert>
 
+static dr4::Font* font;
+const std::string font_path = "ttf/font.ttf";
+
 const int letter_width = 17.3, cursor_h = 22;
 const dr4::Color shape_color(127, 0, 127), text_color(255, 128, 0), text_border_col(0, 0, 0), cursor_col(0, 0, 0);
 
@@ -133,6 +136,7 @@ void TextShape::drawText(dr4::Texture& texture) const {
     text_drawable->SetPos(getRect().pos);
     text_drawable->SetText(text);
     text_drawable->SetColor(text_color);
+    text_drawable->SetFont(font);
 
     texture.Draw(*text_drawable);
     delete text_drawable;
@@ -318,6 +322,9 @@ std::vector<std::unique_ptr<pp::Tool>> cum::AbraCat_pp_plugin::CreateTools(pp::C
         assert(my_tool != nullptr);
         my_tool->SetCanvas(cvs);
     }
+
+    font = cvs->GetWindow()->CreateFont();
+    font->LoadFromFile(font_path);
 
     return tools;
 }

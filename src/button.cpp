@@ -14,6 +14,7 @@ using hui::KeyEvent;
 const double unpressColorCoeff = 0.7;
 const int letter_width = 17.3, text_h = 10;
 
+extern dr4::Font* font;
 extern dr4::Window* window;
 
 TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
@@ -37,6 +38,7 @@ void TextField::Redraw() const
     text_drawable->SetText(text);
     text_drawable->SetColor(white_color);
     text_drawable->SetPos(dr4::Vec2f(0, GetSize().y / 2 - text_h));
+    text_drawable->SetFont(font);
     GetTexture().Draw(*text_drawable);
 }
 

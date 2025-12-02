@@ -7,7 +7,7 @@
 
 #include <cassert>
 
-const int pix_bytes = 30;
+const int pix_bytes = 30, font_ptsize = 28;
 
 static Vector colToMyVec(dr4::Color col) { return Vector(col.r, col.g, col.b); }
 static Vector dr4ToMyVec(dr4::Vec2f vec) { return Vector(vec.x, vec.y, 0); }
@@ -113,13 +113,27 @@ Vec2f dr4::MyRectangle::GetPos() const { return pos; }
 
 
 
-void dr4::MyFont::LoadFromFile(const std::string &path) {}
-void dr4::MyFont::LoadFromBuffer(const void *buffer, size_t size) {}
+dr4::MyFont::MyFont() {
+    ttf_font = nullptr;
+}
 
+void dr4::MyFont::LoadFromFile(const std::string &path) {
+    ttf_font = TTF_OpenFont(path.c_str(), font_ptsize);
+    if (!TTF_SetFontSize(ttf_font, font_ptsize)) return;
+    if (ttf_font == nullptr) return;
+    // setFont(font);
+}
+
+void dr4::MyFont::LoadFromBuffer(const void *buffer, size_t size) {}
 float dr4::MyFont::GetAscent(float fontSize) const { return 0; }
 float dr4::MyFont::GetDescent(float fontSize) const { return 0; }
 
 
+
+dr4::MyText::MyText() {
+    font = nullptr;
+    ttf_font = nullptr;
+}
 
 void dr4::MyText::DrawOn(Texture& texture) const {
     MyTexture* my_t = dynamic_cast<MyTexture*>(&texture);
@@ -130,6 +144,7 @@ void dr4::MyText::DrawOn(Texture& texture) const {
     SDL_SetRenderTarget(getRenderer(), my_t->t);
     setColor(colToMyVec(color));
 
+    setFont(ttf_font);
     putText(text, dr4ToMyVec(pos + zero), dr4ToMyVec(pos + zero + GetBounds()), color);
 }
 
@@ -138,11 +153,20 @@ Vec2f dr4::MyText::GetPos() const { return pos; }
 
 void dr4::MyText::SetText(const std::string &text) { this->text = text; }
 void dr4::MyText::SetColor(dr4::Color color) { this->color = color; }
-void dr4::MyText::SetFontSize(float size) { this->font_size = size; }
 void dr4::MyText::SetVAlign(VAlign align) { this->v_align = align; }
-void dr4::MyText::SetFont(const Font *font) { this->font = font; }
 
-Vec2f              dr4::MyText::GetBounds() const {
+void dr4::MyText::SetFontSize(float size) {
+    this->font_size = size;
+    TTF_SetFontSize(ttf_font, size);
+}
+
+void dr4::MyText::SetFont(const Font *font) {
+    this->font = dynamic_cast<const MyFont*>(font);
+    ttf_font = this->font->getTtfFont();
+    TTF_SetFontSize(ttf_font, font_ptsize);
+}
+
+Vec2f dr4::MyText::GetBounds() const {
     int text_width = -1, text_height = -1;
     assert(TTF_GetStringSize(getFont(), text.c_str(), text.size(), &text_width, &text_height));
     return dr4::Vec2f(text_width + lft_text_pad, text_height);

@@ -1,7 +1,8 @@
 #ifndef MY_TEXTURE_H
 #define MY_TEXTURE_H
 
-#include "SDL3/SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include "myvector.h"
 
@@ -87,23 +88,23 @@ public:
 class MyFont : public Font {
 
 public:
+    MyFont();
+
     virtual void LoadFromFile(const std::string &path) override;
     virtual void LoadFromBuffer(const void *buffer, size_t size) override;
 
     virtual float GetAscent(float fontSize) const override;
     virtual float GetDescent(float fontSize) const override;
+
+    TTF_Font* getTtfFont() const { return ttf_font; }
+
+private:
+    TTF_Font* ttf_font;
 };
     
 class MyText: public Text {
-private:
-    std::string text;
-    Color color;
-    float font_size;
-    VAlign v_align;
-    const Font* font;
-    Vec2f pos;
-
 public:
+    MyText(); 
     virtual void DrawOn(Texture& texture) const override;
     virtual void SetPos(Vec2f pos) override;
     virtual Vec2f GetPos() const override;
@@ -120,6 +121,16 @@ public:
     virtual float              GetFontSize() const override;
     virtual VAlign             GetVAlign() const override;
     virtual const Font        *GetFont() const override;
+
+private:
+    const MyFont* font;
+    TTF_Font* ttf_font;
+
+    std::string text;
+    Color color;
+    float font_size;
+    VAlign v_align;
+    Vec2f pos;
 };
 
 class MyImage : public Image

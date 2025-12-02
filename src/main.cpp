@@ -14,6 +14,7 @@
 #include <thread>
 #include <chrono>
 
+extern dr4::Font* font = nullptr;
 extern dr4::Window* window = nullptr;
 extern const double ratio;
 extern const int scene_w;
@@ -21,6 +22,7 @@ extern const int scene_w;
 const int desktop_w = 1900, desktop_h = 1000, fps = 30;
 const std::string dr4_path = "build/libdr4.so";
 const std::string pp_path = "build/libpp.so";
+const std::string font_path = "ttf/font.ttf";
 
 int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
@@ -84,6 +86,9 @@ int main()
     window->Open();
     dr4::Texture* main_texture = window->CreateTexture();
     main_texture->SetSize(desktop_w, desktop_h);
+
+    font = window->CreateFont();
+    font->LoadFromFile(font_path);
 
     cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
     assert(pp_plugin != nullptr);
