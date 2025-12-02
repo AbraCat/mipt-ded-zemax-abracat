@@ -75,7 +75,7 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 }
 
 TextShape::TextShape(Canvas* cvs) : MyShape(cvs) {
-    text = "text";
+    text = "Text";
 }
 
 bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
@@ -87,7 +87,7 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     }
     else {
         char chr = KeycodeToChar(evt.sym, evt.mods);
-        if (text.size() * letter_width < std::fabs(GetSize().x) && chr != '\0') text += chr;
+        if (inBounds(text + chr) && chr != '\0') text += chr;
     }
 
     canvas->ShapeChanged(this);
@@ -105,7 +105,14 @@ void TextShape::DrawOn(dr4::Texture &texture) const {
     text_drawable->SetPos(text_pos);
     text_drawable->SetText(text);
     text_drawable->SetColor(text_color);
+
     texture.Draw(*text_drawable);
+    delete text_drawable;
+}
+
+bool TextShape::inBounds(std::string new_text) {
+    dr4::Vec2f bounds = getTextBounds(window, new_text);
+    return bounds.x < std::fabs(GetSize().x);
 }
 
 
@@ -140,7 +147,7 @@ bool TextTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
 
 bool TextTool::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     if (cur_shape != nullptr) {
-        if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && evt.mods == 0) {
+        if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && !(evt.mods & dr4::KeyMode::KEYMOD_SHIFT)) {
             bool result = cur_shape->OnKeyDown(evt);
             cur_shape->OnDeselect();
             canvas->ShapeChanged(cur_shape);

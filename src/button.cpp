@@ -172,8 +172,11 @@ EventResult InputField::OnKeyDown(KeyEvent &evt)
         SetText(cur_text.substr(0, cur_text.size() - 1));
     else {
         char chr = KeycodeToChar(evt.key, evt.mods);
-        if (chr != '\0' && getText().size() * letter_width < GetSize().x)
-            SetText(getText() + std::string(1, chr));
+        std::string new_text = getText() + std::string(1, chr);
+        float new_width = getTextBounds(GetUI()->GetWindow(), new_text).x;
+        
+        if (chr != '\0' && new_width < GetSize().x)
+            SetText(new_text);
     }
 
     return EventResult::HANDLED;

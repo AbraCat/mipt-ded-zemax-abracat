@@ -41,7 +41,7 @@ void dr4::MyWindow::SetSize(dr4::Vec2f size)
 void dr4::MyWindow::Open()
 {
     SDL_Renderer* rend;
-    if (!SDL_CreateWindowAndRenderer(title.c_str(), width, height, SDL_WINDOW_RESIZABLE, &window, &rend)) {
+    if (!SDL_CreateWindowAndRenderer(title.c_str(), width, height, SDL_WINDOW_FULLSCREEN, &window, &rend)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return;
     }
@@ -52,7 +52,7 @@ void dr4::MyWindow::Open()
 
     if (TTF_Init() == -1) return;
 
-    TTF_Font* font = TTF_OpenFont(font_path.c_str(), 100);
+    TTF_Font* font = TTF_OpenFont(font_path.c_str(), font_ptsize);
     if (!TTF_SetFontSize(font, font_ptsize)) return;
     if (font == nullptr) return;
     if (font == nullptr) return;

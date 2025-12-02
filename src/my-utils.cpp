@@ -41,7 +41,7 @@ char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
         CASE_SHIFT(SPACE, ' ', ' ')
     }
 
-    if (code == dr4::KeyCode::KEYCODE_ENTER && (mods & dr4::KeyMode::KEYMOD_SHIFT)) chr = '\n';
+    // if (code == dr4::KeyCode::KEYCODE_ENTER && (mods & dr4::KeyMode::KEYMOD_SHIFT)) chr = '\n';
 
     return chr;
     #undef RANGE_CAPITAL
@@ -71,4 +71,13 @@ void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window
     texture.Draw(*bottom_line);
     texture.Draw(*left_line);
     texture.Draw(*right_line);
+}
+
+dr4::Vec2f getTextBounds(dr4::Window* window, std::string text) {
+    dr4::Text* text_drawable = window->CreateText();
+    text_drawable->SetText(text);
+    dr4::Vec2f bounds = text_drawable->GetBounds();
+
+    delete text_drawable;
+    return bounds;
 }

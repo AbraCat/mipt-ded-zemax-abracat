@@ -5,6 +5,8 @@
 #include "dr4/texture.hpp"
 #include "dr4/math/color.hpp"
 
+#include <cassert>
+
 const int pix_bytes = 30;
 
 static Vector colToMyVec(dr4::Color col) { return Vector(col.r, col.g, col.b); }
@@ -141,9 +143,9 @@ void dr4::MyText::SetVAlign(VAlign align) { this->v_align = align; }
 void dr4::MyText::SetFont(const Font *font) { this->font = font; }
 
 Vec2f              dr4::MyText::GetBounds() const {
-    const int height = 20, char_width = 10;
-    int width = text.size() * char_width;
-    return dr4::Vec2f(width, height);
+    int text_width = -1, text_height = -1;
+    assert(TTF_GetStringSize(getFont(), text.c_str(), text.size(), &text_width, &text_height));
+    return dr4::Vec2f(text_width + lft_text_pad, text_height);
 }
 
 const std::string &dr4::MyText::GetText() const { return text; }

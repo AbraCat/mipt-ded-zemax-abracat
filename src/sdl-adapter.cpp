@@ -6,7 +6,9 @@
 #include <cassert>
 #include <cstdio>
 
+const int lft_text_pad = 5;
 const double Pi = 3.1415926;
+
 static SDL_Renderer* rend = nullptr;
 static TTF_Font* font;
 static Vector col;
@@ -43,7 +45,7 @@ void drawRect(Vector tl, Vector br, bool fill)
 
 void putText(std::string text, Vector tl, Vector br, dr4::Color color)
 {
-    // return putTtfText(text, tl, br, color);
+    return putTtfText(text, tl, br, color);
 
     const double scale = 2, lft_pad = 5, text_h = 5;
 
@@ -54,10 +56,7 @@ void putText(std::string text, Vector tl, Vector br, dr4::Color color)
 
 static void putTtfText(std::string text, Vector tl, Vector br, dr4::Color color)
 {
-    const double scale = 1.5, lft_pad = 5, text_h = 3;
-
-    tl.x += lft_pad;
-    SDL_SetRenderScale(rend, scale, scale);
+    const double text_h = 10;
 
     SDL_Color sdl_color;
     sdl_color.r = color.r;
@@ -65,17 +64,18 @@ static void putTtfText(std::string text, Vector tl, Vector br, dr4::Color color)
     sdl_color.b = color.b;
     sdl_color.a = color.a;
 
-    SDL_Surface* txt_surface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), text.size(), sdl_color, 1000);
+    SDL_Surface* txt_surface = TTF_RenderText_Blended(font, text.c_str(), text.size(), sdl_color);
     SDL_Texture* txt_texture = SDL_CreateTextureFromSurface(rend, txt_surface);
 
-    SDL_FRect dst_rect;
-    dst_rect.x = tl.x / scale;
-    dst_rect.y = tl.y / scale - text_h;
-    dst_rect.w = br.x - tl.x;
-    dst_rect.h = br.y - tl.y;
-    SDL_RenderTexture(rend, txt_texture, NULL, &dst_rect);
+    int text_width = -1, text_height = -1;
+    assert(TTF_GetStringSize(font, text.c_str(), text.size(), &text_width, &text_height));
 
-    SDL_SetRenderScale(rend, 1, 1);
+    SDL_FRect dst_rect;
+    dst_rect.x = tl.x + lft_text_pad;
+    dst_rect.y = tl.y - text_h;
+    dst_rect.w = text_width;
+    dst_rect.h = text_height;
+    SDL_RenderTexture(rend, txt_texture, NULL, &dst_rect);
 }
 
 void drawCircle(Vector centre, int r, bool fill)

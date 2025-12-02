@@ -52,6 +52,7 @@ class TextShape : public MyShape {
 public:
     TextShape(Canvas* cvs);
 
+    bool inBounds(std::string new_text);
     virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
     virtual void DrawOn(dr4::Texture &) const override;
 private:

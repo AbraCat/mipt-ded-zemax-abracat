@@ -11,6 +11,8 @@
 #include <vector>
 #include <string>
 
+extern const int lft_text_pad;
+
 void setRenderer(SDL_Renderer* renderer);
 SDL_Renderer* getRenderer();
 void setFont(TTF_Font* font);
