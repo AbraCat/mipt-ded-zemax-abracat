@@ -1,12 +1,11 @@
 #include "texture.h"
 #include "sdl-adapter.h"
-// #include "widget.h"
 #include "assert.h"
 
 #include "dr4/texture.hpp"
 #include "dr4/math/color.hpp"
 
-const int pix_bytes = 3;
+const int pix_bytes = 30;
 
 static Vector colToMyVec(dr4::Color col) { return Vector(col.r, col.g, col.b); }
 static Vector dr4ToMyVec(dr4::Vec2f vec) { return Vector(vec.x, vec.y, 0); }
@@ -129,7 +128,7 @@ void dr4::MyText::DrawOn(Texture& texture) const {
     SDL_SetRenderTarget(getRenderer(), my_t->t);
     setColor(colToMyVec(color));
 
-    putText(text, dr4ToMyVec(pos + zero), dr4ToMyVec(pos + zero + GetBounds()));
+    putText(text, dr4ToMyVec(pos + zero), dr4ToMyVec(pos + zero + GetBounds()), color);
 }
 
 void dr4::MyText::SetPos(Vec2f pos) { this->pos = pos; }

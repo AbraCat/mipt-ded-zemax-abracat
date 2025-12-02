@@ -8,10 +8,16 @@
 
 const double Pi = 3.1415926;
 static SDL_Renderer* rend = nullptr;
+static TTF_Font* font;
+static Vector col;
+
+static void putTtfText(std::string text, Vector tl, Vector br, dr4::Color color);
 
 void setRenderer(SDL_Renderer* renderer) { rend = renderer; }
 SDL_Renderer* getRenderer() { return rend; }
-void setColor(Vector color) { SDL_SetRenderDrawColor(rend, color.x, color.y, color.z, 255); }
+void setFont(TTF_Font* font_) { font = font_; }
+TTF_Font* getFont() { return font; }
+void setColor(Vector color) { col = color; SDL_SetRenderDrawColor(rend, color.x, color.y, color.z, 255); }
 
 void drawPoint(Vector p)
 {
@@ -35,12 +41,40 @@ void drawRect(Vector tl, Vector br, bool fill)
     else SDL_RenderRect(rend, &rect);
 }
 
-void putText(std::string text, Vector tl, Vector br)
+void putText(std::string text, Vector tl, Vector br, dr4::Color color)
 {
-    double scale = 2, lft_pad = 5, text_h = 5;
+    // return putTtfText(text, tl, br, color);
+
+    const double scale = 2, lft_pad = 5, text_h = 5;
 
     SDL_SetRenderScale(rend, scale, scale);
     SDL_RenderDebugText(rend, (tl.x + lft_pad) / scale, ((tl.y + br.y) / 2 - text_h) / scale, text.c_str());
+    SDL_SetRenderScale(rend, 1, 1);
+}
+
+static void putTtfText(std::string text, Vector tl, Vector br, dr4::Color color)
+{
+    const double scale = 1.5, lft_pad = 5, text_h = 3;
+
+    tl.x += lft_pad;
+    SDL_SetRenderScale(rend, scale, scale);
+
+    SDL_Color sdl_color;
+    sdl_color.r = color.r;
+    sdl_color.g = color.g;
+    sdl_color.b = color.b;
+    sdl_color.a = color.a;
+
+    SDL_Surface* txt_surface = TTF_RenderText_Blended_Wrapped(font, text.c_str(), text.size(), sdl_color, 1000);
+    SDL_Texture* txt_texture = SDL_CreateTextureFromSurface(rend, txt_surface);
+
+    SDL_FRect dst_rect;
+    dst_rect.x = tl.x / scale;
+    dst_rect.y = tl.y / scale - text_h;
+    dst_rect.w = br.x - tl.x;
+    dst_rect.h = br.y - tl.y;
+    SDL_RenderTexture(rend, txt_texture, NULL, &dst_rect);
+
     SDL_SetRenderScale(rend, 1, 1);
 }
 

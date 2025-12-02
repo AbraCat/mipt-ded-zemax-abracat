@@ -5,6 +5,8 @@
 
 #include <SDL3_ttf/SDL_ttf.h>
 
+const int font_ptsize = 28;
+const std::string font_path = "ttf/sans.ttf";
 
 namespace dr4 {
 
@@ -47,6 +49,14 @@ void dr4::MyWindow::Open()
 
     this->texture = new MyTexture(Vec2f(width, height));
     is_open = true;
+
+    if (TTF_Init() == -1) return;
+
+    TTF_Font* font = TTF_OpenFont(font_path.c_str(), 100);
+    if (!TTF_SetFontSize(font, font_ptsize)) return;
+    if (font == nullptr) return;
+    if (font == nullptr) return;
+    setFont(font);
 }
 
 bool dr4::MyWindow::IsOpen() const { return is_open; }
