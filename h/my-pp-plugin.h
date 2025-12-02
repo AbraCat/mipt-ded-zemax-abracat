@@ -51,11 +51,16 @@ public:
 class TextShape : public MyShape {
 public:
     TextShape(Canvas* cvs);
+    dr4::Rect2f getRect() const;
 
     bool inBounds(std::string new_text);
     virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
+
     virtual void DrawOn(dr4::Texture &) const override;
+    void drawCursor(dr4::Texture& texture) const;
+    void drawText(dr4::Texture& texture) const;
 private:
+    int cursor_pos;
     std::string text;
 };
 

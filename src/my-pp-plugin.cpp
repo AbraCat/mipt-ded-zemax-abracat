@@ -8,8 +8,8 @@
 #include <cmath>
 #include <cassert>
 
-const int letter_width = 17.3;
-const dr4::Color shape_color(127, 0, 127), text_color(255, 0, 0), text_border_col(0, 0, 0);
+const int letter_width = 17.3, cursor_h = 22;
+const dr4::Color shape_color(127, 0, 127), text_color(255, 128, 0), text_border_col(0, 0, 0), cursor_col(0, 0, 0);
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
 
@@ -76,19 +76,42 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 
 TextShape::TextShape(Canvas* cvs) : MyShape(cvs) {
     text = "Text";
+    cursor_pos = 0;
+}
+
+dr4::Rect2f TextShape::getRect() const {
+    dr4::Rect2f rect;
+    dr4::Vec2f pos = GetPos(), size = GetSize();
+
+    rect.pos.x = pos.x + std::min(0.0f, size.x);
+    rect.pos.y = pos.y + std::min(0.0f, size.y);
+    rect.size.x = std::fabs(size.x);
+    rect.size.y = std::fabs(size.y);
+
+    return rect;
 }
 
 bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
-    if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && evt.mods == 0) {
-        selected = false;
-    }
-    else if (evt.sym == dr4::KeyCode::KEYCODE_BACKSPACE) {
-        if (text.size() > 0) text = text.substr(0, text.size() - 1);
-    }
-    else {
-        char chr = KeycodeToChar(evt.sym, evt.mods);
-        if (inBounds(text + chr) && chr != '\0') text += chr;
-    }
+    switch (evt.sym) {
+        case dr4::KeyCode::KEYCODE_ENTER:
+            if (!(evt.mods & dr4::KeyMode::KEYMOD_SHIFT)) selected = false;
+            break;
+        case dr4::KeyCode::KEYCODE_LEFT:
+            if (cursor_pos < text.size()) ++cursor_pos;
+            break;
+        case dr4::KeyCode::KEYCODE_RIGHT:
+            if (cursor_pos > 0) --cursor_pos;
+            break;
+        case dr4::KeyCode::KEYCODE_BACKSPACE:
+            if (text.size() > 0) text = text.substr(0, text.size() - 1);
+            break;
+        default:
+            char chr = KeycodeToChar(evt.sym, evt.mods);
+            std::string new_text = text.substr(0, text.size() - cursor_pos) + chr +
+                text.substr(text.size() - cursor_pos, cursor_pos);
+
+            if (inBounds(new_text) && chr != '\0') text = new_text;
+    }   
 
     canvas->ShapeChanged(this);
     return true;
@@ -100,14 +123,33 @@ void TextShape::DrawOn(dr4::Texture &texture) const {
         drawRectBorder(rect, texture, window, text_border_col);
     }
 
+    drawText(texture);
+    if (selected) drawCursor(texture);
+}
+
+void TextShape::drawText(dr4::Texture& texture) const {
     dr4::Text* text_drawable = window->CreateText();
-    dr4::Vec2f text_pos(GetPos().x + std::min(0.0f, GetSize().x), GetPos().y + std::min(0.0f, GetSize().y));
-    text_drawable->SetPos(text_pos);
+    text_drawable->SetPos(getRect().pos);
     text_drawable->SetText(text);
     text_drawable->SetColor(text_color);
 
     texture.Draw(*text_drawable);
     delete text_drawable;
+}
+
+void TextShape::drawCursor(dr4::Texture& texture) const {
+    std::string text_before_cursor = text.substr(0, text.size() - cursor_pos);
+    dr4::Vec2f text_bounds = getTextBounds(window, text_before_cursor);
+    dr4::Vec2f pos = getRect().pos;
+
+    dr4::Line* cursor_line = window->CreateLine();
+    cursor_line->SetStart(pos + dr4::Vec2f(text_bounds.x, 0));
+    cursor_line->SetEnd(pos + dr4::Vec2f(text_bounds.x, cursor_h));
+    cursor_line->SetColor(cursor_col);
+    cursor_line->SetThickness(3);
+
+    texture.Draw(*cursor_line);
+    delete cursor_line;
 }
 
 bool TextShape::inBounds(std::string new_text) {
