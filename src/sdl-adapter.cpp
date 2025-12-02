@@ -1,8 +1,9 @@
 #include "sdl-adapter.h"
 
+#include <SDL3_ttf/SDL_ttf.h>
+
 #include <cmath>
 #include <cassert>
-
 #include <cstdio>
 
 const double Pi = 3.1415926;

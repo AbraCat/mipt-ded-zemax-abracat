@@ -1,15 +1,9 @@
-// #include "widget.hpp"
-
 #include "sdl-adapter.h"
 #include "mywindow.h"
-// #include "optical-scene.h"
-// #include "desktop.h"
 
 #include <cassert>
 
-
-// hui::State* hui_state = nullptr;
-
+#include <SDL3_ttf/SDL_ttf.h>
 
 
 namespace dr4 {

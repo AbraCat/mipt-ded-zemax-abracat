@@ -1,6 +1,5 @@
 .vscode/
-.clangd
 build/
 sdl/
+sdl-ttf/
 run
-ivan-main.cpp
