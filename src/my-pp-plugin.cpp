@@ -103,7 +103,8 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
             if (cursor_pos > 0) --cursor_pos;
             break;
         case dr4::KeyCode::KEYCODE_BACKSPACE:
-            if (text.size() > 0) text = text.substr(0, text.size() - 1);
+            if (text.size() <= cursor_pos) break;
+            text = text.substr(0, text.size() - cursor_pos - 1) + text.substr(text.size() - cursor_pos, cursor_pos);
             break;
         default:
             char chr = KeycodeToChar(evt.sym, evt.mods);
