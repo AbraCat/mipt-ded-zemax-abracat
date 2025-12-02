@@ -30,7 +30,7 @@ private:
 class ScrollButton : public Button
 {
 public:
-    ScrollButton(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, bool up, dr4::Color color = {127, 127, 127});
+    ScrollButton(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, bool up, dr4::Color color = gray_color);
     virtual void action() override;
 
 private:
@@ -41,7 +41,7 @@ private:
 class ScrollThumb : public DraggableWidget
 {
 public:
-    ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color = {63, 63, 63});
+    ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color = dark_gray_color);
     void movePos(dr4::Vec2f new_pos) override;
     void Redraw() const override;
 

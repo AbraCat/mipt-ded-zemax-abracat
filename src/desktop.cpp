@@ -2,6 +2,7 @@
 #include "button.h"
 #include "tool-widget.h"
 #include "scroll.h"
+#include "colors.h"
 
 #include "hui/ui.hpp"
 
@@ -32,7 +33,7 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {
         std::unique_ptr<pp::Tool>& tool = tools[n_tool];
         tools_container->addChild(new ToolWidget(GetUI(), &*tool, {}, {}, 
-            dr4::Color(127, 127, 127), "Draw " + std::string(tool->Name())));
+            gray_color, "Draw " + std::string(tool->Name())));
     }
     addChild(tools_container);
 }

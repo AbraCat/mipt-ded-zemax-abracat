@@ -38,13 +38,13 @@ std::vector<OptProperty> OptObject::getProperties()
 {
     std::vector<OptProperty> properties;
 
-    properties.push_back(OptProperty(OPT_COLOR_R, "color_r", color.x));
-    properties.push_back(OptProperty(OPT_COLOR_G, "color_g", color.y));
-    properties.push_back(OptProperty(OPT_COLOR_B, "color_b", color.z));
+    properties.push_back(OptProperty(OPT_COLOR_R, "Red color", color.x));
+    properties.push_back(OptProperty(OPT_COLOR_G, "Green color", color.y));
+    properties.push_back(OptProperty(OPT_COLOR_B, "Blue color", color.z));
 
-    properties.push_back(OptProperty(OPT_POS_X, "pos_x", pos.x));
-    properties.push_back(OptProperty(OPT_POS_Y, "pos_y", pos.y));
-    properties.push_back(OptProperty(OPT_POS_Z, "pos_z", pos.z));
+    properties.push_back(OptProperty(OPT_POS_X, "Position x", pos.x));
+    properties.push_back(OptProperty(OPT_POS_Y, "Position y", pos.y));
+    properties.push_back(OptProperty(OPT_POS_Z, "Position z", pos.z));
 
     return properties;
 }
@@ -98,10 +98,10 @@ std::vector<OptProperty> Surface::getProperties()
 {
     std::vector<OptProperty> properties = OptObject::getProperties();
 
-    properties.push_back(OptProperty(OPT_DIFFUSE_PORTION, "diffuse_c", m.diffuse_c));
-    properties.push_back(OptProperty(OPT_SPECULAR_PORTION, "specular_c", m.reflect_c));
-    properties.push_back(OptProperty(OPT_REFRACT_PORTION, "refract_c", m.refract_c));
-    properties.push_back(OptProperty(OPT_REFRACT_COEFF, "refract_k", m.refract_k));
+    properties.push_back(OptProperty(OPT_DIFFUSE_PORTION, "Diffuse light", m.diffuse_c));
+    properties.push_back(OptProperty(OPT_SPECULAR_PORTION, "Specular light", m.reflect_c));
+    properties.push_back(OptProperty(OPT_REFRACT_PORTION, "Refracted light", m.refract_c));
+    properties.push_back(OptProperty(OPT_REFRACT_COEFF, "Refract coeff", m.refract_k));
 
     return properties;
 }
@@ -210,7 +210,7 @@ Vector SphereSource::getRandPoint()
 std::vector<OptProperty> SphereSource::getProperties()
 {
     std::vector<OptProperty> properties = Source::getProperties();
-    properties.push_back(OptProperty(OPT_RADIUS, "radius", r));
+    properties.push_back(OptProperty(OPT_RADIUS, "Radius", r));
     return properties;
 }
 
@@ -263,7 +263,7 @@ SphereSurface::SphereSurface(Vector pos, double r, Vector color, std::string nam
 std::vector<OptProperty> SphereSurface::getProperties()
 {
     std::vector<OptProperty> properties = Surface::getProperties();
-    properties.push_back(OptProperty(OPT_RADIUS, "radius", r));
+    properties.push_back(OptProperty(OPT_RADIUS, "Radius", r));
     return properties;
 }
 

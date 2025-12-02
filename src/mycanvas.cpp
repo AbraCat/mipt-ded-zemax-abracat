@@ -1,5 +1,5 @@
 #include "mycanvas.h"
-// #include "mywindow.h"
+#include "colors.h"
 
 #include "hui/ui.hpp"
 
@@ -13,7 +13,7 @@ ControlsTheme Canvas::GetControlsTheme() const { return ControlsTheme(); }
 MyCanvas::MyCanvas(dr4::Window* window, dr4::Vec2f size)
     : size(size), window(window), texture(nullptr) {
 
-    theme.shapeColor = dr4::Color(255, 0, 0);
+    theme.shapeColor = red_color;
 }
 
 ControlsTheme MyCanvas::GetControlsTheme() const { return theme; }

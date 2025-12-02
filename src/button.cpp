@@ -1,5 +1,6 @@
 #include "button.h"
-// #include "sdl-adapter.h"
+#include "colors.h"
+#include "my-utils.h"
 
 #include "dr4/window.hpp"
 #include "hui/ui.hpp"
@@ -11,38 +12,36 @@ using hui::MouseButtonEvent;
 using hui::KeyEvent;
 
 const double unpressColorCoeff = 0.7;
-const int letter_width = 17.3;
+const int letter_width = 17.3, text_h = 10;
 
 extern dr4::Window* window;
 
 TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
-    : Widget(state)//, color(color), text(text)
+    : Widget(state)
 {
     SetPos(pos);
     SetSize(size);
-    color = dr4::Color(0, 0, 0);
+    color = black_color;
     draw_border = true;
 }
 
 void TextField::Redraw() const
 {
-    const int text_h = 10;
-
     dr4::Rectangle* rect = window->CreateRectangle();
     rect->SetSize(GetSize());
-    rect->SetBorderColor(dr4::Color(255, 255, 255));
+    rect->SetBorderColor(white_color);
     rect->SetFillColor(color);
     GetTexture().Draw(*rect);
 
     dr4::Text* text_drawable = window->CreateText();
     text_drawable->SetText(text);
-    text_drawable->SetColor(dr4::Color(255, 255, 255));
+    text_drawable->SetColor(white_color);
     text_drawable->SetPos(dr4::Vec2f(0, GetSize().y / 2 - text_h));
     GetTexture().Draw(*text_drawable);
 }
 
-void TextField::SetFieldColor(dr4::Color color) { this->color = color; ForceRedraw(); }//Redraw(); }
-void TextField::SetText(std::string text) { this->text = text; ForceRedraw(); }//Redraw(); }
+void TextField::SetFieldColor(dr4::Color color) { this->color = color; ForceRedraw(); }
+void TextField::SetText(std::string text) { this->text = text; ForceRedraw(); }
 std::string TextField::getText() { return text; }
 
 
@@ -74,8 +73,6 @@ void Button::imitatePress(bool down) {
 
 EventResult Button::OnMouseDown(MouseButtonEvent &evt)
 {
-    // Widget::mousePressEvent(e);
-
     if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
     if (is_pressed) return EventResult::UNHANDLED;
 
@@ -88,8 +85,6 @@ EventResult Button::OnMouseDown(MouseButtonEvent &evt)
 
 EventResult Button::OnMouseUp(MouseButtonEvent &evt)
 {
-    // Widget::mouseReleaseEvent(e);
-
     is_pressed = false;
     SetFieldColor(unpress_color);
     ForceRedraw();
@@ -114,8 +109,7 @@ ToggleButton::ToggleButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size,
 
 EventResult ToggleButton::OnMouseDown(MouseButtonEvent &evt)
 {
-    // printf("down start\n");
-    if (!GetRect().Contains(evt.pos)) {return EventResult::UNHANDLED;}//{ printf("down end\n"); return EventResult::UNHANDLED; }
+    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
 
     is_pressed = !is_pressed;
     SetFieldColor(is_pressed ? press_color : unpress_color);
@@ -123,7 +117,6 @@ EventResult ToggleButton::OnMouseDown(MouseButtonEvent &evt)
 
     if (is_pressed) action();
     else deactivate();
-    // printf("down end\n");
     return EventResult::UNHANDLED;
 }
 
@@ -134,50 +127,6 @@ EventResult ToggleButton::OnMouseUp(MouseButtonEvent &evt)
 
 
 
-static char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
-    char chr = '\0';
-    bool shift = mods & dr4::KeyMode::KEYMOD_SHIFT, caps = mods & dr4::KeyMode::KEYMOD_CAPS;
-    bool capital = shift && !caps || !shift && caps;
-
-    #define RANGE(code_lft, code_rgt, chr_lft, chr_lft_capital)\
-        if (code >= dr4::KeyCode::KEYCODE_ ## code_lft && code <= dr4::KeyCode::KEYCODE_ ## code_rgt) {\
-            chr = (capital ? chr_lft_capital : chr_lft) + code - dr4::KeyCode::KEYCODE_ ## code_lft;\
-        }
-    #define CASE(dr4_code, character, char_capital)\
-        case dr4::KeyCode::KEYCODE_ ## dr4_code: chr = (capital ? char_capital : character); break;
-
-    RANGE(A, Z, 'a', 'A')
-
-    switch (code) {
-        CASE(NUM0, '0', ')')
-        CASE(NUM1, '1', '!')
-        CASE(NUM2, '2', '@')
-        CASE(NUM3, '3', '#')
-        CASE(NUM4, '4', '$')
-        CASE(NUM5, '5', '%')
-        CASE(NUM6, '6', '^')
-        CASE(NUM7, '7', '&')
-        CASE(NUM8, '8', '*')
-        CASE(NUM9, '9', '(')
-
-        CASE(SEMICOLON, ';', ':')
-        CASE(COMMA, ',', '<')
-        CASE(PERIOD, '.', '>')
-        CASE(LBRACKET, '[', '{')
-        CASE(RBRACKET, ']', '}')
-        CASE(QUOTE, '\'', '"')
-        CASE(SLASH, '/', '?')
-        CASE(BACKSLASH, '\\', '|')
-        CASE(TILDE, '`', '~')
-        CASE(EQUAL, '=', '+')
-        CASE(HYPHEN, '-', '_')
-        CASE(SPACE, ' ', ' ')
-    }
-
-    #undef RANGE
-    #undef CASE
-    return chr;
-}
 
 InputField::InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text)
     : TextField(state, pos, size)
@@ -198,7 +147,7 @@ EventResult InputField::OnMouseDown(MouseButtonEvent &evt)
         if (!focused) {
             focused = true;
 
-            SetFieldColor(dr4::Color(127, 127, 127)); // gray
+            SetFieldColor(gray_color);
             init_text = getText();
             return EventResult::UNHANDLED;
         }
@@ -232,7 +181,7 @@ EventResult InputField::OnKeyDown(KeyEvent &evt)
 
 void InputField::update_text()
 {
-    SetFieldColor(dr4::Color(0, 0, 0)); // black
+    SetFieldColor(black_color);
     focused = 0;
     if (GetUI()->GetFocused() == this) GetUI()->ReportFocus(nullptr);
 

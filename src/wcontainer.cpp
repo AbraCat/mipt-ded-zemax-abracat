@@ -10,23 +10,12 @@ MyContainer::MyContainer(UI* state, dr4::Vec2f pos, dr4::Vec2f size) : Container
     SetSize(size);
     SetPos(pos);
 
-    // draw_border = fill_rect = false;
     draw_rect = false;
 } 
 
 MyContainer::~MyContainer() {
     for (Widget* w: children) delete w;
 }
-
-// void MyContainer::setDrawBorder(bool draw, dr4::Color color) {
-//     draw_border = draw;
-//     border_col = color;
-// }
-
-// void MyContainer::setFillRect(bool fill, dr4::Color color) {
-//     fill_rect = fill;
-//     fill_col = color;
-// }
 
 void MyContainer::setDrawRect(bool draw_rect, dr4::Color fill_col, dr4::Color border_col) {
     this->draw_rect = draw_rect;

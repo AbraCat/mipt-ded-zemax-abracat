@@ -24,7 +24,7 @@ extern const double ratio;
 class OptScene : public hui::Widget
 {
 public:
-    OptScene(hui::UI* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size);
+    OptScene(hui::UI* state, hui::Widget* parent, dr4::Vec2f pos, dr4::Vec2f size, OptController* control);
     virtual hui::EventResult OnIdle(hui::IdleEvent &evt) override;
     void needsRerender();
 

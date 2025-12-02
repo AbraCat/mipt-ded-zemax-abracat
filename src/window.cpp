@@ -164,30 +164,30 @@ dr4::KeyCode getKeyCode(SDL_Keycode sdl_key)
     RANGE(SDLK_F1, SDLK_F12, dr4::KeyCode::KEYCODE_F1);
     #undef RANGE
 
-    #define CASE(dr4key, sdlkey) case SDLK_ ## sdlkey: dr4_key = dr4::KeyCode::KEYCODE_ ## dr4key; break;
+    #define CASE_SHIFT(dr4key, sdlkey) case SDLK_ ## sdlkey: dr4_key = dr4::KeyCode::KEYCODE_ ## dr4key; break;
     switch (sdl_key) {
-        CASE(BACKSPACE, BACKSPACE)
-        CASE(ENTER, RETURN)
-        CASE(ESCAPE, ESCAPE)
-        CASE(SEMICOLON, SEMICOLON)
-        CASE(COMMA, COMMA)
-        CASE(PERIOD, PERIOD)
-        CASE(LBRACKET, LEFTBRACKET)
-        CASE(RBRACKET, RIGHTBRACKET)
-        CASE(QUOTE, APOSTROPHE)
-        CASE(SLASH, SLASH)
-        CASE(BACKSLASH, BACKSLASH)
-        CASE(TILDE, TILDE)
-        CASE(EQUAL, EQUALS)
-        CASE(HYPHEN, MINUS)
-        CASE(SPACE, SPACE)
-        CASE(TAB, TAB)
-        CASE(LEFT, LEFT)
-        CASE(RIGHT, RIGHT)
-        CASE(UP, UP)
-        CASE(DOWN, DOWN)
+        CASE_SHIFT(BACKSPACE, BACKSPACE)
+        CASE_SHIFT(ENTER, RETURN)
+        CASE_SHIFT(ESCAPE, ESCAPE)
+        CASE_SHIFT(SEMICOLON, SEMICOLON)
+        CASE_SHIFT(COMMA, COMMA)
+        CASE_SHIFT(PERIOD, PERIOD)
+        CASE_SHIFT(LBRACKET, LEFTBRACKET)
+        CASE_SHIFT(RBRACKET, RIGHTBRACKET)
+        CASE_SHIFT(QUOTE, APOSTROPHE)
+        CASE_SHIFT(SLASH, SLASH)
+        CASE_SHIFT(BACKSLASH, BACKSLASH)
+        CASE_SHIFT(TILDE, TILDE)
+        CASE_SHIFT(EQUAL, EQUALS)
+        CASE_SHIFT(HYPHEN, MINUS)
+        CASE_SHIFT(SPACE, SPACE)
+        CASE_SHIFT(TAB, TAB)
+        CASE_SHIFT(LEFT, LEFT)
+        CASE_SHIFT(RIGHT, RIGHT)
+        CASE_SHIFT(UP, UP)
+        CASE_SHIFT(DOWN, DOWN)
     }
-    #undef CASE
+    #undef CASE_SHIFT
 
     /*
     KEYCODE_LCONTROL,
@@ -224,15 +224,15 @@ uint16_t getKeyMode(SDL_Keymod mod)
 {
     uint16_t dr4_mod = 0;
     
-    #define CASE(dr4mod, sdlmod) if (mod & SDL_KMOD_ ## sdlmod) dr4_mod |= dr4::KeyMode::KEYMOD_ ## dr4mod;
-    CASE(LSHIFT, LSHIFT)
-    CASE(RSHIFT, RSHIFT)
-    CASE(LALT, LALT)
-    CASE(RALT, RALT)
-    CASE(LCTRL, LCTRL)
-    CASE(RCTRL, RCTRL)
-    CASE(CAPS, CAPS)
-    #undef CASE
+    #define CASE_SHIFT(dr4mod, sdlmod) if (mod & SDL_KMOD_ ## sdlmod) dr4_mod |= dr4::KeyMode::KEYMOD_ ## dr4mod;
+    CASE_SHIFT(LSHIFT, LSHIFT)
+    CASE_SHIFT(RSHIFT, RSHIFT)
+    CASE_SHIFT(LALT, LALT)
+    CASE_SHIFT(RALT, RALT)
+    CASE_SHIFT(LCTRL, LCTRL)
+    CASE_SHIFT(RCTRL, RCTRL)
+    CASE_SHIFT(CAPS, CAPS)
+    #undef CASE_SHIFT
 
     return dr4_mod;
 }

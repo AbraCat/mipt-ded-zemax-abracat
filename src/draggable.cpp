@@ -1,4 +1,5 @@
 #include "draggable.h"
+#include "colors.h"
 
 #include "hui/ui.hpp"
 
@@ -16,7 +17,7 @@ void DraggableWidget::Redraw() const {
     dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
     rect->SetPos({0, 0});
     rect->SetSize(GetSize());
-    rect->SetFillColor(dr4::Color(255, 0, 0));
+    rect->SetFillColor(red_color);
     GetTexture().Draw(*rect);
 }
 

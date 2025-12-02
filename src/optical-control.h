@@ -119,12 +119,12 @@ public:
     void deleteObject(OptObject* obj);
 
     OptScene* getScene() const { return s; }
-    pp::MyCanvas* getCanvas() const { return cvs_widget->getCanvas(); }
+    pp::MyCanvas* getCanvas() const { return scene_cvs_widget->getCanvas(); }
 
     hui::Widget* parent;
 
     OptScene* s;
-    CanvasWidget* cvs_widget;
+    CanvasWidget* scene_cvs_widget;
     MyContainer *cam_cont;
     WList *obj_cont;
     WidgetScrollBar *obj_scroll;

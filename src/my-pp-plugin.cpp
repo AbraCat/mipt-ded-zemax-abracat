@@ -1,6 +1,8 @@
 #include "my-pp-plugin.h"
-#include "pp/tool.hpp"
+#include "colors.h"
+#include "my-utils.h"
 
+#include "pp/tool.hpp"
 #include "dr4/window.hpp"
 
 #include <cmath>
@@ -10,76 +12,6 @@ const int letter_width = 17.3;
 const dr4::Color shape_color(127, 0, 127), text_color(255, 0, 0), text_border_col(0, 0, 0);
 
 extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_pp_plugin(); }
-
-static void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window, dr4::Color color) {
-    dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
-        *left_line = window->CreateLine(), *right_line = window->CreateLine();
-    dr4::Vec2f p1 = rect.pos, p2 = rect.pos + rect.size;
-
-    top_line->SetStart(dr4::Vec2f(p1.x, p1.y));
-    top_line->SetEnd(dr4::Vec2f(p2.x, p1.y));
-    bottom_line->SetStart(dr4::Vec2f(p1.x, p2.y));
-    bottom_line->SetEnd(dr4::Vec2f(p2.x, p2.y));
-    left_line->SetStart(dr4::Vec2f(p1.x, p1.y));
-    left_line->SetEnd(dr4::Vec2f(p1.x, p2.y));
-    right_line->SetStart(dr4::Vec2f(p2.x, p1.y));
-    right_line->SetEnd(dr4::Vec2f(p2.x, p2.y));
-
-
-    top_line->SetColor(color);
-    bottom_line->SetColor(color);
-    left_line->SetColor(color);
-    right_line->SetColor(color);
-    texture.Draw(*top_line);
-    texture.Draw(*bottom_line);
-    texture.Draw(*left_line);
-    texture.Draw(*right_line);
-}
-
-static char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
-    char chr = '\0';
-    bool shift = mods & dr4::KeyMode::KEYMOD_SHIFT, caps = mods & dr4::KeyMode::KEYMOD_CAPS;
-    bool capital = shift && !caps || !shift && caps;
-
-    #define RANGE(code_lft, code_rgt, chr_lft, chr_lft_capital)\
-        if (code >= dr4::KeyCode::KEYCODE_ ## code_lft && code <= dr4::KeyCode::KEYCODE_ ## code_rgt) {\
-            chr = (capital ? chr_lft_capital : chr_lft) + code - dr4::KeyCode::KEYCODE_ ## code_lft;\
-        }
-    #define CASE(dr4_code, character, char_capital)\
-        case dr4::KeyCode::KEYCODE_ ## dr4_code: chr = (capital ? char_capital : character); break;
-
-    RANGE(A, Z, 'a', 'A')
-
-    switch (code) {
-        CASE(NUM0, '0', ')')
-        CASE(NUM1, '1', '!')
-        CASE(NUM2, '2', '@')
-        CASE(NUM3, '3', '#')
-        CASE(NUM4, '4', '$')
-        CASE(NUM5, '5', '%')
-        CASE(NUM6, '6', '^')
-        CASE(NUM7, '7', '&')
-        CASE(NUM8, '8', '*')
-        CASE(NUM9, '9', '(')
-
-        CASE(SEMICOLON, ';', ':')
-        CASE(COMMA, ',', '<')
-        CASE(PERIOD, '.', '>')
-        CASE(LBRACKET, '[', '{')
-        CASE(RBRACKET, ']', '}')
-        CASE(QUOTE, '\'', '"')
-        CASE(SLASH, '/', '?')
-        CASE(BACKSLASH, '\\', '|')
-        CASE(TILDE, '`', '~')
-        CASE(EQUAL, '=', '+')
-        CASE(HYPHEN, '-', '_')
-        CASE(SPACE, ' ', ' ')
-    }
-
-    #undef RANGE
-    #undef CASE
-    return chr;
-}
 
 namespace pp {
 
@@ -135,7 +67,7 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 
     line->SetStart(pos);
     line->SetEnd(pos + size);
-    line->SetColor(dr4::Color(255, 0, 0));
+    line->SetColor(red_color);
     line->SetThickness(3);
     
     tex.Draw(*line);
@@ -147,7 +79,7 @@ TextShape::TextShape(Canvas* cvs) : MyShape(cvs) {
 }
 
 bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
-    if (evt.sym == dr4::KeyCode::KEYCODE_ENTER) {
+    if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && evt.mods == 0) {
         selected = false;
     }
     else if (evt.sym == dr4::KeyCode::KEYCODE_BACKSPACE) {
@@ -208,7 +140,7 @@ bool TextTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
 
 bool TextTool::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     if (cur_shape != nullptr) {
-        if (evt.sym == dr4::KeyCode::KEYCODE_ENTER) {
+        if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && evt.mods == 0) {
             bool result = cur_shape->OnKeyDown(evt);
             cur_shape->OnDeselect();
             canvas->ShapeChanged(cur_shape);

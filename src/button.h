@@ -8,14 +8,11 @@
 #include <cstdio>
 #include <string>
 
-// namespace hui {
-
 class TextField : public hui::Widget
 {
 public:
     TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size);
     virtual ~TextField() noexcept override = default;
-    // virtual void updateTexture() override;
     virtual void Redraw() const override;
 
     void SetFieldColor(dr4::Color color);
@@ -33,8 +30,6 @@ class InputField : public TextField
 public:
     InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
 
-    // virtual bool mousePressEvent(MouseEvent* e) override;
-    // virtual bool keyboardEvent(KeyboardEvent* evt) override;
     virtual hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
     virtual hui::EventResult OnKeyDown(hui::KeyEvent &evt) override;
 

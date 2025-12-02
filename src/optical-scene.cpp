@@ -1,4 +1,6 @@
 #include "optical-scene.h"
+#include "my-utils.h"
+
 #include "dr4/window.hpp"
 #include "hui/ui.hpp"
 
@@ -28,30 +30,6 @@ struct RenderThreadData
     std::vector<IntVec>* thread_pix;
 };
 
-static void drawRectBorder(FixedVec rect, dr4::Texture& texture, dr4::Window* window) {
-    dr4::Line *top_line = window->CreateLine(), *bottom_line = window->CreateLine(),
-        *left_line = window->CreateLine(), *right_line = window->CreateLine();
-
-    top_line->SetStart(dr4::Vec2f(rect.p1.x, rect.p1.y));
-    top_line->SetEnd(dr4::Vec2f(rect.p2.x, rect.p1.y));
-    bottom_line->SetStart(dr4::Vec2f(rect.p1.x, rect.p2.y));
-    bottom_line->SetEnd(dr4::Vec2f(rect.p2.x, rect.p2.y));
-    left_line->SetStart(dr4::Vec2f(rect.p1.x, rect.p1.y));
-    left_line->SetEnd(dr4::Vec2f(rect.p1.x, rect.p2.y));
-    right_line->SetStart(dr4::Vec2f(rect.p2.x, rect.p1.y));
-    right_line->SetEnd(dr4::Vec2f(rect.p2.x, rect.p2.y));
-
-
-    top_line->SetColor(dr4::Color(255, 0, 0));
-    bottom_line->SetColor(dr4::Color(255, 0, 0));
-    left_line->SetColor(dr4::Color(255, 0, 0));
-    right_line->SetColor(dr4::Color(255, 0, 0));
-    texture.Draw(*top_line);
-    texture.Draw(*bottom_line);
-    texture.Draw(*left_line);
-    texture.Draw(*right_line);
-}
-
 void OptScene::Redraw() const
 {
     if (needs_rerender) {
@@ -72,7 +50,8 @@ void OptScene::Redraw() const
     {
         if (!obj->has_rect) continue;
         FixedVec rect = getRect(obj);
-        drawRectBorder(rect, GetTexture(), GetUI()->GetWindow());
+        dr4::Rect2f dr4_rect(rect.p1.x, rect.p1.y, rect.p2.x - rect.p1.x, rect.p2.y - rect.p1.y);
+        drawRectBorder(dr4_rect, GetTexture(), GetUI()->GetWindow(), red_color);
     }
 }
 
@@ -140,8 +119,8 @@ Vector getDiffuseColor(Surface* s, Source* l, Vector p_surface, Vector p_light)
 }
 
 
-OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f size)
-    : hui::Widget(state)
+OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f size, OptController* control)
+    : hui::Widget(state), control(control)
 {
     SetPos(pos);
     SetSize(size);
@@ -163,7 +142,7 @@ OptScene::OptScene(hui::UI* state, Widget* parent, dr4::Vec2f pos, dr4::Vec2f si
 
     redraw_picture = 1;
 
-    surfaces.push_back(new PlaneSurface(2, white_col, "plane", this));
+    surfaces.push_back(new PlaneSurface(2, white_col, "Plane", this));
 }
 
 void OptScene::needsRerender() { needs_rerender = true; ForceRedraw(); }

@@ -2,6 +2,7 @@
 #define W_CONTAINER_H
 
 #include "widget.h"
+#include "colors.h"
 
 #include "hui/container.hpp"
 
@@ -13,9 +14,7 @@ public:
     virtual ~MyContainer();
     void Redraw() const override;
 
-    // void setDrawBorder(bool draw, dr4::Color color = dr4::Color(255, 255, 255));
-    // void setFillRect(bool fill, dr4::Color color = dr4::Color(0, 0, 0));
-    void setDrawRect(bool draw_rect, dr4::Color fill_col = dr4::Color(0, 0, 0), dr4::Color border_col = dr4::Color(255, 255, 255));
+    void setDrawRect(bool draw_rect, dr4::Color fill_col = black_color, dr4::Color border_col = white_color);
 
     virtual void clearChildren();
     virtual void addChild(Widget* w);

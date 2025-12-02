@@ -1,4 +1,5 @@
 #include "scroll.h"
+#include "colors.h"
 
 #include "hui/ui.hpp"
 
@@ -93,7 +94,7 @@ void ScrollThumb::Redraw() const {
     rect->SetPos({0, 0});
     rect->SetSize(GetSize());
     rect->SetFillColor(color);
-    rect->SetBorderColor(dr4::Color(255, 255, 255));
+    rect->SetBorderColor(white_color);
     GetTexture().Draw(*rect);
 }
 
