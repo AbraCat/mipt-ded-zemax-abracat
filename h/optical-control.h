@@ -83,6 +83,7 @@ class DeleteObjectButton : public Button
 {
 public:
     DeleteObjectButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, std::string text);
+    void setObject(OptObject* obj) { this->obj = obj; }
     virtual void action() override;
 
 private:
@@ -109,14 +110,16 @@ public:
     ObjControlPanel(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptController* control);
     void setObject(OptObject* obj);
     void setDisplayedVal(OptPropEnum prop, double val);
+    virtual void Redraw() const override;
 
 private:
     OptObject *obj;
     TextField* name_text;
     OptNameField* name_field;
-    WContainer *prop_cont, *button_cont;
+    DeleteObjectButton* delete_button;
+    WContainer *prop_cont;
     OptController* control;
-    // GridContainer *button_cont;
+    GridContainer *button_cont;
 };
 
 class OptController

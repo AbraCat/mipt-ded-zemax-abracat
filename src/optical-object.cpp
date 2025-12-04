@@ -49,6 +49,8 @@ std::string propToStr(OptPropEnum prop) {
         case OPT_REFRACT_COEFF: return "refract_coeff";
         case OPT_RADIUS: return "radius";
     }
+
+    return "unknown";
 }
 
 OptPropEnum propFromStr(std::string name) {

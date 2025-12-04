@@ -43,7 +43,7 @@ public:
 
     void resizeChild(int n_child);
     virtual void addChild(Widget* widget) override;
-    dr4::Vec2f getChildSize() const { return dr4::Vec2f(childWidth, childHeight); }
+    virtual dr4::Vec2f getChildSize() const { return dr4::Vec2f(childWidth, childHeight); }
 
     virtual int removeChildByPredicate(std::function<bool(Widget*)> predicate) override;
 
@@ -55,7 +55,8 @@ protected:
 class GridContainer : public WContainer {
 public:
     GridContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int width, int height);
-    void addGridChild(Widget* widget);
+    virtual void addChild(Widget* widget) override;
+    virtual dr4::Vec2f getChildSize() const override;
     virtual void clearChildren() override;
 
 private:

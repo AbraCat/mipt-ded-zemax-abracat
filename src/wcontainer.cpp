@@ -31,7 +31,9 @@ void MyContainer::Redraw() const {
         rect->SetSize(GetSize());
         rect->SetFillColor(fill_col);
         rect->SetBorderColor(border_col);
+
         GetTexture().Draw(*rect);
+        delete rect;
     }
 
     for (Widget* w: children) {
@@ -244,19 +246,23 @@ GridContainer::GridContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int w
     for (int child_num = 0; child_num < height; ++child_num) {
         WContainer* cont = new WContainer(ui, {}, {size.x, size.y / height}, width, 0);
         cont->setDrawRect(true, black_color, black_color);
-        addChild(cont);
+        WContainer::addChild(cont);
     }
 }
 
-void GridContainer::addGridChild(Widget* widget) {
+void GridContainer::addChild(Widget* widget) {
     assert(child_cnt < width * height);
 
-    WContainer* cont = dynamic_cast<WContainer*>(children[child_cnt % width]);
+    WContainer* cont = dynamic_cast<WContainer*>(children[child_cnt / width]);
     assert(cont != nullptr);
 
     cont->addChild(widget);
     widget->ForceRedraw();
     ++child_cnt;
+}
+
+dr4::Vec2f GridContainer::getChildSize() const {
+    return dr4::Vec2f(GetSize().x / width, GetSize().y / height);
 }
 
 void GridContainer::clearChildren() {

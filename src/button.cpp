@@ -133,7 +133,9 @@ InputField::InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Col
     : TextField(state, pos, size)
 {
     focused = 0;
+    max_text_len = size.x;
     this->text_valid = std::function([](std::string s){ return true; });
+
     SetFieldColor(color);
     SetText(text);
 }
@@ -176,7 +178,7 @@ EventResult InputField::OnKeyDown(KeyEvent &evt)
         std::string new_text = getText() + std::string(1, chr);
         float new_width = getTextBounds(GetUI()->GetWindow(), new_text).x;
         
-        if (chr != '\0' && new_width < GetSize().x)
+        if (chr != '\0' && new_width < max_text_len)
             SetText(new_text);
     }
 

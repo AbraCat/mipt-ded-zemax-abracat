@@ -1,6 +1,7 @@
 #include "optical-control.h"
 #include "scroll.h"
 #include "colors.h"
+#include "hui/ui.hpp"
 
 #include <algorithm>
 #include <random>
@@ -19,9 +20,11 @@ extern const int scene_w = 1000;
 const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
     std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.5;
 const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
-    obj_button_h = obj_list_w / 1.4, properties_h = scene_h * 0.65, obj_scroll_w = 50, 
+    obj_button_h = obj_list_w / 1.4, obj_scroll_w = 50, 
     properties_w = 500, properties_left = scene_w + obj_list_w + obj_scroll_w,
-    n_camera_buttons = 6, n_move_buttons = 6, max_n_objects = 10, name_field_h = properties_h / OPT_TOTAL;
+    n_camera_buttons = 6, n_move_buttons = 6, n_mov_but_x = 3, n_mov_but_y = 2, max_n_objects = 10,
+    panel_button_h = (scene_h + button_h) / (1 + OPT_TOTAL + n_mov_but_y + 1) + 1,
+    properties_h = panel_button_h * OPT_TOTAL, obj_move_cont_h = panel_button_h * n_mov_but_y;
 
 extern const int opt_control_w = scene_w + obj_list_w + obj_scroll_w + properties_w,
     opt_control_h = scene_h + button_h, tools_h = opt_control_h * 0.7, tool_button_w = 200;
@@ -36,29 +39,53 @@ std::string doubleToStr(double val)
 }
 
 ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptController* control)
-    : MyContainer(ui, pos, size), control(control)
+    : MyContainer(ui, pos, size), control(control), obj(nullptr)
 {
-    name_text = new TextField(ui, {0, 0}, {size.x * property_name_portion, name_field_h});
+    name_text = new TextField(ui, {0, 0}, {size.x * property_name_portion, panel_button_h});
     name_field = new OptNameField(ui, {size.x * property_name_portion, 0},
-        {size.x * (1 - property_name_portion), name_field_h}, control);
+        {size.x * (1 - property_name_portion), panel_button_h}, control);
+    name_field->setMaxTextLen(obj_list_w);
+
+    prop_cont = new WContainer(ui, {0, panel_button_h}, {GetSize().x, properties_h}, OPT_TOTAL, 1);
+    button_cont = new GridContainer(ui, {0, panel_button_h + properties_h},
+        {GetSize().x, obj_move_cont_h}, n_mov_but_x, n_mov_but_y);
+
+    const int delete_button_y = button_cont->GetPos().y + button_cont->GetSize().y;
+    delete_button =  new DeleteObjectButton(GetUI(), {0, delete_button_y},
+            {GetSize().x, GetSize().y - delete_button_y}, nullptr, "Delete");
+
     addChild(name_text);
     addChild(name_field);
-
-    prop_cont = new WContainer(ui, {0, name_field_h}, {GetSize().x, properties_h}, OPT_TOTAL, 1);
-    button_cont = new WContainer(ui, {0, name_field_h + properties_h},
-        {GetSize().x, GetSize().y - properties_h - name_field_h}, n_move_buttons + 1, 1);
-    // button_cont = new GridContainer(ui, {0, name_field_h + properties_h}, {GetSize().x, GetSize().y - properties_h}, 2, 3);
     addChild(prop_cont);
     addChild(button_cont);
+    addChild(delete_button);
+}
+
+void ObjControlPanel::Redraw() const {
+    if (obj != nullptr) {
+        MyContainer::Redraw();
+        return;
+    }
+
+    dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
+    rect->SetSize(GetSize());
+    rect->SetFillColor(black_color);
+    rect->SetBorderColor(white_color);
+
+    GetTexture().Draw(*rect);
+    delete rect;
 }
 
 void ObjControlPanel::setObject(OptObject* obj)
 {
+    this->obj = obj;
     prop_cont->clearChildren();
     button_cont->clearChildren();
+
     if (obj == nullptr) name_text->SetText("");
     else name_text->SetText("Name");
     name_field->setObject(obj);
+    delete_button->setObject(obj);
 
     if (obj != nullptr)
     {
@@ -73,8 +100,6 @@ void ObjControlPanel::setObject(OptObject* obj)
         button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {obj_change, 0, 0}, "Right", this));
         button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {0, -obj_change, 0}, "Up", this));
         button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {0, obj_change, 0}, "Down", this));
-
-        button_cont->addChild(new DeleteObjectButton(GetUI(), {}, button_size, obj, "Delete"));
     }
 
     name_text->ForceRedraw();
@@ -111,6 +136,8 @@ void OptNameField::setObject(OptObject* obj) {
 }
 
 void OptNameField::action() {
+    if (obj == nullptr) return;
+
     obj->setName(getText());
     for (Widget* w : control->obj_cont->children) {
         OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
@@ -178,6 +205,7 @@ MoveObjectButton::MoveObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size,
 
 void MoveObjectButton::action()
 {
+    if (obj == nullptr) return;
     obj->movePos(change);
 
     panel->setDisplayedVal(OPT_POS_X, obj->pos.x);
@@ -195,6 +223,7 @@ DeleteObjectButton::DeleteObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f s
 
 void DeleteObjectButton::action()
 {
+    if (obj == nullptr) return;
     obj->scene->control->deleteObject(obj);
 }
 

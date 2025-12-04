@@ -36,9 +36,12 @@ public:
     void update_text();
     virtual void action() = 0;
 
+    void setMaxTextLen(int len) { max_text_len = len; }
     void setValidator(std::function<bool(std::string)> text_valid);
 
+protected:
     bool focused;
+    int max_text_len;
     std::string init_text;
     std::function<bool(std::string)> text_valid;
 };
