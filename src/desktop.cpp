@@ -7,6 +7,7 @@
 #include "hui/ui.hpp"
 
 #include <cmath>
+#include <cassert>
 
 const double src_size = 0.3;
 extern const int opt_control_w, opt_control_h, tools_h, tool_button_w;

@@ -102,6 +102,17 @@ private:
     OptObjectType type;
 };
 
+class SaveRestoreButton : public Button {
+public:
+    SaveRestoreButton(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptController* control, bool save);
+    virtual void action() override;
+
+private:
+    bool save;
+    std::string path;
+    OptController* control;
+};
+
 
 
 class ObjControlPanel : public MyContainer
@@ -128,8 +139,9 @@ public:
     OptController(hui::UI* ui, MyContainer* parent);
     WList* makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size);
 
-    int Save(const char* path);
-    int Restore(const char* path);
+    int SaveObject(std::ofstream& file, OptObject* obj);
+    int Save(std::string path);
+    int Restore(std::string path);
 
     void addObject(OptObject* obj);
     std::vector<Surface*>::iterator addSphere(Vector pos, Vector color, double r, Material m = plastic);

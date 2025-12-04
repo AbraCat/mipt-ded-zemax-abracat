@@ -5,6 +5,6 @@
 
 static const dr4::Color white_color(255, 255, 255), black_color(0, 0, 0), gray_color(127, 127, 127),
     red_color(255, 0, 0), green_color(0, 255, 0), blue_color(0, 0, 255), dark_gray_color(63, 63, 63),
-    light_green_color(0, 255, 127);
+    light_green_color(0, 255, 127), yellow_color(255, 255, 0);
 
 #endif // I_MY_COLORS_H
