@@ -1,4 +1,5 @@
 #include "wcontainer.h"
+#include "my-utils.h"
 
 #include "hui/ui.hpp"
 
@@ -35,10 +36,15 @@ void MyContainer::Redraw() const {
     for (Widget* w: children) {
         GetTexture().Draw(*w);
     }
+
+    // if (draw_rect) {
+    //     drawRectBorder(dr4::Rect2f({}, GetSize()), GetTexture(), GetUI()->GetWindow(), border_col);
+    // }
 }
 
 void MyContainer::clearChildren() {
     children.clear();
+    ForceRedraw();
 }
 
 void MyContainer::addChild(Widget* w) {
@@ -156,23 +162,11 @@ void WContainer::resizeChild(int nChild)
 {
     Widget* w = children[nChild];
 
-    // if (vertical) w->resize(Vector(padding, padding * (nChild + 1) + childHeight * nChild), 
-    //     Vector(wh.x - padding, (padding + childHeight) * (nChild + 1)));
-
-    // else w->resize(Vector(padding * (nChild + 1) + childWidth * nChild, padding), 
-    //     Vector((padding + childWidth) * (nChild + 1), wh.y - padding));
-
     if (vertical) {
-        // w->resize(Vector(padding, padding * (nChild + 1) + childHeight * nChild), 
-        // Vector(wh.x - padding, (padding + childHeight) * (nChild + 1)));
-
         w->SetPos(dr4::Vec2f(padding, padding * (nChild + 1) + childHeight * nChild));
         w->SetSize(dr4::Vec2f(GetSize().x - padding * 2, childHeight));
     }
     else {
-        // w->resize(Vector(padding * (nChild + 1) + childWidth * nChild, padding), 
-        // Vector((padding + childWidth) * (nChild + 1), wh.y - padding));
-
         w->SetPos(dr4::Vec2f(padding * (nChild + 1) + childWidth * nChild, padding));
         w->SetSize(dr4::Vec2f(childWidth, GetSize().y - padding * 2));
     }
@@ -198,6 +192,39 @@ int WContainer::removeChildByPredicate(std::function<bool(Widget*)> predicate)
         resizeChild(n_child);
 
     return n_removed;
+}
+
+
+GridContainer::GridContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int width, int height) 
+    : WContainer(ui, pos, size, height, 1), width(width), height(height) {
+    child_cnt = 0;
+    for (int child_num = 0; child_num < height; ++child_num) {
+        WContainer* cont = new WContainer(ui, {}, {size.x, size.y / height}, width, 0);
+        cont->setDrawRect(true, black_color, black_color);
+        addChild(cont);
+    }
+}
+
+void GridContainer::addGridChild(Widget* widget) {
+    assert(child_cnt < width * height);
+
+    WContainer* cont = dynamic_cast<WContainer*>(children[child_cnt % width]);
+    assert(cont != nullptr);
+
+    cont->addChild(widget);
+    widget->ForceRedraw();
+    ++child_cnt;
+}
+
+void GridContainer::clearChildren() {
+    child_cnt = 0;
+    for (Widget* w: children) {
+        WContainer* cont = dynamic_cast<WContainer*>(w);
+        assert(cont != nullptr);
+        cont->clearChildren();
+    }
+
+    ForceRedraw();
 }
 
 

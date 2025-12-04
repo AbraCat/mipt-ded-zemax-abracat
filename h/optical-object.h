@@ -7,7 +7,6 @@
 #include <vector>
 
 class OptScene;
-
 class Material;
 
 extern const Material glass, plastic, std_material;
@@ -15,7 +14,8 @@ extern const Material glass, plastic, std_material;
 enum OptObjectType {
     OPT_OBJ_PLANE,
     OPT_OBJ_SHPERE,
-    OPT_OBJ_SOURCE
+    OPT_OBJ_SOURCE,
+    OPT_OBJ_UNKNOWN
 };
 
 enum OptPropEnum
@@ -35,7 +35,8 @@ enum OptPropEnum
     OPT_COLOR_G,
     OPT_COLOR_B,
 
-    OPT_TOTAL
+    OPT_TOTAL,
+    OPT_PROP_UNKNOWN
 };
 
 class OptProperty
@@ -53,6 +54,11 @@ public:
     std::string name;
     double val;
 };
+
+std::string objTypeToStr(OptObjectType type);
+OptObjectType objTypeFromStr(std::string name);
+std::string propToStr(OptPropEnum prop);
+OptPropEnum propFromStr(std::string name);
 
 
 class Ray
@@ -80,10 +86,13 @@ public:
 
     virtual std::vector<OptProperty> getProperties();
     virtual bool setProperty(OptPropEnum prop, double val);
+    void setName(std::string name) { this->name = name; }
+    std::string getName() const { return name; }
 
     void movePos(Vector change);
 
 // protected:
+    OptObjectType type;
     std::string name;
     OptScene* scene;
 

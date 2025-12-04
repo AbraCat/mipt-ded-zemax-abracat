@@ -14,7 +14,7 @@ Widget::Widget(UI *ui_) :
     ui(ui_),
     rect(0, 0, 0, 0),
     texture(ui_->GetWindow()->CreateTexture()),
-    extents(0) {}
+    extents(0) { ForceRedraw(); }
 
 Widget::~Widget() = default;
 
@@ -102,7 +102,7 @@ void Widget::DrawOn(dr4::Texture &dest) const {
 }
 
 void Widget::ForceRedraw() {
-    for (Widget *tgt = this; tgt && !tgt->textureWillRedraw; tgt = tgt->parent) {
+    for (Widget *tgt = this; tgt; tgt = tgt->parent) { // tgt && !tgt->textureWillRedraw
         tgt->textureWillRedraw = true;
     }
 }

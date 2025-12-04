@@ -66,8 +66,8 @@ void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window
 
     top_line->SetStart(dr4::Vec2f(p1.x, p1.y));
     top_line->SetEnd(dr4::Vec2f(p2.x, p1.y));
-    bottom_line->SetStart(dr4::Vec2f(p1.x, p2.y));
-    bottom_line->SetEnd(dr4::Vec2f(p2.x, p2.y));
+    bottom_line->SetStart(dr4::Vec2f(p1.x, p2.y - 1));
+    bottom_line->SetEnd(dr4::Vec2f(p2.x, p2.y - 1));
     left_line->SetStart(dr4::Vec2f(p1.x, p1.y));
     left_line->SetEnd(dr4::Vec2f(p1.x, p2.y));
     right_line->SetStart(dr4::Vec2f(p2.x, p1.y));

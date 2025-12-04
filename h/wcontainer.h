@@ -47,6 +47,16 @@ protected:
     int nChildren, padding, childWidth, childHeight;
 };
 
+class GridContainer : public WContainer {
+public:
+    GridContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int width, int height);
+    void addGridChild(Widget* widget);
+    virtual void clearChildren() override;
+
+private:
+    int child_cnt, width, height;
+};
+
 class WList : public WContainer
 {
 public:

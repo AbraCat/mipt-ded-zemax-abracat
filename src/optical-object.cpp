@@ -16,6 +16,65 @@ extern const Material glass(0, 0, 1, 1.06), plastic(1, 1, 0, 1.3), std_material 
 
 
 
+std::string objTypeToStr(OptObjectType type) {
+    switch (type) {
+        case OPT_OBJ_SHPERE: return "sphere";
+        case OPT_OBJ_PLANE: return "plane";
+        case OPT_OBJ_SOURCE: return "source";
+    }
+    return "unknown";
+}
+
+OptObjectType objTypeFromStr(std::string type) {
+    if (type == objTypeToStr(OPT_OBJ_PLANE)) return OPT_OBJ_PLANE;
+    if (type == objTypeToStr(OPT_OBJ_SOURCE)) return OPT_OBJ_SOURCE;
+    if (type == objTypeToStr(OPT_OBJ_SHPERE)) return OPT_OBJ_SHPERE;
+
+    return OPT_OBJ_UNKNOWN;
+}
+
+std::string propToStr(OptPropEnum prop) {
+    switch (prop) {
+        case OPT_POS_X: return "pos_x";
+        case OPT_POS_Y: return "pos_y";
+        case OPT_POS_Z: return "poz_z";
+
+        case OPT_COLOR_R: return "color_r";
+        case OPT_COLOR_G: return "color_g";
+        case OPT_COLOR_B: return "color_b";
+
+        case OPT_DIFFUSE_PORTION: return "diffuse_protion";
+        case OPT_SPECULAR_PORTION: return "specular_protion";
+        case OPT_REFRACT_PORTION: return "refract_portion";
+        case OPT_REFRACT_COEFF: return "refract_coeff";
+        case OPT_RADIUS: return "radius";
+    }
+}
+
+OptPropEnum propFromStr(std::string name) {
+    const std::vector<OptPropEnum> properties {
+        OPT_DIFFUSE_PORTION,
+        OPT_SPECULAR_PORTION,
+        OPT_REFRACT_PORTION,
+        OPT_REFRACT_COEFF,
+
+        OPT_POS_X,
+        OPT_POS_Y,
+        OPT_POS_Z,
+
+        OPT_RADIUS,
+
+        OPT_COLOR_R,
+        OPT_COLOR_G,
+        OPT_COLOR_B
+    };
+
+    for (OptPropEnum prop: properties) {
+        if (propToStr(prop) == name) return prop;
+    }
+    return OPT_PROP_UNKNOWN;
+}
+
 OptProperty::OptProperty(OptPropEnum prop, std::string name, double val)
     : prop(prop), name(name), val(val)
 {
@@ -32,6 +91,7 @@ OptObject::OptObject(std::string name, OptScene* scene, Vector color, Vector pos
 {
     has_rect = 0;
     size = 0;
+    type = OPT_OBJ_UNKNOWN;
 }
 
 std::vector<OptProperty> OptObject::getProperties()
@@ -188,6 +248,7 @@ SphereSource::SphereSource(Vector color, Vector pos, double r, std::string name,
     : Source(color, pos, name, scene), r(r)
 {
     size = r;
+    type = OPT_OBJ_SOURCE;
 }
 
 Vector SphereSource::getRandPoint()
@@ -228,7 +289,7 @@ bool SphereSource::setProperty(OptPropEnum prop, double val)
 PlaneSurface::PlaneSurface(double y_pos, Vector color, std::string name, OptScene* scene, Material m)
     : Surface(color, {0, y_pos, 0}, name, scene, m)
 {
-    //
+    type = OPT_OBJ_PLANE;
 }
 
 bool PlaneSurface::intersect(Ray ray, double* t_ptr)
@@ -255,6 +316,7 @@ SphereSurface::SphereSurface(Vector pos, double r, Vector color, std::string nam
 {
     has_rect = 1;
     size = r;
+    type = OPT_OBJ_SHPERE;
 }
 
 std::vector<OptProperty> SphereSurface::getProperties()

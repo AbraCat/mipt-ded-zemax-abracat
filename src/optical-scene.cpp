@@ -282,5 +282,3 @@ void OptScene::moveCamera(Vector change)
     screen_tl += change;
     needsRerender();
 }
-
-// } // namespace hui

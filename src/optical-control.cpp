@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <random>
 #include <sstream>
+#include <fstream>
 
 #include <limits>
 #include <cmath>
@@ -16,11 +17,11 @@ const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5,
 
 extern const int scene_w = 1000;
 const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
-    std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.55;
+    std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.5;
 const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
-    obj_button_h = obj_list_w / 1.4, properties_h = scene_h * 0.7, obj_scroll_w = 50, 
+    obj_button_h = obj_list_w / 1.4, properties_h = scene_h * 0.65, obj_scroll_w = 50, 
     properties_w = 500, properties_left = scene_w + obj_list_w + obj_scroll_w,
-    n_camera_buttons = 6, n_move_buttons = 6, max_n_objects = 10;
+    n_camera_buttons = 6, n_move_buttons = 6, max_n_objects = 10, name_field_h = properties_h / OPT_TOTAL;
 
 extern const int opt_control_w = scene_w + obj_list_w + obj_scroll_w + properties_w,
     opt_control_h = scene_h + button_h, tools_h = opt_control_h * 0.7, tool_button_w = 200;
@@ -34,11 +35,19 @@ std::string doubleToStr(double val)
     return std::move(out).str();
 }
 
-ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size)
-    : MyContainer(ui, pos, size)
+ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptController* control)
+    : MyContainer(ui, pos, size), control(control)
 {
-    prop_cont = new WContainer(ui, {0, 0}, {GetSize().x, properties_h}, OPT_TOTAL, 1);
-    button_cont = new WContainer(ui, {0, properties_h}, {GetSize().x, GetSize().y - properties_h}, n_move_buttons + 1, 1);
+    name_text = new TextField(ui, {0, 0}, {size.x * property_name_portion, name_field_h});
+    name_field = new OptNameField(ui, {size.x * property_name_portion, 0},
+        {size.x * (1 - property_name_portion), name_field_h}, control);
+    addChild(name_text);
+    addChild(name_field);
+
+    prop_cont = new WContainer(ui, {0, name_field_h}, {GetSize().x, properties_h}, OPT_TOTAL, 1);
+    button_cont = new WContainer(ui, {0, name_field_h + properties_h},
+        {GetSize().x, GetSize().y - properties_h - name_field_h}, n_move_buttons + 1, 1);
+    // button_cont = new GridContainer(ui, {0, name_field_h + properties_h}, {GetSize().x, GetSize().y - properties_h}, 2, 3);
     addChild(prop_cont);
     addChild(button_cont);
 }
@@ -47,6 +56,9 @@ void ObjControlPanel::setObject(OptObject* obj)
 {
     prop_cont->clearChildren();
     button_cont->clearChildren();
+    if (obj == nullptr) name_text->SetText("");
+    else name_text->SetText("Name");
+    name_field->setObject(obj);
 
     if (obj != nullptr)
     {
@@ -65,6 +77,8 @@ void ObjControlPanel::setObject(OptObject* obj)
         button_cont->addChild(new DeleteObjectButton(GetUI(), {}, button_size, obj, "Delete"));
     }
 
+    name_text->ForceRedraw();
+    name_field->ForceRedraw();
     prop_cont->ForceRedraw();
     button_cont->ForceRedraw();
 }
@@ -82,6 +96,32 @@ void ObjControlPanel::setDisplayedVal(OptPropEnum prop, double val)
             break;
         }
     }
+}
+
+OptNameField::OptNameField(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptController* control)
+    : InputField(ui, pos, size, black_color, ""), control(control) {
+    //
+}
+
+void OptNameField::setObject(OptObject* obj) {
+    this->obj = obj;
+    if (obj == nullptr) SetText("");
+    else SetText(obj->getName());
+    ForceRedraw();
+}
+
+void OptNameField::action() {
+    obj->setName(getText());
+    for (Widget* w : control->obj_cont->children) {
+        OptObjectButton* button = dynamic_cast<OptObjectButton*>(w);
+        assert(button != nullptr);
+
+        if (button->obj == obj) {
+            button->SetText(getText());
+            break;
+        }
+    }
+
 }
 
 OptPropWidget::OptPropWidget(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, OptProperty prop)
@@ -208,7 +248,7 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
     parent->addChild(scene_cvs_widget);
 
     panel = new ObjControlPanel(ui, {properties_left, 0},
-        {properties_w, scene_h + button_h});
+        {properties_w, scene_h + button_h}, this);
     parent->addChild(panel);
 
     cam_cont = new WContainer(ui, {0, scene_h}, {scene_w, button_h}, n_camera_buttons, 0);
@@ -233,6 +273,8 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
     obj_scroll = new WidgetScrollBar(ui, {scene_w + obj_list_w, 0},
         {obj_scroll_w, scene_h + button_h}, obj_scrollable);
     parent->addChild(obj_scroll);
+
+    // Restore("scene.txt");
 }
 
 WList* OptController::makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size)
@@ -330,5 +372,65 @@ std::vector<Source*>::iterator OptController::addSource(Vector pos, Vector color
     s->sources.push_back(new_source);
     addObject(new_source);
     return s->sources.end() - 1;
+}
+
+int OptController::Restore(const char* path) {
+    /*
+    type
+    name
+    name1 val1
+    name2 val2
+    */
+
+    std::ifstream file(path);
+    file.open("r");
+    if (!file.is_open()) return 1;
+
+    while (true) {
+        OptObject* obj = nullptr;
+        std::string type;
+        file >> type;
+        if (type == "") return 0;
+
+        if (type == objTypeToStr(OPT_OBJ_SOURCE)) {
+            SphereSource* src = new SphereSource({}, {}, 1, "", s);
+            s->sources.push_back(src);
+            obj = src;
+        }
+        else if (type == objTypeToStr(OPT_OBJ_PLANE)) {
+            Surface* surface = new PlaneSurface(0, {}, "", s);
+            s->surfaces.push_back(surface);
+            obj = surface;
+        }
+        else if (type == objTypeToStr(OPT_OBJ_SHPERE)) {
+            Surface* surface = new SphereSurface({}, 1, {}, "", s);
+            s->surfaces.push_back(surface);
+            obj = surface;
+        }
+        if (obj == nullptr) return 1;
+
+        std::string obj_name;
+        file >> obj_name;
+        obj->setName(obj_name);
+
+        int n_properties = -1;
+        file >> n_properties;
+
+        for (int prop_num = 0; prop_num < n_properties; ++prop_num) {
+            std::string prop_name;
+            double prop_val = 0;
+            file >> prop_name >> prop_val;
+
+            obj->setProperty(propFromStr(prop_name), prop_val);
+        }
+
+        addObject(obj);
+    }
+
+    return 0;
+}
+
+int OptController::Save(const char* path) {
+    return 0;
 }
 
