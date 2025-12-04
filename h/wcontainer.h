@@ -6,7 +6,7 @@
 
 #include "hui/container.hpp"
 
-
+using hui::EventResult;
 
 class MyContainer : public hui::Container {
 public:
@@ -14,17 +14,22 @@ public:
     virtual ~MyContainer();
     void Redraw() const override;
 
+    void BlockEventsOutsideRect(bool block) { block_evt_outside_rect = block; }
     void setDrawRect(bool draw_rect, dr4::Color fill_col = black_color, dr4::Color border_col = white_color);
 
     virtual void clearChildren();
     virtual void addChild(Widget* w);
     virtual hui::EventResult PropagateToChildren(hui::Event &event) override;
 
+    virtual EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
+    virtual EventResult OnMouseUp(hui::MouseButtonEvent &evt) override;
+    virtual EventResult OnMouseMove(hui::MouseMoveEvent &evt) override;
+
     virtual int removeChildByPredicate(std::function<bool(Widget*)> predicate);
 
 // protected:
     // bool draw_border, fill_rect;
-    bool draw_rect;
+    bool draw_rect, block_evt_outside_rect;
     dr4::Color border_col, fill_col;
     std::vector<Widget*> children;
 };

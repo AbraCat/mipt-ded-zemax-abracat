@@ -15,6 +15,12 @@
 #include <chrono>
 #include <iostream>
 
+/*
+TODO
+grid container
+saving / restoring scene to file
+*/
+
 
 extern dr4::Window* window = nullptr;
 extern const double ratio;

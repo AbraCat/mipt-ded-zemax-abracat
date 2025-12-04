@@ -12,6 +12,7 @@ MyContainer::MyContainer(UI* state, dr4::Vec2f pos, dr4::Vec2f size) : Container
     SetPos(pos);
 
     draw_rect = false;
+    block_evt_outside_rect = false;
 } 
 
 MyContainer::~MyContainer() {
@@ -59,6 +60,48 @@ EventResult MyContainer::PropagateToChildren(hui::Event &event) {
 
     for (Widget* w: children) {
         if (event.Apply(*w) == EventResult::HANDLED) return EventResult::HANDLED;
+    }
+    return EventResult::UNHANDLED;
+}
+
+EventResult MyContainer::OnMouseDown(hui::MouseButtonEvent &evt) {
+    if (!block_evt_outside_rect || GetRect().Contains(evt.pos)) {
+        evt.pos -= GetPos();
+        if (PropagateToChildren(evt) == EventResult::HANDLED) {
+            evt.pos += GetPos();
+            return EventResult::HANDLED;
+        } else {
+            evt.pos += GetPos();
+            return Widget::OnMouseDown(evt);
+        }
+    }
+    return EventResult::UNHANDLED;
+}
+
+EventResult MyContainer::OnMouseUp(hui::MouseButtonEvent &evt) {
+    if (!block_evt_outside_rect || GetRect().Contains(evt.pos)) {
+        evt.pos -= GetPos();
+        if (PropagateToChildren(evt) == EventResult::HANDLED) {
+            evt.pos += GetPos();
+            return EventResult::HANDLED;
+        } else {
+            evt.pos += GetPos();
+            return Widget::OnMouseUp(evt);
+        }
+    }
+    return EventResult::UNHANDLED;
+}
+
+EventResult MyContainer::OnMouseMove(hui::MouseMoveEvent &evt) {
+    if (!block_evt_outside_rect || GetRect().Contains(evt.pos)) {
+        evt.pos -= GetPos();
+        if (PropagateToChildren(evt) == EventResult::HANDLED) {
+            evt.pos += GetPos();
+            return EventResult::HANDLED;
+        } else {
+            evt.pos += GetPos();
+            return Widget::OnMouseMove(evt);
+        }
     }
     return EventResult::UNHANDLED;
 }

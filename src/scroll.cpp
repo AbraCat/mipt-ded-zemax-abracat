@@ -120,6 +120,7 @@ ScrollableWidget::ScrollableWidget(hui::Widget* scrolled, dr4::Vec2f pos, dr4::V
     : MyContainer(scrolled->GetUI(), pos, size), scrolled(scrolled), vertical(vertical) {
     setDrawRect(true);
     addChild(scrolled);
+    BlockEventsOutsideRect(true);
 }
 
 void ScrollableWidget::scroll(double frac) {
