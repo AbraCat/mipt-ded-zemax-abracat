@@ -8,9 +8,7 @@
 #include <cmath>
 #include <cassert>
 
-static dr4::Font* font;
-const std::string font_path = "ttf/font.ttf";
-
+const double cursor_duration = 0.5;
 const int letter_width = 17.3, cursor_h = 22;
 const dr4::Color shape_color(127, 0, 127), text_color(255, 128, 0), text_border_col(0, 0, 0), cursor_col(0, 0, 0);
 
@@ -80,6 +78,8 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 TextShape::TextShape(Canvas* cvs) : MyShape(cvs) {
     text = "Text";
     cursor_pos = 0;
+    prev_cursor_time = -1;
+    show_cursor = true;
 }
 
 dr4::Rect2f TextShape::getRect() const {
@@ -121,6 +121,16 @@ bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
     return true;
 }
 
+bool TextShape::OnIdle(const IdleEvent &evt) {
+    if (prev_cursor_time != -1 && evt.absTime - prev_cursor_time < cursor_duration)
+        return false;
+
+    show_cursor = !show_cursor;
+    prev_cursor_time = evt.absTime;
+    canvas->ShapeChanged(this);
+    return false;
+}
+
 void TextShape::DrawOn(dr4::Texture &texture) const {
     if (selected) {
         dr4::Rect2f rect(pos, size);
@@ -128,7 +138,7 @@ void TextShape::DrawOn(dr4::Texture &texture) const {
     }
 
     drawText(texture);
-    if (selected) drawCursor(texture);
+    if (selected && show_cursor) drawCursor(texture);
 }
 
 void TextShape::drawText(dr4::Texture& texture) const {
@@ -136,7 +146,7 @@ void TextShape::drawText(dr4::Texture& texture) const {
     text_drawable->SetPos(getRect().pos);
     text_drawable->SetText(text);
     text_drawable->SetColor(text_color);
-    text_drawable->SetFont(font);
+    text_drawable->SetFont(window->GetDefaultFont());
 
     texture.Draw(*text_drawable);
     delete text_drawable;
@@ -267,6 +277,11 @@ bool MyTool::OnMouseMove(const dr4::Event::MouseMove &evt) {
     return true;
 }
 
+bool MyTool::OnIdle(const IdleEvent &evt) {
+    if (cur_shape != nullptr) return cur_shape->OnIdle(evt);
+    return false;
+}
+
 
 
 
@@ -322,9 +337,6 @@ std::vector<std::unique_ptr<pp::Tool>> cum::AbraCat_pp_plugin::CreateTools(pp::C
         assert(my_tool != nullptr);
         my_tool->SetCanvas(cvs);
     }
-
-    font = cvs->GetWindow()->CreateFont();
-    font->LoadFromFile(font_path);
 
     return tools;
 }

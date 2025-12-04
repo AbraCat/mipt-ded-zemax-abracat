@@ -166,6 +166,7 @@ public:
     ~MyTexture();
 
     virtual void Clear(dr4::Color color) override;
+    virtual dr4::Image* GetImage() const override;
 
     virtual void SetSize(Vec2f size) override;
     virtual Vec2f GetSize() const override;

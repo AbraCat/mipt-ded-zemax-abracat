@@ -1,12 +1,14 @@
 #include "sdl-adapter.h"
 #include "mywindow.h"
+#include "my-utils.h"
 
+#include <thread>
+#include <chrono>
 #include <cassert>
 
 #include <SDL3_ttf/SDL_ttf.h>
 
 const int font_ptsize = 28;
-const std::string font_path = "ttf/font.ttf";
 
 namespace dr4 {
 
@@ -15,6 +17,9 @@ dr4::MyWindow::MyWindow(dr4::Vec2f size, std::string title)
     width = size.x;
     height = size.y;
     this->title = title;
+
+    clipboard = "";
+    default_font = nullptr;
 }
 
 void dr4::MyWindow::SetTitle(const std::string &title)
@@ -46,11 +51,11 @@ void dr4::MyWindow::Open()
         return;
     }
     setRenderer(rend);
+    if (TTF_Init() == -1) return;
 
     this->texture = new MyTexture(Vec2f(width, height));
     is_open = true;
-
-    if (TTF_Init() == -1) return;
+    time_opened = getMillisecondsSinceEpoch();
 }
 
 bool dr4::MyWindow::IsOpen() const { return is_open; }
@@ -95,9 +100,13 @@ void dr4::MyWindow::Display()
     SDL_RenderPresent(getRenderer());
 }
 
-void MyWindow::Sleep(double time) {} // TODO
+void MyWindow::Sleep(double time) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(int64_t(time * 1000)));
+}
 
-double MyWindow::GetTime() { return 0; } // TODO
+double MyWindow::GetTime() {
+    return (getMillisecondsSinceEpoch() - time_opened) / 1000.0;
+}
 
 dr4::Texture* dr4::MyWindow::CreateTexture() { return new MyTexture(dr4::Vec2f(width, height)); }
 dr4::Image* dr4::MyWindow::CreateImage() { return new MyImage(width, height); }
@@ -297,5 +306,10 @@ std::optional<dr4::Event> dr4::MyWindow::PollEvent()
 
     return evt;
 }
+
+void dr4::MyWindow::SetDefaultFont( const dr4::Font* font ) { default_font = font; }
+const dr4::Font* dr4::MyWindow::GetDefaultFont() { return default_font; }
+void dr4::MyWindow::SetClipboard( const std::string& string ) { clipboard = string; }
+std::string dr4::MyWindow::GetClipboard() { return clipboard; }
 
 } // namespace dr4

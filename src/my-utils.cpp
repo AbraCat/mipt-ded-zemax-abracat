@@ -1,5 +1,16 @@
 #include "my-utils.h"
 
+#include <chrono>
+
+long long getMillisecondsSinceEpoch() {
+    auto now_chrono = std::chrono::system_clock::now();
+    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now_chrono);
+    auto epoch = now_ms.time_since_epoch();
+    long long milliseconds_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(epoch).count();
+
+    return milliseconds_since_epoch;
+}
+
 char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
     #define RANGE_CAPITAL(code_lft, code_rgt, chr_lft, chr_lft_capital)\
         if (code >= dr4::KeyCode::KEYCODE_ ## code_lft && code <= dr4::KeyCode::KEYCODE_ ## code_rgt) {\

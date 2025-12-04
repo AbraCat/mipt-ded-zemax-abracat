@@ -13,8 +13,8 @@
 #include <cassert>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
-extern dr4::Font* font = nullptr;
 extern dr4::Window* window = nullptr;
 extern const double ratio;
 extern const int scene_w;
@@ -23,6 +23,36 @@ const int desktop_w = 1900, desktop_h = 1000, fps = 30;
 const std::string dr4_path = "build/libdr4.so";
 const std::string pp_path = "build/libpp.so";
 const std::string font_path = "ttf/font.ttf";
+
+double prev_hui_idle = -1, prev_pp_idle = -1;
+
+int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
+    std::vector<std::unique_ptr<pp::Tool>>& tools);
+hui::IdleEvent* getUiIdleEvent();
+pp::IdleEvent getPpIdleEvent();
+
+hui::IdleEvent* getUiIdleEvent() {
+    hui::IdleEvent* idle_evt = new hui::IdleEvent();
+
+    idle_evt->absTime = window->GetTime();
+    if (prev_hui_idle == -1) idle_evt->deltaTime = 0;
+    else idle_evt->deltaTime = idle_evt->absTime - prev_hui_idle;
+
+    prev_hui_idle = idle_evt->absTime;
+    return idle_evt;
+}
+
+pp::IdleEvent getPpIdleEvent() {
+    pp::IdleEvent idle_evt;
+
+    idle_evt.absTime = window->GetTime();
+    idle_evt.absTime = window->GetTime();
+    if (prev_pp_idle == -1) idle_evt.deltaTime = 0;
+    else idle_evt.deltaTime = idle_evt.absTime - prev_pp_idle;
+
+    prev_pp_idle = idle_evt.absTime;
+    return idle_evt;
+}
 
 int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
@@ -60,11 +90,15 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
 
         ui->ProcessEvent(evt);
     }
+    
+    hui::IdleEvent* hui_idle_evt = getUiIdleEvent();
+    ui->OnIdle(*hui_idle_evt);
+    delete hui_idle_evt;
 
-    hui::IdleEvent* idle_evt = new hui::IdleEvent();
-    ui->OnIdle(*idle_evt);
+    pp::IdleEvent pp_idle_evt = getPpIdleEvent();
+    for (std::unique_ptr<pp::Tool>& tl: tools) tl->OnIdle(pp_idle_evt);
 
-    main_texture->Draw(*ui);
+    main_texture->Draw(*ui->GetRoot());
     window->Draw(*main_texture);
     window->Display();
 
@@ -87,8 +121,9 @@ int main()
     dr4::Texture* main_texture = window->CreateTexture();
     main_texture->SetSize(desktop_w, desktop_h);
 
-    font = window->CreateFont();
+    dr4::Font* font = window->CreateFont();
     font->LoadFromFile(font_path);
+    window->SetDefaultFont(font);
 
     cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
     assert(pp_plugin != nullptr);

@@ -277,6 +277,8 @@ void dr4::MyTexture::Clear(dr4::Color color)
     SDL_RenderClear(getRenderer());
 }
 
+dr4::Image* dr4::MyTexture::GetImage() const { return nullptr; }
+
 void dr4::MyTexture::SetSize(Vec2f size) {
     SDL_DestroyTexture(t);
 

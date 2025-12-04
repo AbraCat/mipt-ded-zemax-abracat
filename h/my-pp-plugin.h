@@ -55,6 +55,7 @@ public:
 
     bool inBounds(std::string new_text);
     virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
+    virtual bool OnIdle(const IdleEvent &evt) override;
 
     virtual void DrawOn(dr4::Texture &) const override;
     void drawCursor(dr4::Texture& texture) const;
@@ -62,6 +63,8 @@ public:
 private:
     int cursor_pos;
     std::string text;
+    double prev_cursor_time;
+    bool show_cursor;
 };
 
 
@@ -81,6 +84,7 @@ public:
     virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
+    virtual bool OnIdle(const IdleEvent &evt) override;
 
 protected:
     bool is_resizing_shape, is_drawing, is_selected;
