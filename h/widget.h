@@ -14,18 +14,6 @@ class Event;
 class MouseEvent;
 class IdleEvent;
 class KeyboardEvent;
-class State;
-
-extern State* state;
-
-class State
-{
-public:
-    State();
-
-    bool needs_rerender;
-    Widget* focused;
-};
 
 /*
 coordinate systems:

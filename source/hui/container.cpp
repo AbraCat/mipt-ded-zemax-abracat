@@ -23,7 +23,7 @@ void Container::UnbecomeParentOf(Widget *child) {
 }
 
 EventResult Container::OnMouseDown(MouseButtonEvent &evt) {
-    if (true) {//GetRect().Contains(evt.pos)) { // deviation from standard
+    if (true) {//GetRect().Contains(evt.pos)) { // DEVIATION
         evt.pos -= GetPos();
         if (PropagateToChildren(evt) == EventResult::HANDLED) {
             evt.pos += GetPos();
@@ -37,7 +37,7 @@ EventResult Container::OnMouseDown(MouseButtonEvent &evt) {
 }
 
 EventResult Container::OnMouseUp(MouseButtonEvent &evt) {
-    if (GetRect().Contains(evt.pos)) {
+    if (true) { // (GetRect().Contains(evt.pos)) { // DEVIATION
         evt.pos -= GetPos();
         if (PropagateToChildren(evt) == EventResult::HANDLED) {
             evt.pos += GetPos();
@@ -51,7 +51,7 @@ EventResult Container::OnMouseUp(MouseButtonEvent &evt) {
 }
 
 EventResult Container::OnMouseMove(MouseMoveEvent &evt) {
-    if (GetRect().Contains(evt.pos)) {
+    if (true) { // (GetRect().Contains(evt.pos)) { // DEVIATION
         evt.pos -= GetPos();
         if (PropagateToChildren(evt) == EventResult::HANDLED) {
             evt.pos += GetPos();

@@ -126,7 +126,7 @@ void UI::ProcessEvent(dr4::Event &dr4Event) {
             }
         case dr4::Event::Type::QUIT: break;
         default:
-            // std::cerr << "unknown event : " << static_cast<int>(dr4Event.type) << "\n";
+            // std::cerr << "unknown event : " << static_cast<int>(dr4Event.type) << "\n"; // DEVIATION
             break;
     }
 }
@@ -142,7 +142,7 @@ void UI::SetCaptured(hui::Widget *widget) {
 void UI::OnIdle(hui::IdleEvent &evt) { if (root) evt.Apply(*root); }
 
 void UI::ReportHover(Widget *w) { if (!hovered) hovered = w; }
-void UI::ReportFocus(Widget *w) { if (!focused) focused = w; }
+void UI::ReportFocus(Widget *w) { focused = w; } //{ if (!focused) focused = w; } // DEVIATION
 
 dr4::Texture *UI::GetTexture() {
     if (!root) return nullptr;

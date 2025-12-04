@@ -46,7 +46,11 @@ void MyContainer::addChild(Widget* w) {
     Container::BecomeParentOf(w);
 }
 
+
 EventResult MyContainer::PropagateToChildren(hui::Event &event) {
+    hui::KeyEvent* key_evt = dynamic_cast<hui::KeyEvent*>(&event);
+    if (key_evt != nullptr) return EventResult::UNHANDLED;
+
     for (Widget* w: children) {
         if (event.Apply(*w) == EventResult::HANDLED) return EventResult::HANDLED;
     }
@@ -94,7 +98,6 @@ int MyContainer::removeChildByPredicate(std::function<bool(Widget*)> predicate)
 // {
 //     for (hui::Widget* w: children)
 //     {
-//         // printf("redrawing child\n");
 //         w->DrawOn(*this->texture);
 //     }
 // }

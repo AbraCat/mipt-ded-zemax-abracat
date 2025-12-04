@@ -10,7 +10,6 @@ extern "C" cum::Plugin *CreatePlugin() { return new cum::AbraCat_DR4Backend(); }
 AbraCat_DR4Backend::AbraCat_DR4Backend()
 {
     name = description = "AbraCat dr4 plugin";
-    // descr_view = description;
 }
 
 std::string_view AbraCat_DR4Backend::GetName() const

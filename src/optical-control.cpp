@@ -37,8 +37,6 @@ std::string doubleToStr(double val)
 ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size)
     : MyContainer(ui, pos, size)
 {
-    // setFillRect(1);
-    
     prop_cont = new WContainer(ui, {0, 0}, {GetSize().x, properties_h}, OPT_TOTAL, 1);
     button_cont = new WContainer(ui, {0, properties_h}, {GetSize().x, GetSize().y - properties_h}, n_move_buttons + 1, 1);
     addChild(prop_cont);

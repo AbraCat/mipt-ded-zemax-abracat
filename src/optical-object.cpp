@@ -137,8 +137,6 @@ Ray Surface::reflect(Ray r, Vector p)
 
 Ray Surface::refract(Ray r, Vector p, bool *success)
 {
-    // if (d) printf("aaa\n");
-
     bool in = rayGoesIn(r, p);
     double n1 = 1, n2 = this->m.refract_k;
     if (!in) std::swap(n1, n2);
@@ -248,7 +246,6 @@ bool PlaneSurface::intersect(Ray ray, double* t_ptr)
 
 Vector PlaneSurface::normal(Vector p)
 {
-    // if (d) printf("plane\n");
     return Vector(0, -1, 0);
 }
 
@@ -313,6 +310,5 @@ bool SphereSurface::intersect(Ray ray, double* t_ptr)
 
 Vector SphereSurface::normal(Vector p)
 {
-    // if (d) printf("sphere\n");
     return !(p - pos);
 }

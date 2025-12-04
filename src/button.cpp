@@ -140,9 +140,9 @@ InputField::InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Col
 
 EventResult InputField::OnMouseDown(MouseButtonEvent &evt)
 {
-    bool in_abs_rect = GetRect().Contains(evt.pos);
+    bool in_rect = GetRect().Contains(evt.pos);
 
-    if (in_abs_rect)
+    if (in_rect)
     {
         GetUI()->ReportFocus(this);
         if (!focused) {
@@ -154,7 +154,7 @@ EventResult InputField::OnMouseDown(MouseButtonEvent &evt)
         }
     }
 
-    if (!in_abs_rect && focused)
+    if (!in_rect && focused)
         update_text();
 
     return EventResult::UNHANDLED;

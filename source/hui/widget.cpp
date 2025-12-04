@@ -117,8 +117,8 @@ void Widget::OnFocusLost()   { return; }
 
 EventResult Widget::OnMouseDown  (MouseButtonEvent &evt) {
     if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
-    GetUI()->ReportFocus(this);
-    return EventResult::HANDLED;
+    // GetUI()->ReportFocus(this);             // DEVIATION
+    return EventResult::UNHANDLED; // HANDLED; // DEVIATION
 }
 
 EventResult Widget::OnMouseUp    (MouseButtonEvent &) { return EventResult::UNHANDLED; }
@@ -130,7 +130,7 @@ EventResult Widget::OnIdle       (IdleEvent &)        { return EventResult::UNHA
 EventResult Widget::OnMouseMove (MouseMoveEvent &evt) {
     if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
     GetUI()->ReportHover(this);
-    return EventResult::HANDLED;
+    return EventResult::UNHANDLED; // HANDLED; // DEVIATION
 }
 
 EventResult Widget::OnKeyDown(KeyEvent &) {
