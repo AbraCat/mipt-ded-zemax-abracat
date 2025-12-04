@@ -64,6 +64,7 @@ protected:
 
     /// Called when someone set's widget's size
     virtual void OnSizeChanged();
+    virtual void OnPosChanged();
 
 public:
 
@@ -84,7 +85,7 @@ public:
 
     /// @}
     //--------------------------------------------------------------------------
-    /** 
+    /**
      * @name Drawing
      */
     /// @{
@@ -109,6 +110,7 @@ protected:
     /**
      * @brief Redraw what is on the texture.
      * There is no guarantee what image drawn previous time survived.
+     * Don't forget to call `ForceRedraw()` when you're done.
      */
     virtual void Redraw() const;
 
@@ -149,7 +151,6 @@ public:
     friend class KeyEvent;
     friend class TextEvent;
     friend class IdleEvent;
-    friend class HoverEvent;
 
 protected:
 

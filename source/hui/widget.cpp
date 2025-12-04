@@ -1,5 +1,4 @@
 #include <cassert>
-#include <iostream>
 
 #include "dr4/math/vec2.hpp"
 #include "hui/widget.hpp"
@@ -12,7 +11,7 @@ namespace hui {
 // Management
 
 Widget::Widget(UI *ui_) :
-    ui(ui_), 
+    ui(ui_),
     rect(0, 0, 0, 0),
     texture(ui_->GetWindow()->CreateTexture()),
     extents(0) {}
@@ -28,6 +27,7 @@ UI  *Widget::GetUI() const { return ui; }
 // Positioning
 
 void Widget::OnSizeChanged() {}
+void Widget::OnPosChanged() {}
 
 void Widget::SetSize(dr4::Vec2f size) {
     assert(size.x >= 0);
@@ -38,15 +38,16 @@ void Widget::SetSize(dr4::Vec2f size) {
         std::max(0.0f, size.x + extents.left + extents.right),
         std::max(0.0f, size.y + extents.top + extents.bottom)
     );
-    texture->SetZero(extents.left, extents.top);
     OnSizeChanged();
 }
 
 dr4::Vec2f Widget::GetSize() const { return rect.size; }
 
-void Widget::SetPos(dr4::Vec2f pos) { // FIXME
+void Widget::SetPos(dr4::Vec2f pos) {
     rect.pos = pos;
     texture->SetPos(pos.x - extents.left, pos.y - extents.top);
+
+    OnPosChanged();
 }
 
 dr4::Vec2f Widget::GetPos() const { return rect.pos; }
@@ -114,10 +115,10 @@ void Widget::OnHoverLost()   { return; }
 void Widget::OnFocusGained() { return; }
 void Widget::OnFocusLost()   { return; }
 
-EventResult Widget::OnMouseDown  (MouseButtonEvent &evt) { 
-    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED; 
+EventResult Widget::OnMouseDown  (MouseButtonEvent &evt) {
+    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
     GetUI()->ReportFocus(this);
-    return EventResult::UNHANDLED; 
+    return EventResult::HANDLED;
 }
 
 EventResult Widget::OnMouseUp    (MouseButtonEvent &) { return EventResult::UNHANDLED; }
@@ -127,13 +128,13 @@ EventResult Widget::OnText       (TextEvent &)        { return EventResult::UNHA
 EventResult Widget::OnIdle       (IdleEvent &)        { return EventResult::UNHANDLED; }
 
 EventResult Widget::OnMouseMove (MouseMoveEvent &evt) {
-    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED; 
+    if (!GetRect().Contains(evt.pos)) return EventResult::UNHANDLED;
     GetUI()->ReportHover(this);
     return EventResult::HANDLED;
 }
 
-EventResult Widget::OnKeyDown(KeyEvent &) { 
-    return EventResult::UNHANDLED; 
+EventResult Widget::OnKeyDown(KeyEvent &) {
+    return EventResult::UNHANDLED;
 }
 
 }; // namespace hui

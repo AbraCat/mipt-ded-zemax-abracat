@@ -3,6 +3,7 @@
 #include "hui/container.hpp"
 #include "hui/event.hpp"
 #include "hui/ui.hpp"
+#include <iostream>
 
 namespace hui {
 
@@ -31,7 +32,7 @@ EventResult Container::OnMouseDown(MouseButtonEvent &evt) {
             evt.pos += GetPos();
             return Widget::OnMouseDown(evt);
         }
-    }        
+    }
     return EventResult::UNHANDLED;
 }
 
@@ -39,13 +40,13 @@ EventResult Container::OnMouseUp(MouseButtonEvent &evt) {
     if (GetRect().Contains(evt.pos)) {
         evt.pos -= GetPos();
         if (PropagateToChildren(evt) == EventResult::HANDLED) {
-            return EventResult::HANDLED;
             evt.pos += GetPos();
+            return EventResult::HANDLED;
         } else {
             evt.pos += GetPos();
             return Widget::OnMouseUp(evt);
         }
-    }         
+    }
     return EventResult::UNHANDLED;
 }
 
@@ -73,7 +74,7 @@ EventResult Container::OnMouseWheel(MouseWheelEvent &evt) {
             evt.pos += GetPos();
             return Widget::OnMouseWheel(evt);
         }
-    } 
+    }
     return EventResult::UNHANDLED;
 }
 
@@ -81,6 +82,24 @@ EventResult Container::OnIdle(IdleEvent &evt) {
     PropagateToChildren(evt);
     Widget::OnIdle(evt);
     return EventResult::UNHANDLED;
+}
+
+EventResult Container::OnKeyDown(KeyEvent &evt) {
+    if (PropagateToChildren(evt) == EventResult::HANDLED)
+        return EventResult::HANDLED;
+    return Widget::OnKeyDown(evt);
+}
+
+EventResult Container::OnKeyUp(KeyEvent &evt) {
+    if (PropagateToChildren(evt) == EventResult::HANDLED)
+        return EventResult::HANDLED;
+    return Widget::OnKeyUp(evt);
+}
+
+EventResult Container::OnText(TextEvent &evt) {
+    if (PropagateToChildren(evt) == EventResult::HANDLED)
+        return EventResult::HANDLED;
+    return Widget::OnText(evt);
 }
 
 }; // namespace hui

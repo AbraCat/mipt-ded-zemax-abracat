@@ -6,6 +6,21 @@
 
 namespace pp {
 
+struct IdleEvent {
+
+    /**
+     * @brief Time from some point of reference.
+     * Usefull for animations. In seconds.
+     */
+    double absTime;
+
+    /**
+     * @brief Time since previous IdleEvent was fired.
+     * In seconds.
+     */
+    double deltaTime;
+};
+
 /**
  * @brief A tool is a thing which constructs new shapes.
  *
@@ -17,7 +32,7 @@ namespace pp {
  * `OnBreak()` is called. If we are not drawing something,
  * then the system probbably will switch back to default tool,
  * (select tool or something like that), calling `OnEnd()`.
- * 
+ *
  */
 class Tool {
 public:
@@ -44,7 +59,8 @@ public:
     virtual bool OnKeyDown(const dr4::Event::KeyEvent &) { return false; }
     virtual bool OnKeyUp(const dr4::Event::KeyEvent &) { return false; }
     virtual bool OnText(const dr4::Event::TextEvent &) { return false; }
-    
+    virtual bool OnIdle(const IdleEvent &) { return false; }
+
 };
 
 };

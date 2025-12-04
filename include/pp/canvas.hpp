@@ -15,17 +15,18 @@ namespace pp {
  * fitting into the overall theme.
  */
 struct ControlsTheme {
-    dr4::Color shapeColor;              ///< Default color for shapes
-    dr4::Color lineColor;               ///< Color of selection borders, etc.
+    dr4::Color shapeFillColor;          ///< Default fill color for shapes
+    dr4::Color shapeBorderColor;        ///< Default border color for shapes
+    dr4::Color selectColor;             ///< Color of selection borders, etc.
     dr4::Color textColor;               ///< Color for text without background
     float baseFontSize;                 ///< Size of the font to use for normal text
     dr4::Color handleColor;             ///< Color for things like corner dots,
                                         ///< by which rectangles are resized.
-    dr4::Color handleHoverColor; 
-    dr4::Color handleActiveColor; 
+    dr4::Color handleHoverColor;
+    dr4::Color handleActiveColor;
 };
 
-/** 
+/**
  * @brief A place to add shapes to.
  */
 class Canvas {
