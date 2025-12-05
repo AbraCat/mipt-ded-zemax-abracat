@@ -1,11 +1,11 @@
 #include "optical-control.h"
 #include "scroll.h"
 #include "colors.h"
+#include "my-utils.h"
 #include "hui/ui.hpp"
 
 #include <algorithm>
 #include <random>
-#include <sstream>
 #include <fstream>
 #include <iostream>
 
@@ -14,7 +14,6 @@
 #include <cassert>
 
 const std::string scene_data_path = "opt-scene-data.txt";
-
 const Vector sky_col = {0, 0.5, 0.75}, init_V = {0, 0, 10}, init_screen_tl = {-2, -1.15, 4};
 const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5, 0.5), std_src_pos = Vector(0, -1, 0),
     std_src_col = Vector(0.5, 0.5, 0.5);
@@ -22,24 +21,22 @@ const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5,
 extern const int scene_w = 1000;
 const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
     std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.5;
+  
 const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 150,
     obj_button_h = obj_list_w / 1.4, obj_scroll_w = 50, 
-    properties_w = 500, properties_left = scene_w + obj_list_w + obj_scroll_w,
-    n_camera_buttons = 6, n_move_buttons = 6, n_mov_but_x = 3, n_mov_but_y = 2, max_n_objects = 10,
-    panel_button_h = (scene_h + button_h) / (1 + OPT_TOTAL + n_mov_but_y + 1) + 1,
+    properties_w = 500, properties_left = scene_w + obj_list_w + obj_scroll_w;
+
+// number of camera buttons
+const int n_camera_buttons = 6, n_mov_but_x = 3, n_mov_but_y = 2, n_move_buttons = n_mov_but_x * n_mov_but_y;
+
+// object control panel sizes
+const int panel_button_h = (scene_h + button_h) / (1 + OPT_TOTAL + n_mov_but_y + 1) + 1,
     properties_h = panel_button_h * OPT_TOTAL, obj_move_cont_h = panel_button_h * n_mov_but_y, n_save_buttons = 2;
 
 extern const int opt_control_w = scene_w + obj_list_w + obj_scroll_w + properties_w,
     opt_control_h = scene_h + button_h, tools_h = opt_control_h * 0.7, tool_button_w = 200;
 
 
-std::string doubleToStr(double val)
-{
-    std::ostringstream out;
-    out.precision(2);
-    out << std::fixed << val;
-    return std::move(out).str();
-}
 
 ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptController* control)
     : MyContainer(ui, pos, size), control(control), obj(nullptr)
@@ -96,19 +93,22 @@ void ObjControlPanel::setObject(OptObject* obj)
             prop_cont->addChild(new OptPropWidget(GetUI(), {}, prop_cont->getChildSize(), obj, prop));
         }
 
-        dr4::Vec2f button_size = button_cont->getChildSize();
-        button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {0, 0, -obj_change}, "Forward", this));
-        button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {-obj_change, 0, 0}, "Left", this));
-        button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {0, -obj_change, 0}, "Up", this));
-        button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {0, 0, obj_change}, "Back", this));
-        button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {obj_change, 0, 0}, "Right", this));
-        button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_size, obj, {0, obj_change, 0}, "Down", this));
+        addMoveButton({0, 0, -obj_change}, "Forward");
+        addMoveButton({-obj_change, 0, 0}, "Left");
+        addMoveButton({0, -obj_change, 0}, "Up");
+        addMoveButton({0, 0, obj_change}, "Back");
+        addMoveButton({obj_change, 0, 0}, "Right");
+        addMoveButton({0, obj_change, 0}, "Down");
     }
 
     name_text->ForceRedraw();
     name_field->ForceRedraw();
     prop_cont->ForceRedraw();
     button_cont->ForceRedraw();
+}
+
+void ObjControlPanel::addMoveButton(Vector change, const std::string& text) {
+    button_cont->addChild(new MoveObjectButton(GetUI(), {}, button_cont->getChildSize(), obj, change, text, this));
 }
 
 void ObjControlPanel::setDisplayedVal(OptPropEnum prop, double val)
@@ -272,7 +272,6 @@ void MoveCameraButton::action()
     scene->needsRerender();
 }
 
-
 OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
 {
     s = new OptScene(ui, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio), this);
@@ -283,16 +282,7 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
         {properties_w, scene_h + button_h}, this);
     parent->addChild(panel);
 
-    cam_cont = new WContainer(ui, {0, scene_h}, {scene_w, button_h}, n_camera_buttons + n_save_buttons, 0);
-    parent->addChild(cam_cont);
-    cam_cont->addChild(new MoveCameraButton(ui, s, {0, 0, -cam_change_z}, gray_color, "Forward"));
-    cam_cont->addChild(new MoveCameraButton(ui, s, {0, 0, cam_change_z}, gray_color, "Back"));
-    cam_cont->addChild(new MoveCameraButton(ui, s, {-cam_change_x, 0, 0}, gray_color, "Left"));
-    cam_cont->addChild(new MoveCameraButton(ui, s, {cam_change_x, 0, 0}, gray_color, "Right"));
-    cam_cont->addChild(new MoveCameraButton(ui, s, {0, -cam_change_y, 0}, gray_color, "Up"));
-    cam_cont->addChild(new MoveCameraButton(ui, s, {0, cam_change_y, 0}, gray_color, "Down"));
-    cam_cont->addChild(new SaveRestoreButton(ui, {}, {}, this, true));
-    cam_cont->addChild(new SaveRestoreButton(ui, {}, {}, this, false));
+    cam_cont = createCameraContainer({0, scene_h}, {scene_w, button_h});
 
     WContainer* add_but_cont = new WContainer(ui, {opt_control_w, tools_h}, {tool_button_w, opt_control_h - tools_h}, 2, true);
     add_but_cont->addChild(new AddObjectButton(ui, {}, {}, OPT_OBJ_SHPERE, "Add sphere", this));
@@ -307,8 +297,23 @@ OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
     obj_scroll = new WidgetScrollBar(ui, {scene_w + obj_list_w, 0},
         {obj_scroll_w, scene_h + button_h}, obj_scrollable);
     parent->addChild(obj_scroll);
+}
 
-    // Restore("scene.txt");
+WContainer* OptController::createCameraContainer(dr4::Vec2f pos, dr4::Vec2f size) {
+    hui::UI* ui = s->GetUI();
+    WContainer* cam_cont = new WContainer(ui, {0, scene_h}, {scene_w, button_h}, n_camera_buttons + n_save_buttons, 0);
+    parent->addChild(cam_cont);
+
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, 0, -cam_change_z}, gray_color, "Forward"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, 0, cam_change_z}, gray_color, "Back"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {-cam_change_x, 0, 0}, gray_color, "Left"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {cam_change_x, 0, 0}, gray_color, "Right"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, -cam_change_y, 0}, gray_color, "Up"));
+    cam_cont->addChild(new MoveCameraButton(ui, s, {0, cam_change_y, 0}, gray_color, "Down"));
+    cam_cont->addChild(new SaveRestoreButton(ui, {}, {}, this, true));
+    cam_cont->addChild(new SaveRestoreButton(ui, {}, {}, this, false));
+
+    return cam_cont;
 }
 
 WList* OptController::makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size)
@@ -348,7 +353,7 @@ void OptController::selected_changed()
 
 void OptController::deleteObject(OptObject* obj)
 {
-    for (std::vector<Surface*>::iterator it = s->surfaces.begin(); it != s->surfaces.end(); ++it)
+    for (auto it = s->surfaces.begin(); it != s->surfaces.end(); ++it)
     {
         if (*it == obj)
         {
@@ -357,7 +362,7 @@ void OptController::deleteObject(OptObject* obj)
         }
     }
 
-    for (std::vector<Source*>::iterator it = s->sources.begin(); it != s->sources.end(); ++it)
+    for (auto it = s->sources.begin(); it != s->sources.end(); ++it)
     {
         if (*it == obj)
         {
@@ -408,6 +413,57 @@ std::vector<Source*>::iterator OptController::addSource(Vector pos, Vector color
     return s->sources.end() - 1;
 }
 
+OptObject* OptController::createObject(const std::string& type) {
+    OptObject* obj = nullptr;
+
+    switch (objTypeFromStr(type)) {
+        case OPT_OBJ_SOURCE: {
+            SphereSource* src = new SphereSource({}, {}, 1, "", s);
+            s->sources.push_back(src);
+            obj = src;
+            break;
+        }
+        case OPT_OBJ_PLANE: {
+            Surface* surface = new PlaneSurface(0, {}, "", s);
+            s->surfaces.push_back(surface);
+            obj = surface;
+            break;
+        }
+        case OPT_OBJ_SHPERE: {
+            Surface* surface = new SphereSurface({}, 1, {}, "", s);
+            s->surfaces.push_back(surface);
+            obj = surface;
+            break;
+        }
+    }
+
+    return obj;
+}
+
+OptObject* OptController::restoreObject(std::ifstream& file) {
+    std::string type;
+    file >> type;
+    OptObject* obj = createObject(type);
+    if (obj == nullptr) return nullptr;
+
+    std::string obj_name;
+    file.ignore();
+    std::getline(file, obj_name);\
+    obj->setName(obj_name);
+
+    int n_properties = -1;
+    file >> n_properties;
+    for (int prop_num = 0; prop_num < n_properties; ++prop_num) {
+        std::string prop_name;
+        double prop_val = 0;
+        file >> prop_name >> prop_val;
+
+        obj->setProperty(propFromStr(prop_name), prop_val);
+    }
+
+    return obj;
+}
+
 int OptController::Restore(std::string path) {
     /*
     n_objects
@@ -433,43 +489,8 @@ int OptController::Restore(std::string path) {
     file >> n_objects;
 
     for (int obj_num = 0; obj_num < n_objects; obj_num++) {
-        OptObject* obj = nullptr;
-        std::string type;
-        file >> type;
-
-        if (type == objTypeToStr(OPT_OBJ_SOURCE)) {
-            SphereSource* src = new SphereSource({}, {}, 1, "", s);
-            s->sources.push_back(src);
-            obj = src;
-        }
-        else if (type == objTypeToStr(OPT_OBJ_PLANE)) {
-            Surface* surface = new PlaneSurface(0, {}, "", s);
-            s->surfaces.push_back(surface);
-            obj = surface;
-        }
-        else if (type == objTypeToStr(OPT_OBJ_SHPERE)) {
-            Surface* surface = new SphereSurface({}, 1, {}, "", s);
-            s->surfaces.push_back(surface);
-            obj = surface;
-        }
+        OptObject* obj = restoreObject(file);
         if (obj == nullptr) return 1;
-
-        std::string obj_name;
-        file.ignore();
-        std::getline(file, obj_name);\
-        obj->setName(obj_name);
-
-        int n_properties = -1;
-        file >> n_properties;
-
-        for (int prop_num = 0; prop_num < n_properties; ++prop_num) {
-            std::string prop_name;
-            double prop_val = 0;
-            file >> prop_name >> prop_val;
-
-            obj->setProperty(propFromStr(prop_name), prop_val);
-        }
-
         addObject(obj);
     }
 
@@ -480,16 +501,6 @@ int OptController::Restore(std::string path) {
 }
 
 int OptController::SaveObject(std::ofstream& file, OptObject* obj) {
-    /*
-    n_objects
-
-    type
-    name
-    n_properties
-    name1 val1
-    name2 val2
-    */
-
     file << objTypeToStr(obj->type) << '\n' << obj->getName() << '\n';
     std::vector<OptProperty> properties = obj->getProperties();
     file << properties.size() << '\n';

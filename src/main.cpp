@@ -15,6 +15,11 @@
 #include <chrono>
 #include <iostream>
 
+enum AppStatus {
+    APP_CONTINUE,
+    APP_SUCCESS,
+    APP_ERROR
+};
 
 extern dr4::Window* window = nullptr;
 extern const double ratio;
@@ -28,11 +33,16 @@ const std::string font_path = "ttf/font.ttf";
 double prev_hui_idle = -1, prev_pp_idle = -1;
 
 
+
 hui::IdleEvent* getUiIdleEvent();
 pp::IdleEvent getPpIdleEvent();
+AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui, std::vector<std::unique_ptr<pp::Tool>>& tools);
 void ProcessToolsEvent(std::vector<std::unique_ptr<pp::Tool>>& tools, dr4::Event evt);
-int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
+
+AppStatus init_app(hui::UI** ui, hui::Desktop** root_widget, dr4::Texture** main_texture);
+AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture,
     std::vector<std::unique_ptr<pp::Tool>>& tools);
+
 
 
 hui::IdleEvent* getUiIdleEvent() {
@@ -58,6 +68,20 @@ pp::IdleEvent getPpIdleEvent() {
     return idle_evt;
 }
 
+AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui, std::vector<std::unique_ptr<pp::Tool>>& tools) {
+    if (evt.type == dr4::Event::Type::QUIT ||
+        evt.type == dr4::Event::Type::KEY_DOWN && evt.key.sym == dr4::KeyCode::KEYCODE_ESCAPE)
+    {
+        window->Close();
+        delete window;
+        return APP_SUCCESS;
+    }
+
+    ProcessToolsEvent(tools, evt);
+    ui->ProcessEvent(evt);
+    return APP_CONTINUE;
+}
+
 void ProcessToolsEvent(std::vector<std::unique_ptr<pp::Tool>>& tools, dr4::Event evt) {
     for (std::unique_ptr<pp::Tool>& tl: tools) {
         switch (evt.type) {
@@ -77,25 +101,41 @@ void ProcessToolsEvent(std::vector<std::unique_ptr<pp::Tool>>& tools, dr4::Event
     }
 }
 
-int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
+AppStatus init_app(hui::UI** ui, hui::Desktop** root_widget, dr4::Texture** main_texture) {
+    cum::Manager* manager = new cum::Manager();
+    assert(manager->LoadFromFile(dr4_path) != nullptr);
+    assert(manager->LoadFromFile(pp_path) != nullptr);
+
+    cum::DR4BackendPlugin* dr4_plugin = manager->GetAnyOfType<cum::DR4BackendPlugin>();
+    assert(dr4_plugin != nullptr);
+
+    window = dr4_plugin->CreateWindow();
+    window->Open();
+    *main_texture = window->CreateTexture();
+    (*main_texture)->SetSize(desktop_w, desktop_h);
+
+    dr4::Font* font = window->CreateFont();
+    font->LoadFromFile(font_path);
+    window->SetDefaultFont(font);
+
+    cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
+    assert(pp_plugin != nullptr);
+
+    *ui = new hui::UI(window);
+    *root_widget = new hui::Desktop(*ui, dr4::Vec2f(desktop_w, desktop_h), pp_plugin);
+    (*ui)->SetRoot(*root_widget);
+    return APP_CONTINUE;
+}
+
+AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture,
   std::vector<std::unique_ptr<pp::Tool>>& tools) {
     hui::Widget* root_widget = ui->GetRoot();
     std::optional<dr4::Event> event;
 
     while ((event = window->PollEvent()).has_value())
     {
-        dr4::Event evt = event.value();
-
-        if (evt.type == dr4::Event::Type::QUIT ||
-            evt.type == dr4::Event::Type::KEY_DOWN && evt.key.sym == dr4::KeyCode::KEYCODE_ESCAPE)
-        {
-            window->Close();
-            delete window;
-            return 1;
-        }
-
-        ProcessToolsEvent(tools, evt);
-        ui->ProcessEvent(evt);
+        AppStatus res = APP_CONTINUE;
+        if ((res = processDr4Event(event.value(), ui, tools)) != APP_CONTINUE) return res;
     }
     
     hui::IdleEvent* hui_idle_evt = getUiIdleEvent();
@@ -110,39 +150,20 @@ int iterate_app(hui::UI* ui, dr4::Texture* main_texture,
     window->Display();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
-    return 0;
+    return APP_CONTINUE;
 }
 
 int main()
 {
     srand(1);
-    cum::Manager* manager = new cum::Manager();
-    assert(manager->LoadFromFile(dr4_path) != nullptr);
-    assert(manager->LoadFromFile(pp_path) != nullptr);
+    hui::UI* ui = nullptr;
+    hui::Desktop* root_widget = nullptr;
+    dr4::Texture* main_texture;
+    if (init_app(&ui, &root_widget, &main_texture) == APP_ERROR) return 1;
 
-    cum::DR4BackendPlugin* dr4_plugin = manager->GetAnyOfType<cum::DR4BackendPlugin>();
-    assert(dr4_plugin != nullptr);
-
-    window = dr4_plugin->CreateWindow();
-    window->Open();
-    dr4::Texture* main_texture = window->CreateTexture();
-    main_texture->SetSize(desktop_w, desktop_h);
-
-    dr4::Font* font = window->CreateFont();
-    font->LoadFromFile(font_path);
-    window->SetDefaultFont(font);
-
-    cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
-    assert(pp_plugin != nullptr);
-
-    hui::UI* state = new hui::UI(window);
-    hui::Desktop* root_widget = new hui::Desktop(state, dr4::Vec2f(desktop_w, desktop_h), pp_plugin);
-    state->SetRoot(root_widget);
-
-    while (true)
-    {
-        if (iterate_app(state, main_texture, root_widget->getTools())) return 0;
-    }
+    AppStatus iterate_res = APP_CONTINUE;
+    while ((iterate_res = iterate_app(ui, main_texture, root_widget->getTools())) == APP_CONTINUE);
+    if (iterate_res == APP_ERROR) return 1;
 
     delete main_texture;
     return 0;

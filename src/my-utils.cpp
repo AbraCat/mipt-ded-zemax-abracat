@@ -1,6 +1,15 @@
 #include "my-utils.h"
 
 #include <chrono>
+#include <sstream>
+
+std::string doubleToStr(double val)
+{
+    std::ostringstream out;
+    out.precision(2);
+    out << std::fixed << val;
+    return std::move(out).str();
+}
 
 long long getMillisecondsSinceEpoch() {
     auto now_chrono = std::chrono::system_clock::now();

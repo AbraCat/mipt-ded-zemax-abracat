@@ -119,8 +119,11 @@ class ObjControlPanel : public MyContainer
 {
 public:
     ObjControlPanel(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, OptController* control);
+
+    void addMoveButton(Vector change, const std::string& text);
     void setObject(OptObject* obj);
     void setDisplayedVal(OptPropEnum prop, double val);
+
     virtual void Redraw() const override;
 
 private:
@@ -137,10 +140,13 @@ class OptController
 {
 public:
     OptController(hui::UI* ui, MyContainer* parent);
+    WContainer* createCameraContainer(dr4::Vec2f pos, dr4::Vec2f size);
     WList* makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size);
 
     int SaveObject(std::ofstream& file, OptObject* obj);
     int Save(std::string path);
+    OptObject* createObject(const std::string& type);
+    OptObject* restoreObject(std::ifstream& file);
     int Restore(std::string path);
 
     void addObject(OptObject* obj);
@@ -156,7 +162,7 @@ public:
     pp::MyCanvas* getCanvas() const { return scene_cvs_widget->getCanvas(); }
 
 // private:
-    hui::Widget* parent;
+    MyContainer* parent;
 
     OptScene* s;
     CanvasWidget* scene_cvs_widget;
