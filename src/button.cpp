@@ -19,19 +19,23 @@ extern dr4::Window* window;
 TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
     : Widget(state)
 {
+    rect_padding = 0;
     SetPos(pos);
     SetSize(size);
-    color = black_color;
+    color = dr4::Color(61, 61, 61);
     draw_border = true;
 }
 
 void TextField::Redraw() const
 {
-    dr4::Rectangle* rect = window->CreateRectangle();
-    rect->SetSize(GetSize());
-    rect->SetBorderColor(white_color);
-    rect->SetFillColor(color);
-    GetTexture().Draw(*rect);
+    // dr4::Rectangle* rect = window->CreateRectangle();
+    // rect->SetSize(GetSize());
+    // rect->SetBorderColor(white_color);
+    // rect->SetFillColor(color);
+    // GetTexture().Draw(*rect);
+
+    drawRoundedRect(dr4::Rect2f(dr4::Vec2f(rect_padding, rect_padding),
+        GetSize() - dr4::Vec2f(rect_padding * 2, rect_padding * 2)), GetTexture(), GetUI()->GetWindow(), color);
 
     dr4::Text* text_drawable = window->CreateText();
     text_drawable->SetText(text);
@@ -136,7 +140,7 @@ InputField::InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Col
     max_text_len = size.x;
     this->text_valid = std::function([](std::string s){ return true; });
 
-    SetFieldColor(color);
+    SetFieldColor(dark_gray_color);
     SetText(text);
 }
 
@@ -187,7 +191,7 @@ EventResult InputField::OnKeyDown(KeyEvent &evt)
 
 void InputField::update_text()
 {
-    SetFieldColor(black_color);
+    SetFieldColor(dark_gray_color);
     focused = 0;
     if (GetUI()->GetFocused() == this) GetUI()->ReportFocus(nullptr);
 

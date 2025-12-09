@@ -46,7 +46,7 @@ void dr4::MyWindow::SetSize(dr4::Vec2f size)
 void dr4::MyWindow::Open()
 {
     SDL_Renderer* rend;
-    if (!SDL_CreateWindowAndRenderer(title.c_str(), width, height, SDL_WINDOW_FULLSCREEN, &window, &rend)) {
+    if (!SDL_CreateWindowAndRenderer(title.c_str(), width, height, SDL_WINDOW_RESIZABLE, &window, &rend)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return;
     }

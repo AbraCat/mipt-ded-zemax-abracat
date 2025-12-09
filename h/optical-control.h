@@ -133,7 +133,7 @@ private:
     DeleteObjectButton* delete_button;
     WContainer *prop_cont;
     OptController* control;
-    GridContainer *button_cont;
+    WContainer *button_cont;
 };
 
 class OptController

@@ -56,7 +56,7 @@ void putText(std::string text, Vector tl, Vector br, dr4::Color color)
 
 static void putTtfText(std::string text, Vector tl, Vector br, dr4::Color color)
 {
-    const double text_h = 10;
+    const double text_h = 1;
 
     SDL_Color sdl_color;
     sdl_color.r = color.r;

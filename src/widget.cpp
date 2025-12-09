@@ -1,6 +1,4 @@
-#include "widget.h" // remove later
-#include "sdl-adapter.h"
-// #include "texture.h"
+#include "widget.h"
 
 #include "hui/widget.hpp"
 #include "dr4/window.hpp"
@@ -8,8 +6,30 @@
 #include <iostream>
 #include <cassert>
 
+
+
+
+
+MyWidget::MyWidget(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size) : hui::Widget(ui) {
+    SetPos(pos);
+    SetSize(size);
+}
+
+void MyWidget::Redraw() const {
+    if (!rounded_angles) return;
+
+    //
+}
+
+
+
+
+
+#if 0
+
 State* state = nullptr;
 extern dr4::Window* window;
+
 
 
 
@@ -341,3 +361,6 @@ hui::EventResult hui::Widget::OnMouseDown(MouseDownEvent &evt)
 // {
 //     return 0;
 // }
+
+
+#endif // 0

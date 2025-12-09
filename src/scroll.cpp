@@ -1,12 +1,13 @@
 #include "scroll.h"
 #include "colors.h"
+#include "my-utils.h"
 
 #include "hui/ui.hpp"
 
 #include <cassert>
 #include <cmath>
 
-const double scroll_on_click = 0.1;
+const double scroll_on_click = 0.1, thumb_ratio = 2.5;
 
 ScrollBar::ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_frac) : MyContainer(ui, pos, size)
 {
@@ -20,7 +21,7 @@ ScrollBar::ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_f
     addChild(up_button);
     addChild(down_button);
 
-    this->thumb = new ScrollThumb(ui, {0, width}, {width, width}, this);
+    this->thumb = new ScrollThumb(ui, {0, width}, {width, width * thumb_ratio}, this);
     addChild(thumb);
     thumb->setDraggable(true);
     thumb->setDragRect(dr4::Rect2f({0, width}, {width, height - width * 2}));
@@ -31,13 +32,13 @@ ScrollBar::ScrollBar(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, double init_f
 
 double ScrollBar::posToFrac(dr4::Vec2f thumbTL)
 {
-    int range = height - width * 3;
+    int range = height - width * (2 + thumb_ratio);
     return (thumbTL.y - width) * 1.0 / range;
 }
 
 dr4::Vec2f ScrollBar::fracToPos(double frac)
 {
-    int range = height - width * 3;
+    int range = height - width * (2 + thumb_ratio);
     return {0, frac * range + width};
 }
 
@@ -90,12 +91,14 @@ void ScrollThumb::movePos(dr4::Vec2f newTL)
 }
 
 void ScrollThumb::Redraw() const {
-    dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
-    rect->SetPos({0, 0});
-    rect->SetSize(GetSize());
-    rect->SetFillColor(color);
-    rect->SetBorderColor(white_color);
-    GetTexture().Draw(*rect);
+    // dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
+    // rect->SetPos({0, 0});
+    // rect->SetSize(GetSize());
+    // rect->SetFillColor(color);
+    // rect->SetBorderColor(white_color);
+    // GetTexture().Draw(*rect);
+
+    drawRoundedRect(dr4::Rect2f({}, GetSize()), GetTexture(), GetUI()->GetWindow(), color);
 }
 
 

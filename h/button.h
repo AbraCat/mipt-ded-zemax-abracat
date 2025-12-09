@@ -15,12 +15,14 @@ public:
     virtual ~TextField() noexcept override = default;
     virtual void Redraw() const override;
 
+    void setRectPadding(double padding) { this->rect_padding = padding; }
     void SetFieldColor(dr4::Color color);
     void SetText(std::string text);
     std::string getText();
 
 private:
     bool draw_border;
+    double rect_padding;
     dr4::Color color;
     std::string text;
 };

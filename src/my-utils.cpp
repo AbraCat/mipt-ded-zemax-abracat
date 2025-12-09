@@ -2,6 +2,9 @@
 
 #include <chrono>
 #include <sstream>
+#include <vector>
+
+const int angle_radius = 10;
 
 std::string doubleToStr(double val)
 {
@@ -66,6 +69,55 @@ char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
     return chr;
     #undef RANGE_CAPITAL
     #undef CASE_SHIFT
+}
+
+void drawRoundedRect(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window, dr4::Color color,
+    bool draw_border, dr4::Color border_col) {
+    std::vector<dr4::Vec2f> circle_pos { {angle_radius, angle_radius}, {rect.size.x - angle_radius, angle_radius},
+        {angle_radius, rect.size.y - angle_radius}, {rect.size.x - angle_radius, rect.size.y - angle_radius}};
+    for (dr4::Vec2f pos: circle_pos) {
+        dr4::Circle* circle = window->CreateCircle();
+        circle->SetCenter(pos);
+        circle->SetRadius(angle_radius);
+        circle->SetFillColor(color);
+        if (draw_border) circle->SetBorderColor(border_col);
+        else circle->SetBorderColor(color);
+        circle->SetBorderThickness(3);
+        texture.Draw(*circle);
+        delete circle;
+    }
+
+    dr4::Rectangle* vertical_rect = window->CreateRectangle();
+    vertical_rect->SetFillColor(color);
+    vertical_rect->SetBorderColor(color);
+    vertical_rect->SetPos(rect.pos + dr4::Vec2f(angle_radius, 0));
+    vertical_rect->SetSize(rect.size - dr4::Vec2f(angle_radius * 2, 0));
+    texture.Draw(*vertical_rect);
+    delete vertical_rect;
+
+    dr4::Rectangle* horiz_rect = window->CreateRectangle();
+    horiz_rect->SetFillColor(color);
+    horiz_rect->SetBorderColor(color);
+    horiz_rect->SetPos(rect.pos + dr4::Vec2f(0, angle_radius));
+    horiz_rect->SetSize(rect.size - dr4::Vec2f(0, angle_radius * 2));
+    texture.Draw(*horiz_rect);
+    delete horiz_rect;
+
+    if (!draw_border) return;
+
+    std::vector<dr4::Rect2f> line_pos {{{angle_radius, 0}, {rect.size.x - angle_radius, 0}},
+                                       {{angle_radius, rect.size.y - 1}, {rect.size.x - angle_radius, rect.size.y - 1}},
+                                       {{0, angle_radius}, {0, rect.size.y - angle_radius}},
+                                       {{rect.size.x - 1, angle_radius}, {rect.size.x - 1, rect.size.y - angle_radius}}};
+    for (dr4::Rect2f rect: line_pos) {
+        dr4::Line* line = window->CreateLine();
+        line->SetStart(rect.pos);
+        line->SetEnd(rect.size);
+        line->SetThickness(3);
+        line->SetColor(border_col);
+        texture.Draw(*line);
+        delete line;
+    }
 }
 
 void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window, dr4::Color color) {

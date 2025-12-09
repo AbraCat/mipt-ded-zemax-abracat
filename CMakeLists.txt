@@ -18,7 +18,7 @@ add_library(pp SHARED src/my-pp-plugin.cpp src/my-utils.cpp)
 target_include_directories(pp PUBLIC ./include/ ./h)
 
 add_executable(main source/hui/widget.cpp source/hui/event.cpp source/hui/container.cpp source/hui/ui.cpp source/cum/manager.cpp
-    src/main.cpp src/myvector.cpp src/my-utils.cpp
+    src/main.cpp src/myvector.cpp src/my-utils.cpp # src/widget.cpp
     src/wcontainer.cpp src/desktop.cpp src/button.cpp src/optical-object.cpp src/optical-scene.cpp src/optical-control.cpp
     src/mycanvas.cpp src/tool-widget.cpp src/draggable.cpp src/scroll.cpp
     )

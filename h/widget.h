@@ -1,5 +1,5 @@
-#ifndef WIDGET_H
-#define WIDGET_H
+#ifndef I_MY_WIDGET_H
+#define I_MY_WIDGET_H
 
 #include <vector>
 #include <string>
@@ -7,7 +7,35 @@
 
 #include "myvector.h"
 #include "event.h"
+
+#include "hui/widget.hpp"
 #include "dr4/texture.hpp"
+
+
+
+class MyWidget : public hui::Widget {
+public:
+    MyWidget(hui::UI* ui, dr4::Vec2f pos = dr4::Vec2f(), dr4::Vec2f size = dr4::Vec2f());
+    virtual void Redraw() const override;
+
+    void setRoundedAngles(bool rounded_angles) { this->rounded_angles = rounded_angles; }
+
+private:
+    bool rounded_angles;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 
 class Widget;
 class Event;
@@ -76,4 +104,9 @@ public:
     std::vector<Widget*> children;
 };
 
-#endif // WIDGET_H
+#endif // 0
+
+
+
+
+#endif // I_MY_WIDGET_H

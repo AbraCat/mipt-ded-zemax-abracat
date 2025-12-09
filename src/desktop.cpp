@@ -30,7 +30,7 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     // control->addSphere({0, 0, 3}, white_col, 1, glass);
 
     tools = pp_plugin->CreateTools(control->getCanvas());
-    tools_container = new WContainer(GetUI(), {opt_control_w, 0}, {tool_button_w, tools_h}, tools.size(), 1);
+    tools_container = new WContainer(GetUI(), {1400 - tool_button_w, 0}, {tool_button_w, tools_h}, tools.size(), 1);
     for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {
         std::unique_ptr<pp::Tool>& tool = tools[n_tool];
         tools_container->addChild(new ToolWidget(GetUI(), &*tool, {}, {}, 

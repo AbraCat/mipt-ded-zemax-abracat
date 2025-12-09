@@ -7,6 +7,8 @@
 
 using namespace hui;
 
+const int std_padding = 5;
+
 MyContainer::MyContainer(UI* state, dr4::Vec2f pos, dr4::Vec2f size) : Container(state) {
     SetSize(size);
     SetPos(pos);
@@ -27,13 +29,15 @@ void MyContainer::setDrawRect(bool draw_rect, dr4::Color fill_col, dr4::Color bo
 
 void MyContainer::Redraw() const {
     if (draw_rect) {
-        dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
-        rect->SetSize(GetSize());
-        rect->SetFillColor(fill_col);
-        rect->SetBorderColor(border_col);
+        // dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
+        // rect->SetSize(GetSize());
+        // rect->SetFillColor(fill_col);
+        // rect->SetBorderColor(border_col);
 
-        GetTexture().Draw(*rect);
-        delete rect;
+        // GetTexture().Draw(*rect);
+        // delete rect;
+
+        drawRoundedRect(dr4::Rect2f(dr4::Vec2f(), GetSize()), GetTexture(), GetUI()->GetWindow(), fill_col);
     }
 
     for (Widget* w: children) {
@@ -188,7 +192,7 @@ WContainer::WContainer(UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int nChildren, b
     // setWidgetBorderVisible(1);
     this->vertical = vertical;
     this->nChildren = nChildren;
-    this->padding = 0;
+    this->padding = std_padding;
     setDrawRect(true);
 
     if (vertical)

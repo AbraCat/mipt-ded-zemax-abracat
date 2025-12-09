@@ -41,7 +41,7 @@ private:
 class ScrollThumb : public DraggableWidget
 {
 public:
-    ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color = dark_gray_color);
+    ScrollThumb(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, ScrollBar* bar, dr4::Color color = dr4::Color(191, 191, 191));
     void movePos(dr4::Vec2f new_pos) override;
     void Redraw() const override;
 
