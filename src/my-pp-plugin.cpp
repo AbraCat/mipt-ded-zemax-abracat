@@ -79,7 +79,8 @@ void RectShape::DrawOn(dr4::Texture &tex) const {
     dr4::Rectangle* rect = window->CreateRectangle();
     rect->SetPos(pos);
     rect->SetSize(size);
-    rect->SetFillColor(shape_color);
+    rect->SetFillColor(canvas->GetControlsTheme().shapeFillColor);
+    rect->SetBorderColor(canvas->GetControlsTheme().shapeBorderColor);
     tex.Draw(*rect);
 }
 
@@ -92,7 +93,8 @@ void CircleShape::DrawOn(dr4::Texture &tex) const {
 
     circle->SetCenter(pos + size / 2);
     circle->SetRadius(std::sqrt(size.x * size.x + size.y * size.y) / 2);
-    circle->SetFillColor(shape_color);
+    circle->SetFillColor(canvas->GetControlsTheme().shapeFillColor);
+    circle->SetBorderColor(canvas->GetControlsTheme().shapeBorderColor);
 
     tex.Draw(*circle);
     delete circle;
@@ -107,7 +109,7 @@ void LineShape::DrawOn(dr4::Texture &tex) const {
 
     line->SetStart(pos);
     line->SetEnd(pos + size);
-    line->SetColor(red_color);
+    line->SetColor(canvas->GetControlsTheme().shapeBorderColor);
     line->SetThickness(3);
     
     tex.Draw(*line);
@@ -185,7 +187,7 @@ bool TextShape::OnIdle(const IdleEvent &evt) {
 void TextShape::DrawOn(dr4::Texture &texture) const {
     if (selected) {
         dr4::Rect2f rect(pos, size);
-        drawRectBorder(rect, texture, window, text_border_col);
+        drawRectBorder(rect, texture, window, canvas->GetControlsTheme().shapeBorderColor);
     }
 
     drawText(texture);
@@ -196,7 +198,7 @@ void TextShape::drawText(dr4::Texture& texture) const {
     dr4::Text* text_drawable = window->CreateText();
     text_drawable->SetPos(getRect().pos);
     text_drawable->SetText(text);
-    text_drawable->SetColor(text_color);
+    text_drawable->SetColor(canvas->GetControlsTheme().textColor);
     text_drawable->SetFont(window->GetDefaultFont());
 
     texture.Draw(*text_drawable);
@@ -211,7 +213,7 @@ void TextShape::drawCursor(dr4::Texture& texture) const {
     dr4::Line* cursor_line = window->CreateLine();
     cursor_line->SetStart(pos + dr4::Vec2f(text_bounds.x, 0));
     cursor_line->SetEnd(pos + dr4::Vec2f(text_bounds.x, cursor_h));
-    cursor_line->SetColor(cursor_col);
+    cursor_line->SetColor(canvas->GetControlsTheme().textColor);
     cursor_line->SetThickness(3);
 
     texture.Draw(*cursor_line);

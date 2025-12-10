@@ -76,4 +76,10 @@ private:
     double scroll_frac, child_len, edge_len;
 };
 
+// class PropertyContainer : public WContainer {
+// public:
+//     PropertyContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int n_properties, double properties_portion);
+//     //
+// }
+
 #endif // W_CONTAINER_H

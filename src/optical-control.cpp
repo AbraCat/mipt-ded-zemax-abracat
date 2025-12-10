@@ -18,6 +18,7 @@ const Vector sky_col = {0, 0.5, 0.75}, init_V = {0, 0, 10}, init_screen_tl = {-2
 const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5, 0.5), std_src_pos = Vector(0, -1, 0),
     std_src_col = Vector(0.5, 0.5, 0.5);
 
+extern const int menu_w, menu_h;
 extern const int scene_w = 1400;
 const double prop_increase_step = 0.1, cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
     std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.5 / 0.75;
@@ -48,25 +49,21 @@ ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, O
     name_field = new OptNameField(ui, {size.x * (move_but_portion + name_portion), 0},
         {size.x * field_portion, GetSize().y * 0.1}, control);
     name_field->setMaxTextLen(obj_list_w);
-    // name_text->setRectPadding(5);
-    // name_field->setRectPadding(5);
+    name_text->setRectPadding(5);
+    name_field->setRectPadding(5);
 
     prop_cont = new WContainer(ui, {GetSize().x * move_but_portion, size.y * 0.1},
         {GetSize().x * (name_portion + field_portion), GetSize().y * 0.9}, OPT_TOTAL, 1);
-    // button_cont = new GridContainer(ui, {0, 0},
-    //     {GetSize().x * 0.2, size.y * 0.8}, n_mov_but_x, n_mov_but_y);
     button_cont = new WContainer(ui, {0, 0}, {GetSize().x * move_but_portion, size.y}, 6 + 1, 1);
+    prop_cont->setDrawRect(false);
 
     const int delete_button_y = button_cont->GetPos().y + button_cont->GetSize().y;
-    // delete_button =  new DeleteObjectButton(GetUI(), {0, size.y * 0.8},
-    //         {GetSize().x * 0.2, GetSize().y * 0.2}, nullptr, "Delete");
     delete_button = nullptr;
 
     addChild(name_text);
     addChild(name_field);
     addChild(prop_cont);
     addChild(button_cont);
-    // addChild(delete_button);
 }
 
 void ObjControlPanel::Redraw() const {
@@ -93,7 +90,6 @@ void ObjControlPanel::setObject(OptObject* obj)
     if (obj == nullptr) name_text->SetText("");
     else name_text->SetText("Name");
     name_field->setObject(obj);
-    // delete_button->setObject(obj);
 
     if (obj != nullptr)
     {
@@ -170,12 +166,14 @@ void OptNameField::action() {
 OptPropWidget::OptPropWidget(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, OptProperty prop)
     : MyContainer(ui, pos, size)
 {
+    const int prop_field_padding = 5;
+
     name_field = new TextField(ui, {0, 0}, {GetSize().x * property_name_portion, GetSize().y});
     name_field->SetText(prop.getName());
     addChild(name_field);
 
-    val_field = new OptPropField(this, ui, {GetSize().x * property_name_portion, 0},
-        {GetSize().x * (1 - property_name_portion), GetSize().y}, obj, prop);
+    val_field = new OptPropField(this, ui, {GetSize().x * property_name_portion + prop_field_padding, 0},
+        {GetSize().x * (1 - property_name_portion) - prop_field_padding, GetSize().y}, obj, prop);
     addChild(val_field);
 
     float incr_but_size = size.y / 2;
@@ -186,14 +184,12 @@ OptPropWidget::OptPropWidget(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptOb
 OptPropField::OptPropField(OptPropWidget* parent, hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, OptProperty prop)
     : InputField(ui, pos, size, black_color, doubleToStr(prop.val)), obj(obj), prop(prop)
 {
-    setValidator([](std::string s){
-        try
-        {
+    setValidator([](std::string s) {
+        try {
             double val = std::stod(s);
             return true;
         }
-        catch(std::exception& e)
-        {
+        catch(std::exception& e) {
             return false;
         }
     });
@@ -212,8 +208,9 @@ OptObjectButton::OptObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, O
 }
 
 IncreaseValueButton::IncreaseValueButton(OptPropField* field, dr4::Vec2f pos, dr4::Vec2f size, bool increase)
-    : Button(field->GetUI(), pos, size, dr4::Color(255, 0, 0), increase ? "+" : "-"), field(field), increase(increase) {
-    //
+    : Button(field->GetUI(), pos, size, light_gray_color, increase ? "+" : "-"), field(field), increase(increase) {
+    SetBorderColor(light_gray_color);
+    SetAngleRadius(3);
 }
 
 void IncreaseValueButton::action() {
@@ -305,29 +302,30 @@ void MoveCameraButton::action()
     scene->needsRerender();
 }
 
-OptController::OptController(hui::UI* ui, MyContainer* parent) : parent(parent)
+OptController::OptController(hui::UI* ui, MyContainer* parent, dr4::Vec2f pos) : parent(parent)
 {
     s = new OptScene(ui, nullptr, dr4::Vec2f(0, 0), dr4::Vec2f(scene_w, scene_w / ratio), this);
-    scene_cvs_widget = new CanvasWidget(ui, {0, 0}, s);
+    scene_cvs_widget = new CanvasWidget(ui, pos, s);
     parent->addChild(scene_cvs_widget);
 
-    panel = new ObjControlPanel(ui, {scene_w, obj_cont_h},
+    panel = new ObjControlPanel(ui, pos + dr4::Vec2f(scene_w, obj_cont_h),
         {obj_list_w + obj_scroll_w, scene_h - obj_cont_h}, this);
     parent->addChild(panel);
 
-    cam_cont = createCameraContainer({0, 0}, {130, 100 * n_move_buttons});
+    cam_cont = createCameraContainer(pos, {130, 100 * n_move_buttons});
 
-    WContainer* add_but_cont = new WContainer(ui, {scene_w - tool_button_w, tools_h}, {tool_button_w, 100 * 2}, 2, true);
+    WContainer* add_but_cont = new WContainer(ui, pos + dr4::Vec2f(scene_w - tool_button_w, tools_h),
+        {tool_button_w, 100 * 2}, 2, true);
     add_but_cont->addChild(new AddObjectButton(ui, {}, {}, OPT_OBJ_SHPERE, "Add sphere", this));
     add_but_cont->addChild(new AddObjectButton(ui, {}, {}, OPT_OBJ_SOURCE, "Add source", this));
     parent->addChild(add_but_cont);
 
     obj_cont = makeObjectContainer({0, 0}, {obj_list_w, obj_button_h});
     assert(obj_cont != nullptr);
-    ScrollableWidget* obj_scrollable = new ScrollableWidget(obj_cont, {scene_w, 0}, {obj_list_w, obj_cont_h});
+    ScrollableWidget* obj_scrollable = new ScrollableWidget(obj_cont, pos + dr4::Vec2f(scene_w, 0), {obj_list_w, obj_cont_h});
     parent->addChild(obj_scrollable);
 
-    obj_scroll = new WidgetScrollBar(ui, {scene_w + obj_list_w, 0},
+    obj_scroll = new WidgetScrollBar(ui, pos + dr4::Vec2f(scene_w + obj_list_w, 0),
         {obj_scroll_w, obj_cont_h}, obj_scrollable);
     parent->addChild(obj_scroll);
 }

@@ -4,8 +4,6 @@
 #include <sstream>
 #include <vector>
 
-const int angle_radius = 10;
-
 std::string doubleToStr(double val)
 {
     std::ostringstream out;
@@ -72,12 +70,14 @@ char KeycodeToChar(dr4::KeyCode code, uint16_t mods) {
 }
 
 void drawRoundedRect(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window, dr4::Color color,
-    bool draw_border, dr4::Color border_col) {
+    bool draw_border, dr4::Color border_col, float angle_radius) {
+    rect.size -= {1, 1};
+
     std::vector<dr4::Vec2f> circle_pos { {angle_radius, angle_radius}, {rect.size.x - angle_radius, angle_radius},
         {angle_radius, rect.size.y - angle_radius}, {rect.size.x - angle_radius, rect.size.y - angle_radius}};
     for (dr4::Vec2f pos: circle_pos) {
         dr4::Circle* circle = window->CreateCircle();
-        circle->SetCenter(pos);
+        circle->SetCenter(rect.pos + pos);
         circle->SetRadius(angle_radius);
         circle->SetFillColor(color);
         if (draw_border) circle->SetBorderColor(border_col);
@@ -106,13 +106,13 @@ void drawRoundedRect(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* windo
     if (!draw_border) return;
 
     std::vector<dr4::Rect2f> line_pos {{{angle_radius, 0}, {rect.size.x - angle_radius, 0}},
-                                       {{angle_radius, rect.size.y - 1}, {rect.size.x - angle_radius, rect.size.y - 1}},
+                                       {{angle_radius, rect.size.y}, {rect.size.x - angle_radius, rect.size.y}},
                                        {{0, angle_radius}, {0, rect.size.y - angle_radius}},
-                                       {{rect.size.x - 1, angle_radius}, {rect.size.x - 1, rect.size.y - angle_radius}}};
-    for (dr4::Rect2f rect: line_pos) {
+                                       {{rect.size.x, angle_radius}, {rect.size.x, rect.size.y - angle_radius}}};
+    for (dr4::Rect2f pos_rect: line_pos) {
         dr4::Line* line = window->CreateLine();
-        line->SetStart(rect.pos);
-        line->SetEnd(rect.size);
+        line->SetStart(rect.pos + pos_rect.pos);
+        line->SetEnd(rect.pos + pos_rect.size);
         line->SetThickness(3);
         line->SetColor(border_col);
         texture.Draw(*line);

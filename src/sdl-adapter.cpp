@@ -6,7 +6,7 @@
 #include <cassert>
 #include <cstdio>
 
-const int lft_text_pad = 5;
+const int lft_text_pad = 3;
 const double Pi = 3.1415926;
 
 static SDL_Renderer* rend = nullptr;

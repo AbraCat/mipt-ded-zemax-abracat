@@ -42,13 +42,12 @@ static dr4::Event huiToDr4Event(const hui::Event& hui_evt) {
 
 namespace pp {
 
-ControlsTheme Canvas::GetControlsTheme() const { return ControlsTheme(); }
-
-
 MyCanvas::MyCanvas(dr4::Window* window, dr4::Vec2f size)
     : size(size), window(window), texture(nullptr) {
 
-    theme.shapeFillColor = red_color;
+    theme.shapeFillColor = purple_color;
+    theme.shapeBorderColor = red_color;
+    theme.textColor = white_color;
 }
 
 ControlsTheme MyCanvas::GetControlsTheme() const { return theme; }

@@ -5,21 +5,32 @@
 #include "colors.h"
 
 #include "hui/ui.hpp"
+#include "cum/manager.hpp"
 
 #include <cmath>
 #include <cassert>
 
 const double src_size = 0.3;
+const int menu_h = 50, menu_w = 500;
 extern const int opt_control_w, opt_control_h, tools_h, tool_button_w;
 
 namespace hui {
 
-Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) :
-    MyContainer(state)
+Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::Manager* manager) :
+    MyContainer(state), manager(manager)
 {
     SetSize(size);
 
-    control = new OptController(state, this);
+    auto& plugins = manager->GetAll();
+    WContainer* plugins_cont = new WContainer(state, {0, 0}, {menu_w, menu_h}, plugins.size(), 0);
+    for (auto& plugin: plugins) {
+        TextField* field = new TextField(state, {}, {});
+        field->SetText(std::string(plugin->GetName()));
+        plugins_cont->addChild(field);
+    }
+    addChild(plugins_cont);
+
+    control = new OptController(state, this, {0, menu_h});
     control->addSource({0, -1, 4}, green_col * 0.5, src_size);
 
     control->addSphere({-1, 0, 0}, gray_col, 0.5);
@@ -29,8 +40,11 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     // control->addSphere({0, 0, -2}, purple_col, 0.3);
     // control->addSphere({0, 0, 3}, white_col, 1, glass);
 
+    cum::PPToolPlugin* pp_plugin = manager->GetAnyOfType<cum::PPToolPlugin>();
+    assert(pp_plugin != nullptr);
+
     tools = pp_plugin->CreateTools(control->getCanvas());
-    tools_container = new WContainer(GetUI(), {1400 - tool_button_w, 0}, {tool_button_w, tools_h}, tools.size(), 1);
+    tools_container = new WContainer(GetUI(), {1400 - tool_button_w, menu_h}, {tool_button_w, tools_h}, tools.size(), 1);
     for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {
         std::unique_ptr<pp::Tool>& tool = tools[n_tool];
         tools_container->addChild(new ToolWidget(GetUI(), &*tool, {}, {}, 
@@ -41,28 +55,21 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
 
 Desktop::~Desktop()
 {
-    // for (pp::Tool* tl: tools) delete tl;
+    //
 }
-
-dr4::Texture* Desktop::giveTexture() const { return &GetTexture(); }
 
 void Desktop::Redraw() const
 {
-    // dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
-    // rect->SetSize(GetSize());
-    // GetTexture().Draw(*rect);
-
     MyContainer::Redraw();
 }
 
-// void Desktop::updateTexture()
-// {
-//     Widget::updateTexture();
-// }
+void Desktop::addPpColorField(WContainer* container, ColComponent component) {
+    // TextField* field = new TextField(GetUI(), )
+}
 
-// bool Desktop::onIdle(IdleEvent* e)
-// {
-//     return 0;
-// }
+WContainer* Desktop::createPpColorContainer(dr4::Vec2f pos, dr4::Vec2f size) {
+    // GridContainer* cont = new GridContainer(GetUI(), pos, size, 2, 3);
+    return nullptr;
+}
 
 } // namepsace hui

@@ -152,7 +152,7 @@ private:
 class OptController
 {
 public:
-    OptController(hui::UI* ui, MyContainer* parent);
+    OptController(hui::UI* ui, MyContainer* parent, dr4::Vec2f pos);
     WContainer* createCameraContainer(dr4::Vec2f pos, dr4::Vec2f size);
     WList* makeObjectContainer(dr4::Vec2f pos, dr4::Vec2f size);
 

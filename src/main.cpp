@@ -19,7 +19,6 @@
 TODO
 pp color selection (rgb)
 bounding box
-main menu with list of plugins
 */
 
 enum AppStatus {
@@ -28,7 +27,7 @@ enum AppStatus {
     APP_ERROR
 };
 
-extern dr4::Window* window = nullptr;
+dr4::Window* window = nullptr;
 extern const double ratio;
 extern const int scene_w;
 
@@ -41,14 +40,9 @@ double prev_hui_idle = -1, prev_pp_idle = -1;
 
 
 
-hui::IdleEvent* getUiIdleEvent();
-pp::IdleEvent getPpIdleEvent();
-AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui, std::vector<std::unique_ptr<pp::Tool>>& tools);
-void ProcessToolsEvent(std::vector<std::unique_ptr<pp::Tool>>& tools, dr4::Event evt);
-
+AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui);
 AppStatus init_app(hui::UI** ui, hui::Desktop** root_widget, dr4::Texture** main_texture);
-AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture,
-    std::vector<std::unique_ptr<pp::Tool>>& tools);
+AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture);
 
 
 
@@ -75,7 +69,7 @@ pp::IdleEvent getPpIdleEvent() {
     return idle_evt;
 }
 
-AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui, std::vector<std::unique_ptr<pp::Tool>>& tools) {
+AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui) {
     if (evt.type == dr4::Event::Type::QUIT ||
         evt.type == dr4::Event::Type::KEY_DOWN && evt.key.sym == dr4::KeyCode::KEYCODE_ESCAPE)
     {
@@ -84,30 +78,8 @@ AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui, std::vector<std::unique_
         return APP_SUCCESS;
     }
 
-    // ProcessToolsEvent(tools, evt);
     ui->ProcessEvent(evt);
     return APP_CONTINUE;
-}
-
-void ProcessToolsEvent(std::vector<std::unique_ptr<pp::Tool>>& tools, dr4::Event evt) {
-    assert(0);
-    
-    for (std::unique_ptr<pp::Tool>& tl: tools) {
-        switch (evt.type) {
-            case dr4::Event::Type::MOUSE_DOWN:
-                tl->OnMouseDown(evt.mouseButton);
-                break;
-            case dr4::Event::Type::MOUSE_UP:
-                tl->OnMouseUp(evt.mouseButton);
-                break;
-            case dr4::Event::Type::MOUSE_MOVE:
-                tl->OnMouseMove(evt.mouseMove);
-                break;
-            case dr4::Event::Type::KEY_DOWN:
-                tl->OnKeyDown(evt.key);
-                break;
-        }
-    }
 }
 
 AppStatus init_app(hui::UI** ui, hui::Desktop** root_widget, dr4::Texture** main_texture) {
@@ -131,20 +103,19 @@ AppStatus init_app(hui::UI** ui, hui::Desktop** root_widget, dr4::Texture** main
     assert(pp_plugin != nullptr);
 
     *ui = new hui::UI(window);
-    *root_widget = new hui::Desktop(*ui, dr4::Vec2f(desktop_w, desktop_h), pp_plugin);
+    *root_widget = new hui::Desktop(*ui, dr4::Vec2f(desktop_w, desktop_h), manager);
     (*ui)->SetRoot(*root_widget);
     return APP_CONTINUE;
 }
 
-AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture,
-  std::vector<std::unique_ptr<pp::Tool>>& tools) {
+AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture) {
     hui::Widget* root_widget = ui->GetRoot();
     std::optional<dr4::Event> event;
 
     while ((event = window->PollEvent()).has_value())
     {
         AppStatus res = APP_CONTINUE;
-        if ((res = processDr4Event(event.value(), ui, tools)) != APP_CONTINUE) return res;
+        if ((res = processDr4Event(event.value(), ui)) != APP_CONTINUE) return res;
     }
     
     hui::IdleEvent* hui_idle_evt = getUiIdleEvent();
@@ -171,7 +142,7 @@ int main()
     if (init_app(&ui, &root_widget, &main_texture) == APP_ERROR) return 1;
 
     AppStatus iterate_res = APP_CONTINUE;
-    while ((iterate_res = iterate_app(ui, main_texture, root_widget->getTools())) == APP_CONTINUE);
+    while ((iterate_res = iterate_app(ui, main_texture)) == APP_CONTINUE);
     if (iterate_res == APP_ERROR) return 1;
 
     delete main_texture;

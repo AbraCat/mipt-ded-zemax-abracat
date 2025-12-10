@@ -28,6 +28,7 @@ void MyContainer::setDrawRect(bool draw_rect, dr4::Color fill_col, dr4::Color bo
 }
 
 void MyContainer::Redraw() const {
+    GetTexture().Clear(black_color);
     if (draw_rect) {
         // dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
         // rect->SetSize(GetSize());
@@ -64,8 +65,8 @@ EventResult MyContainer::PropagateToChildren(hui::Event &event) {
     hui::KeyEvent* key_evt = dynamic_cast<hui::KeyEvent*>(&event);
     if (key_evt != nullptr) return EventResult::UNHANDLED;
 
-    for (Widget* w: children) {
-        if (event.Apply(*w) == EventResult::HANDLED) return EventResult::HANDLED;
+    for (auto child_it = children.rbegin(); child_it != children.rend(); ++child_it) {
+        if (event.Apply(**child_it) == EventResult::HANDLED) return EventResult::HANDLED;
     }
     return EventResult::UNHANDLED;
 }
@@ -302,8 +303,8 @@ WList::WList(hui::UI* ui, dr4::Vec2f pos, bool vertical, double child_len, doubl
 }
 
 void WList::resize() {
-    if (vertical) SetSize({edge_len, child_len * children.size()});
-    else SetSize({child_len * children.size(), edge_len});
+    if (vertical) SetSize({edge_len, child_len * children.size() + padding * (children.size() - 1)});
+    else SetSize({child_len * children.size() + padding * (children.size() - 1), edge_len});
 }
 
 void WList::addChild(Widget* widget) {

@@ -16,12 +16,14 @@ class Desktop : public MyContainer
 {
     friend class OptController;
 public:
-    Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin);
+    Desktop(hui::UI* state, dr4::Vec2f size, cum::Manager* manager);
     virtual ~Desktop();
 
-    dr4::Texture* giveTexture() const;
     OptController* getOptController() const { return control; }
     std::vector<std::unique_ptr<pp::Tool>>& getTools() { return tools; }
+
+    void addPpColorField(WContainer* container, ColComponent component);
+    WContainer* createPpColorContainer(dr4::Vec2f pos, dr4::Vec2f size);
 
     virtual void Redraw() const override;
 
@@ -29,6 +31,7 @@ private:
     // WContainer *button_cont;
     OptController* control;
     WContainer* tools_container;
+    cum::Manager* manager;
     std::vector<std::unique_ptr<pp::Tool>> tools;
 };
 

@@ -15,15 +15,21 @@ public:
     virtual ~TextField() noexcept override = default;
     virtual void Redraw() const override;
 
-    void setRectPadding(double padding) { this->rect_padding = padding; }
+    void setRoundAngles(bool round_angles) { draw_rounded_angles = round_angles; }
+    void setRectPadding(double padding) { setPadding({padding, padding}, {padding, padding}); }
+    void setPadding(dr4::Vec2f top_left, dr4::Vec2f bottom_right) { top_left_pad = top_left; bottom_right_pad = bottom_right; }
     void SetFieldColor(dr4::Color color);
+    void SetBorderColor(dr4::Color color) { border_col = color; }
+    void SetAngleRadius(float radius) { angle_radius = radius; }
+
     void SetText(std::string text);
     std::string getText() const;
 
-private:
-    bool draw_border;
-    double rect_padding;
-    dr4::Color color;
+protected:
+    bool draw_border, draw_rounded_angles;
+    float angle_radius;
+    dr4::Vec2f top_left_pad, bottom_right_pad;
+    dr4::Color color, border_col;
     std::string text;
 };
 

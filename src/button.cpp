@@ -13,7 +13,7 @@ using hui::MouseButtonEvent;
 using hui::KeyEvent;
 
 const double unpressColorCoeff = 0.7, cursor_time = 0.5;
-const int letter_width = 17.3, text_h = 10, cursor_start_h = 3, cursor_end_h = 29;
+const int letter_width = 17.3, text_h = 10, cursor_start_pad = 3, cursor_end_pad = 3;
 const dr4::Color cursor_col(255, 255, 255);
 
 extern dr4::Window* window;
@@ -21,23 +21,32 @@ extern dr4::Window* window;
 TextField::TextField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size)
     : Widget(state)
 {
-    rect_padding = 0;
     SetPos(pos);
     SetSize(size);
+
+    draw_rounded_angles = true;
+    top_left_pad = bottom_right_pad = dr4::Vec2f();
+    angle_radius = 10;
     color = dr4::Color(61, 61, 61);
+    border_col = dr4::Color(127, 127, 127);
     draw_border = true;
 }
 
 void TextField::Redraw() const
 {
-    // dr4::Rectangle* rect = window->CreateRectangle();
-    // rect->SetSize(GetSize());
-    // rect->SetBorderColor(white_color);
-    // rect->SetFillColor(color);
-    // GetTexture().Draw(*rect);
-
-    drawRoundedRect(dr4::Rect2f(dr4::Vec2f(rect_padding, rect_padding),
-        GetSize() - dr4::Vec2f(rect_padding * 2, rect_padding * 2)), GetTexture(), GetUI()->GetWindow(), color);
+    GetTexture().Clear(black_color);
+    if (draw_rounded_angles) drawRoundedRect(dr4::Rect2f(top_left_pad,
+        GetSize() - top_left_pad - bottom_right_pad), GetTexture(), GetUI()->GetWindow(),
+        color, true, border_col, angle_radius);
+    else {
+        dr4::Rectangle* rect = GetUI()->GetWindow()->CreateRectangle();
+        rect->SetPos(top_left_pad);
+        rect->SetSize(GetSize() - top_left_pad - bottom_right_pad);
+        rect->SetFillColor(color);
+        rect->SetBorderColor(border_col);
+        GetTexture().Draw(*rect);
+        delete rect;
+    }
 
     dr4::Text* text_drawable = window->CreateText();
     text_drawable->SetText(text);
@@ -87,7 +96,8 @@ EventResult Button::OnMouseDown(MouseButtonEvent &evt)
     SetFieldColor(press_color);
     ForceRedraw();
     action();
-    return EventResult::UNHANDLED;
+    printf("handled\n");
+    return EventResult::HANDLED;
 }
 
 EventResult Button::OnMouseUp(MouseButtonEvent &evt)
@@ -264,8 +274,8 @@ void InputField::drawCursor(dr4::Texture& texture) const {
     dr4::Vec2f text_bounds = getTextBounds(window, text_before_cursor);
 
     dr4::Line* cursor_line = window->CreateLine();
-    cursor_line->SetStart(dr4::Vec2f(text_bounds.x, cursor_start_h));
-    cursor_line->SetEnd(dr4::Vec2f(text_bounds.x, cursor_end_h));
+    cursor_line->SetStart(dr4::Vec2f(text_bounds.x, cursor_start_pad + top_left_pad.y));
+    cursor_line->SetEnd(dr4::Vec2f(text_bounds.x, GetSize().y - cursor_end_pad - bottom_right_pad.y));
     cursor_line->SetColor(cursor_col);
     cursor_line->SetThickness(3);
 
