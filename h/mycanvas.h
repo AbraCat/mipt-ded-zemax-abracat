@@ -47,6 +47,8 @@ public:
     CanvasWidget(hui::UI* ui, dr4::Vec2f pos, Widget* w);
     virtual void Redraw() const override;
     pp::MyCanvas* getCanvas() const { return cvs; }
+    void setSelectedTool(pp::Tool* tool) { cur_tool = tool; }
+    pp::Tool* getSelectedTool() const { return cur_tool; }
 
     virtual EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
     virtual EventResult OnMouseUp(hui::MouseButtonEvent &evt) override;
@@ -55,6 +57,7 @@ public:
     virtual EventResult OnIdle(hui::IdleEvent &evt) override;
 
 protected:
+    bool is_focused;
     pp::Tool* cur_tool;
     Widget* w;
     pp::MyCanvas* cvs;

@@ -20,15 +20,15 @@ public:
     void SetSize(dr4::Vec2f size);
     dr4::Vec2f GetSize() const;
 
-    // virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
-    // virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
-    // virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
+    virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
+    virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
+    virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
 
     virtual void OnSelect() override;
     virtual void OnDeselect() override;
 
 protected:
-    bool selected;
+    bool selected, is_resizing;
     dr4::Vec2f pos, size;
     dr4::Window* window;
     Canvas* canvas;
@@ -58,6 +58,7 @@ public:
     dr4::Rect2f getRect() const;
 
     bool inBounds(std::string new_text);
+    virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
     virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
     virtual bool OnIdle(const IdleEvent &evt) override;
 
@@ -108,7 +109,7 @@ public:
 
     virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
-    virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
+    // virtual bool OnKeyDown(const dr4::Event::KeyEvent &evt) override;
 
 protected:
     TextShape* cur_text_shape;

@@ -18,6 +18,7 @@ namespace pp {
 
 MyShape::MyShape(Canvas* canvas) : canvas(canvas), window(canvas->GetWindow()) {
     selected = false;
+    is_resizing = false;
     pos = size = dr4::Vec2f();
 }
 
@@ -26,8 +27,46 @@ dr4::Vec2f MyShape::GetPos() const { return pos; }
 void MyShape::SetSize(dr4::Vec2f size) { this->size = size; }
 dr4::Vec2f MyShape::GetSize() const { return size; }
 
-void MyShape::OnSelect() { selected = true; }
+void MyShape::OnSelect() { selected = true; is_resizing = true; }
 void MyShape::OnDeselect() { selected = false; }
+
+bool MyShape::OnMouseDown(const dr4::Event::MouseButton &evt) {
+    if (!selected) return false;
+
+    // cur_shape = createShape();
+    // cur_shape->SetPos(evt.pos);
+    // canvas->AddShape(cur_shape);
+    // cur_shape->OnSelect();
+
+    // is_drawing = true;
+    // is_resizing_shape = true;
+    return true;
+}
+
+bool MyShape::OnMouseUp(const dr4::Event::MouseButton &evt) {
+    // if (!is_selected || !is_drawing) return false;
+    if (!selected) return false;
+
+    OnDeselect();
+    canvas->ShapeChanged(this);
+    // cur_shape = nullptr;
+
+    // is_drawing = false;
+    // is_resizing_shape = false;
+    return true;
+}
+
+bool MyShape::OnMouseMove(const dr4::Event::MouseMove &evt) {
+    if (!selected || !is_resizing) return false;
+    // printf("shape mouse move %p\n", this);
+    // if (!selected) return false;
+
+    // printf("shape mouse move %f %f\n", (evt.pos - GetPos()).x, (evt.pos - GetPos()).y);
+
+    SetSize(evt.pos - GetPos());
+    canvas->ShapeChanged(this);
+    return true;
+}
 
 
 
@@ -94,10 +133,22 @@ dr4::Rect2f TextShape::getRect() const {
     return rect;
 }
 
+bool TextShape::OnMouseUp(const dr4::Event::MouseButton &evt) {
+    if (!selected) return false;
+
+    is_resizing = false;
+    return true;
+}
+
 bool TextShape::OnKeyDown(const dr4::Event::KeyEvent &evt) {
+    if (!selected) return false;
+
     switch (evt.sym) {
         case dr4::KeyCode::KEYCODE_ENTER:
-            if (!(evt.mods & dr4::KeyMode::KEYMOD_SHIFT)) selected = false;
+            if (!(evt.mods & dr4::KeyMode::KEYMOD_SHIFT)) {
+                OnDeselect();
+                canvas->ShapeChanged(this);
+            }
             break;
         case dr4::KeyCode::KEYCODE_LEFT:
             if (cursor_pos < text.size()) ++cursor_pos;
@@ -189,37 +240,38 @@ bool TextTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
         dr4::Event::KeyEvent key_evt;
         key_evt.mods = 0;
         key_evt.sym = dr4::KeyCode::KEYCODE_ENTER;
-        this->OnKeyDown(key_evt);
+        cur_shape->OnKeyDown(key_evt);
     }
 
     return MyTool::OnMouseDown(evt);
 }
 
 bool TextTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
+    return false;
     if (!is_selected || !is_drawing) return false;
 
     is_resizing_shape = false;
     return true;
 }
 
-bool TextTool::OnKeyDown(const dr4::Event::KeyEvent &evt) {
-    if (cur_shape != nullptr) {
-        if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && !(evt.mods & dr4::KeyMode::KEYMOD_SHIFT)) {
-            bool result = cur_shape->OnKeyDown(evt);
-            cur_shape->OnDeselect();
-            canvas->ShapeChanged(cur_shape);
+// bool TextTool::OnKeyDown(const dr4::Event::KeyEvent &evt) {
+    // if (cur_shape != nullptr) {
+    //     if (evt.sym == dr4::KeyCode::KEYCODE_ENTER && !(evt.mods & dr4::KeyMode::KEYMOD_SHIFT)) {
+    //         bool result = cur_shape->OnKeyDown(evt);
+    //         cur_shape->OnDeselect();
+    //         canvas->ShapeChanged(cur_shape);
 
-            cur_shape = nullptr;
-            is_drawing = false;
-            is_resizing_shape = false;
-            return result;
-        }
+    //         cur_shape = nullptr;
+    //         is_drawing = false;
+    //         is_resizing_shape = false;
+    //         return result;
+    //     }
 
-        return cur_shape->OnKeyDown(evt);
-    }
+    //     return cur_shape->OnKeyDown(evt);
+    // }
 
-    return false;
-}
+//     return false;
+// }
 
 MyShape* TextTool::createShape() { return new TextShape(canvas); }
 
@@ -239,12 +291,16 @@ void MyTool::OnStart() { is_selected = true; }
 void MyTool::OnEnd() { is_selected = false; }
 
 void MyTool::OnBreak() {
+    if (cur_shape == nullptr) return;
+    
+    canvas->DelShape(cur_shape);
     delete cur_shape;
     is_drawing = false;
-    // redraw ?
+    cur_shape = nullptr;
 }
 
 bool MyTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
+    // printf("tool mouse down\n");
     if (!is_selected) return false;
 
     cur_shape = createShape();
@@ -252,33 +308,36 @@ bool MyTool::OnMouseDown(const dr4::Event::MouseButton &evt) {
     canvas->AddShape(cur_shape);
     cur_shape->OnSelect();
 
-    is_drawing = true;
-    is_resizing_shape = true;
+    // is_drawing = true;
+    // is_resizing_shape = true;
     return true;
 }
 
 bool MyTool::OnMouseUp(const dr4::Event::MouseButton &evt) {
-    if (!is_selected || !is_drawing) return false;
-
-    cur_shape->OnDeselect();
-    canvas->ShapeChanged(cur_shape);
+    // if (!is_selected || !is_drawing) return false;
+    if (!is_selected) return false;
     cur_shape = nullptr;
 
-    is_drawing = false;
-    is_resizing_shape = false;
+    // cur_shape->OnDeselect();
+    // canvas->ShapeChanged(cur_shape);
+    // cur_shape = nullptr;
+
+    // is_drawing = false;
+    // is_resizing_shape = false;
     return true;
 }
 
 bool MyTool::OnMouseMove(const dr4::Event::MouseMove &evt) {
-    if (!is_selected || !is_resizing_shape) return false;
+    // if (!is_selected || !is_resizing_shape) return false;
+    if (!is_selected) return false;
 
-    cur_shape->SetSize(evt.pos - cur_shape->GetPos());
-    canvas->ShapeChanged(cur_shape);
+    // cur_shape->SetSize(evt.pos - cur_shape->GetPos());
+    // canvas->ShapeChanged(cur_shape);
     return true;
 }
 
 bool MyTool::OnIdle(const IdleEvent &evt) {
-    if (cur_shape != nullptr) return cur_shape->OnIdle(evt);
+    // if (cur_shape != nullptr) return cur_shape->OnIdle(evt);
     return false;
 }
 

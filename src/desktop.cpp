@@ -34,7 +34,7 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::PPToolPlugin* pp_plugin) 
     for (int n_tool = 0; n_tool < tools.size(); ++n_tool) {
         std::unique_ptr<pp::Tool>& tool = tools[n_tool];
         tools_container->addChild(new ToolWidget(GetUI(), &*tool, {}, {}, 
-            gray_color, "Draw " + std::string(tool->Name())));
+            gray_color, "Draw " + std::string(tool->Name()), control->scene_cvs_widget));
     }
     addChild(tools_container);
 }

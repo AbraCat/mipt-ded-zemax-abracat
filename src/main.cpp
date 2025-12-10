@@ -17,9 +17,7 @@
 
 /*
 TODO
-refactor pp events
 pp color selection (rgb)
-
 bounding box
 main menu with list of plugins
 */
@@ -86,12 +84,14 @@ AppStatus processDr4Event(dr4::Event& evt, hui::UI* ui, std::vector<std::unique_
         return APP_SUCCESS;
     }
 
-    ProcessToolsEvent(tools, evt);
+    // ProcessToolsEvent(tools, evt);
     ui->ProcessEvent(evt);
     return APP_CONTINUE;
 }
 
 void ProcessToolsEvent(std::vector<std::unique_ptr<pp::Tool>>& tools, dr4::Event evt) {
+    assert(0);
+    
     for (std::unique_ptr<pp::Tool>& tl: tools) {
         switch (evt.type) {
             case dr4::Event::Type::MOUSE_DOWN:
@@ -151,8 +151,8 @@ AppStatus iterate_app(hui::UI* ui, dr4::Texture* main_texture,
     ui->OnIdle(*hui_idle_evt);
     delete hui_idle_evt;
 
-    pp::IdleEvent pp_idle_evt = getPpIdleEvent();
-    for (std::unique_ptr<pp::Tool>& tl: tools) tl->OnIdle(pp_idle_evt);
+    // pp::IdleEvent pp_idle_evt = getPpIdleEvent();
+    // for (std::unique_ptr<pp::Tool>& tl: tools) tl->OnIdle(pp_idle_evt);
 
     main_texture->Draw(*ui->GetRoot());
     window->Draw(*main_texture);

@@ -1,7 +1,7 @@
 #include "my-dr4-plugin.h"
 #include "mywindow.h"
 
-const int window_w = 1920, window_h = 1000;
+const int window_w = 1920, window_h = 600;
 
 namespace cum {
 
