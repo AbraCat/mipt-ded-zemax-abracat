@@ -9,6 +9,7 @@
 
 class ObjControlPanel;
 class OptPropWidget;
+class IncreaseValueButton;
 
 class OptNameField : public InputField
 {
@@ -31,6 +32,18 @@ public:
 // private:
     OptObject* obj;
     OptProperty prop;
+    IncreaseValueButton *plus_button, *minus_button;
+};
+
+class IncreaseValueButton : public Button {
+public:
+    IncreaseValueButton(OptPropField* field, dr4::Vec2f pos, dr4::Vec2f size, bool increase);
+    hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt);
+    virtual void action() override;
+
+private:
+    bool increase;
+    OptPropField* field;
 };
 
 class OptPropWidget : public MyContainer

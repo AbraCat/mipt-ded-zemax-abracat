@@ -19,7 +19,7 @@ const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5,
     std_src_col = Vector(0.5, 0.5, 0.5);
 
 extern const int scene_w = 1400;
-const double cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
+const double prop_increase_step = 0.1, cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
     std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.5 / 0.75;
   
 const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 450,
@@ -177,6 +177,10 @@ OptPropWidget::OptPropWidget(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptOb
     val_field = new OptPropField(this, ui, {GetSize().x * property_name_portion, 0},
         {GetSize().x * (1 - property_name_portion), GetSize().y}, obj, prop);
     addChild(val_field);
+
+    float incr_but_size = size.y / 2;
+    addChild(new IncreaseValueButton(val_field, {size.x - incr_but_size, 0}, {incr_but_size, incr_but_size}, true));
+    addChild(new IncreaseValueButton(val_field, {size.x - incr_but_size, incr_but_size}, {incr_but_size, incr_but_size}, false));
 }
 
 OptPropField::OptPropField(OptPropWidget* parent, hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptObject* obj, OptProperty prop)
@@ -205,6 +209,22 @@ OptObjectButton::OptObjectButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, O
     : ToggleButton(ui, pos, size, gray_color, obj->name), obj(obj)
 {
     //
+}
+
+IncreaseValueButton::IncreaseValueButton(OptPropField* field, dr4::Vec2f pos, dr4::Vec2f size, bool increase)
+    : Button(field->GetUI(), pos, size, dr4::Color(255, 0, 0), increase ? "+" : "-"), field(field), increase(increase) {
+    //
+}
+
+void IncreaseValueButton::action() {
+    double prev_val = std::stod(field->getText());
+    field->SetText(doubleToStr(prev_val + (increase ? prop_increase_step : -prop_increase_step)));
+    field->action();
+}
+
+hui::EventResult IncreaseValueButton::OnMouseDown(hui::MouseButtonEvent &evt) {
+    Button::OnMouseDown(evt);
+    return hui::EventResult::UNHANDLED;
 }
 
 void OptObjectButton::action() { obj->scene->control->select(obj); }

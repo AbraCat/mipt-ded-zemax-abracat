@@ -18,7 +18,7 @@ public:
     void setRectPadding(double padding) { this->rect_padding = padding; }
     void SetFieldColor(dr4::Color color);
     void SetText(std::string text);
-    std::string getText();
+    std::string getText() const;
 
 private:
     bool draw_border;
@@ -31,19 +31,24 @@ class InputField : public TextField
 {
 public:
     InputField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, dr4::Color color, std::string text);
+    void Redraw() const override;    
 
     virtual hui::EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
     virtual hui::EventResult OnKeyDown(hui::KeyEvent &evt) override;
+    virtual hui::EventResult OnIdle(hui::IdleEvent &evt) override;
 
     void update_text();
     virtual void action() = 0;
+    bool inBounds(std::string new_text);
+    void drawCursor(dr4::Texture& texture) const;
 
     void setMaxTextLen(int len) { max_text_len = len; }
     void setValidator(std::function<bool(std::string)> text_valid);
 
 protected:
-    bool focused;
-    int max_text_len;
+    bool focused, cursor_visible;
+    int max_text_len, cursor_pos;
+    double prev_cursor_time;
     std::string init_text;
     std::function<bool(std::string)> text_valid;
 };

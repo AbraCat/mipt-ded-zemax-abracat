@@ -20,6 +20,10 @@ public:
     void SetSize(dr4::Vec2f size);
     dr4::Vec2f GetSize() const;
 
+    // virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
+    // virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
+    // virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
+
     virtual void OnSelect() override;
     virtual void OnDeselect() override;
 
@@ -84,6 +88,7 @@ public:
     virtual bool OnMouseDown(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseUp(const dr4::Event::MouseButton &evt) override;
     virtual bool OnMouseMove(const dr4::Event::MouseMove &evt) override;
+
     virtual bool OnIdle(const IdleEvent &evt) override;
 
 protected:

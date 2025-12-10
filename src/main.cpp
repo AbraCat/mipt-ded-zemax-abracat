@@ -20,11 +20,8 @@ TODO
 refactor pp events
 pp color selection (rgb)
 
-wlist: padding
-input field: cursor, +/- buttons
 bounding box
 main menu with list of plugins
-ui refactor
 */
 
 enum AppStatus {

@@ -30,12 +30,13 @@ public:
 
     void DrawAllShapes();
 
+    std::vector<Shape*> shapes;
+
 private:
     dr4::Vec2f size;
     dr4::Window* window;
     dr4::Texture* texture;
     hui::Widget* widget;
-    std::vector<Shape*> shapes;
     ControlsTheme theme;
 };
 
@@ -47,7 +48,14 @@ public:
     virtual void Redraw() const override;
     pp::MyCanvas* getCanvas() const { return cvs; }
 
+    virtual EventResult OnMouseDown(hui::MouseButtonEvent &evt) override;
+    virtual EventResult OnMouseUp(hui::MouseButtonEvent &evt) override;
+    virtual EventResult OnMouseMove(hui::MouseMoveEvent &evt) override;
+    virtual EventResult OnKeyDown(hui::KeyEvent &evt) override;
+    virtual EventResult OnIdle(hui::IdleEvent &evt) override;
+
 protected:
+    pp::Tool* cur_tool;
     Widget* w;
     pp::MyCanvas* cvs;
 };
