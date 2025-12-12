@@ -5,10 +5,6 @@
 
 #include "optical-object.h"
 #include "mycanvas.h"
-// #include "wcontainer.h"
-// #include "plane.h"
-// #include "button.h"
-// #include "scroll.h"
 
 #include "hui/widget.hpp"
 
@@ -30,6 +26,8 @@ public:
 
     dr4::Texture* getTexture() const;
     FixedVec getRect(OptObject* obj) const;
+    bool getPointProjection(Vector p, Vector& ans) const;
+    void drawBoundingBox(OptObject* obj) const;
 
     Vector screen_to_pixels(Vector p) const;
     Vector pixels_to_screen(IntVec pix) const;

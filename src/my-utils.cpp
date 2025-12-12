@@ -145,6 +145,10 @@ void drawRectBorder(dr4::Rect2f rect, dr4::Texture& texture, dr4::Window* window
     texture.Draw(*right_line);
 }
 
+// void drawBox(FixedVec box, dr4::Color col, dr4::Texture& texture, dr4::Window* window) {
+//     //
+// }
+
 dr4::Vec2f getTextBounds(dr4::Window* window, std::string text) {
     dr4::Text* text_drawable = window->CreateText();
     text_drawable->SetText(text);

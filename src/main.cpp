@@ -18,7 +18,9 @@
 /*
 TODO
 pp color selection (rgb)
-bounding box
+plugin selection
++/- button press bug
+main menu with list of plugins and all commands
 */
 
 enum AppStatus {

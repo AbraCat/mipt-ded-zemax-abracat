@@ -1,6 +1,8 @@
 #ifndef MYVECTOR_H
 #define MYVECTOR_H
 
+#include "dr4/math/vec2.hpp"
+
 class Vector;
 class FixedVec;
  
@@ -73,6 +75,8 @@ Vector proj(Vector a, Vector n);
 Vector ortog(Vector a, Vector n);
 double dist(Vector p, Vector a, Vector n);
 Vector limitVector(Vector v, double lower, double upper);
+// Vector v_min(Vector a, Vector b) { return Vector(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)); }
+// Vector v_max(Vector a, Vector b) { return Vector(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)); }
 
 double arg(Vector v);
 
@@ -82,5 +86,17 @@ FixedVec rotateV(FixedVec v, double angle);
 
 void print(Vector v);
 void print(FixedVec v);
+
+
+// dr4::Vec2f myToDr4Vec(Vector v) { return dr4::Vec2f(v.x, v.y, v.z); }
+
+
+
+// class Box {
+//     public:
+//         Box(Vector top_left_back, Vector bottom_right_fwd);
+    
+//     Vector top_left_back, bottom_right_fwd;
+// };
 
 #endif // MYVECTOR_H

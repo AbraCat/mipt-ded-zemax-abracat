@@ -13,6 +13,7 @@
 #include <cassert>
 
 extern dr4::Window* window;
+const FixedVec null_rect = {{}, {}};
 
 const double ratio = 16.0 / 9.0, screen_size = 4, obj_change = 1;
 const int max_depth = 5, n_diffuse_rays = 1, n_shadow_rays = 1, n_move_buttons = 6, obj_button_h = 100,
@@ -29,6 +30,44 @@ struct RenderThreadData
     int thread_num;
     std::vector<IntVec>* thread_pix;
 };
+
+void OptScene::drawBoundingBox(OptObject* obj) const {
+    std::vector<Vector> box_points { Vector(-obj->size, -obj->size, obj->size),
+    Vector(-obj->size, -obj->size, -obj->size),
+    Vector(obj->size, -obj->size, obj->size),
+    Vector(obj->size, -obj->size, -obj->size),
+    Vector(-obj->size, obj->size, obj->size),
+    Vector(-obj->size, obj->size, -obj->size),
+    Vector(obj->size, obj->size, obj->size),
+    Vector(obj->size, obj->size, -obj->size) };
+
+    std::vector<Vector> projs(8);
+    for (int point_num = 0; point_num < 8; ++point_num) {
+        if (!getPointProjection(box_points[point_num] + obj->pos, projs[point_num])) return;
+    }
+
+    dr4::Rect2f fwd_rect(projs[0].x, projs[0].y,
+        projs[6].x - projs[0].x, projs[6].y - projs[0].y);
+    drawRectBorder(fwd_rect, GetTexture(), GetUI()->GetWindow(), red_color);
+
+    dr4::Rect2f back_rect(projs[1].x, projs[1].y,
+        projs[7].x - projs[1].x, projs[7].y - projs[1].y);
+    drawRectBorder(back_rect, GetTexture(), GetUI()->GetWindow(), red_color);
+
+    std::vector<dr4::Line*> lines;
+    for (int line_num = 0; line_num < 4; ++line_num) {
+        dr4::Line* line = GetUI()->GetWindow()->CreateLine();
+        line->SetStart({projs[line_num * 2].x, projs[line_num * 2].y});
+        line->SetEnd({projs[line_num * 2 + 1].x, projs[line_num * 2 + 1].y});
+        line->SetColor(red_color);
+        line->SetThickness(3);
+        lines.push_back(line);
+    }
+    for (dr4::Line* l: lines) {
+        GetTexture().Draw(*l);
+        delete l;
+    }
+}
 
 void OptScene::Redraw() const
 {
@@ -49,9 +88,10 @@ void OptScene::Redraw() const
     for (OptObject* obj: selected)
     {
         if (!obj->has_rect) continue;
-        FixedVec rect = getRect(obj);
-        dr4::Rect2f dr4_rect(rect.p1.x, rect.p1.y, rect.p2.x - rect.p1.x, rect.p2.y - rect.p1.y);
-        drawRectBorder(dr4_rect, GetTexture(), GetUI()->GetWindow(), red_color);
+        // FixedVec rect = getRect(obj);
+        // dr4::Rect2f dr4_rect(rect.p1.x, rect.p1.y, rect.p2.x - rect.p1.x, rect.p2.y - rect.p1.y);
+        // drawRectBorder(dr4_rect, GetTexture(), GetUI()->GetWindow(), red_color);
+        drawBoundingBox(obj);
     }
 }
 
@@ -158,21 +198,38 @@ Vector OptScene::pixels_to_screen(IntVec pix) const
     return screen_tl + screen_w * (1.0 * pix.x / size_x) + screen_h * (1.0 * pix.y / size_y);
 }
 
-FixedVec OptScene::getRect(OptObject* obj) const
-{
-    Ray ray(V, obj->pos - V);
-
-    if (isZero(ray.a.z)) return {{}, {}};
+bool OptScene::getPointProjection(Vector p, Vector& ans) const {
+    Ray ray(V, p - V);
+    if (isZero(ray.a.z)) true;
 
     // (p + at).z == screen_tl.z
     double t = (screen_tl.z - ray.p.z) / ray.a.z;
-    if (t <= 0) return {{}, {}};
+    if (t <= 0) return false;
 
-    Vector p = ray.eval(t);
-    Vector centre = screen_to_pixels(p);
+    ans = screen_to_pixels(ray.eval(t));
+    return true;
+}
+
+FixedVec OptScene::getRect(OptObject* obj) const
+{
+    // Ray ray(V, obj->pos - V);
+
+    // if (isZero(ray.a.z)) return null_rect;
+
+    // // (p + at).z == screen_tl.z
+    // double t = (screen_tl.z - ray.p.z) / ray.a.z;
+    // if (t <= 0) return null_rect;
+
+    // Vector p = ray.eval(t);
+    // Vector centre = screen_to_pixels(p);
+    Vector centre;
+    if (!getPointProjection(obj->pos, centre)) return null_rect;
+
     Vector rect_size_vec = Vector(select_rect_size, select_rect_size) * obj->size;
     return {centre - rect_size_vec, centre + rect_size_vec};
 }
+
+// void drawBox()
 
 Vector OptScene::traceDiffuse(Surface* s, Vector p) const
 {

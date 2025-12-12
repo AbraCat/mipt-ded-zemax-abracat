@@ -21,7 +21,6 @@ public:
 
 private:
     std::string name, description;
-    // std::string_view descr_view;
 };
 
 } // namespace cum

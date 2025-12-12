@@ -110,7 +110,6 @@ void CanvasWidget::Redraw() const {
 
 
 EventResult CanvasWidget::OnMouseDown(hui::MouseButtonEvent &evt) {
-    // return hui::EventResult::UNHANDLED;
     if (!GetRect().Contains(evt.pos)) {
         if (is_focused) {
             GetUI()->ReportFocus(nullptr);
@@ -130,8 +129,6 @@ EventResult CanvasWidget::OnMouseDown(hui::MouseButtonEvent &evt) {
 }
 
 EventResult CanvasWidget::OnMouseUp(hui::MouseButtonEvent &evt) {
-    // return hui::EventResult::UNHANDLED;
-
     dr4::Event dr4_evt = huiToDr4Event(evt);
     if (cur_tool != nullptr) cur_tool->OnMouseUp(dr4_evt.mouseButton);
     for (pp::Shape* sh: cvs->shapes) {
@@ -142,8 +139,6 @@ EventResult CanvasWidget::OnMouseUp(hui::MouseButtonEvent &evt) {
 }
 
 EventResult CanvasWidget::OnMouseMove(hui::MouseMoveEvent &evt) {
-    // return hui::EventResult::UNHANDLED;
-
     dr4::Event dr4_evt = huiToDr4Event(evt);
     if (cur_tool != nullptr) cur_tool->OnMouseMove(dr4_evt.mouseMove);
     for (pp::Shape* sh: cvs->shapes) {
@@ -154,9 +149,7 @@ EventResult CanvasWidget::OnMouseMove(hui::MouseMoveEvent &evt) {
 }
 
 EventResult CanvasWidget::OnKeyDown(hui::KeyEvent &evt) {
-    // return hui::EventResult::UNHANDLED;
-
-    if (evt.key == dr4::KeyCode::KEYCODE_Q) {
+    if (evt.key == dr4::KeyCode::KEYCODE_F1) {
         if (cur_tool != nullptr) cur_tool->OnBreak();
         // ForceRedraw();
         return hui::EventResult::UNHANDLED;
