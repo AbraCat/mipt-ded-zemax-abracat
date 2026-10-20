@@ -6,6 +6,7 @@
 #include "hui/widget.hpp"
 
 #include "wcontainer.h"
+#include "button.h"
 
 #include <vector>
 
@@ -61,6 +62,15 @@ protected:
     pp::Tool* cur_tool;
     Widget* w;
     pp::MyCanvas* cvs;
+};
+
+class CanvasColorField : public InputField {
+public:
+    CanvasColorField(hui::UI *state, dr4::Vec2f pos, dr4::Vec2f size, ColComponent component);
+    virtual void action() override;
+
+protected:
+    ColComponent component;
 };
 
 

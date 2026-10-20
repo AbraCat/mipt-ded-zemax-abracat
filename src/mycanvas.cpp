@@ -177,3 +177,14 @@ EventResult CanvasWidget::OnIdle(hui::IdleEvent &evt) {
 
     return hui::EventResult::UNHANDLED;
 }
+
+
+
+CanvasColorField::CanvasColorField(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, ColComponent component)
+    : InputField(ui, pos, size, gray_color, "color field") {
+    //
+}
+
+void CanvasColorField::action() {
+    //
+}

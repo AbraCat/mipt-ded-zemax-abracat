@@ -21,10 +21,10 @@ const Vector std_sphere_pos = Vector(0, 0, 0), std_sphere_col = Vector(0.5, 0.5,
 extern const int menu_w, menu_h;
 extern const int scene_w = 1400;
 const double prop_increase_step = 0.1, cam_change_x = 0.5, cam_change_y = 0.5, cam_change_z = 1, obj_change = 1,
-    std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.5 / 0.75;
+    std_sphere_radius = 0.5, std_src_radius = 0.5, property_name_portion = 0.6;
   
 const int scene_h = scene_w / ratio, button_h = 50, obj_list_w = 450,
-    obj_button_h = obj_list_w / 4, obj_scroll_w = 20, obj_cont_h = 300,
+    obj_button_h = 70, obj_scroll_w = 20, obj_cont_h = 300,
     properties_w = 500, properties_left = scene_w + obj_list_w + obj_scroll_w;
 
 // number of buttons
@@ -42,7 +42,7 @@ extern const int opt_control_w = scene_w + obj_list_w + obj_scroll_w + propertie
 ObjControlPanel::ObjControlPanel(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, OptController* control)
     : MyContainer(ui, pos, size), control(control), obj(nullptr)
 {
-    const double move_but_portion = 0.25, name_portion = 0.5, field_portion = 1 - move_but_portion - name_portion;
+    const double move_but_portion = 0.25, name_portion = 0.45, field_portion = 1 - move_but_portion - name_portion;
     const int panel_button_h = 30;
 
     name_text = new TextField(ui, {size.x * move_but_portion, 0}, {size.x * name_portion, GetSize().y * 0.1});

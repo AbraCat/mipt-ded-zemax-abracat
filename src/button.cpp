@@ -96,7 +96,6 @@ EventResult Button::OnMouseDown(MouseButtonEvent &evt)
     SetFieldColor(press_color);
     ForceRedraw();
     action();
-    printf("handled\n");
     return EventResult::HANDLED;
 }
 

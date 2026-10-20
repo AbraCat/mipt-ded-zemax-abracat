@@ -11,7 +11,7 @@
 #include <cassert>
 
 const double src_size = 0.3;
-const int menu_h = 50, menu_w = 500;
+const int menu_h = 0, menu_w = 500;
 extern const int opt_control_w, opt_control_h, tools_h, tool_button_w;
 
 namespace hui {
@@ -21,14 +21,14 @@ Desktop::Desktop(hui::UI* state, dr4::Vec2f size, cum::Manager* manager) :
 {
     SetSize(size);
 
-    auto& plugins = manager->GetAll();
-    WContainer* plugins_cont = new WContainer(state, {0, 0}, {menu_w, menu_h}, plugins.size(), 0);
-    for (auto& plugin: plugins) {
-        TextField* field = new TextField(state, {}, {});
-        field->SetText(std::string(plugin->GetName()));
-        plugins_cont->addChild(field);
-    }
-    addChild(plugins_cont);
+    // auto& plugins = manager->GetAll();
+    // WContainer* plugins_cont = new WContainer(state, {0, 0}, {menu_w, menu_h}, plugins.size(), 0);
+    // for (auto& plugin: plugins) {
+    //     TextField* field = new TextField(state, {}, {});
+    //     field->SetText(std::string(plugin->GetName()));
+    //     plugins_cont->addChild(field);
+    // }
+    // addChild(plugins_cont);
 
     control = new OptController(state, this, {0, menu_h});
     control->addSource({0, -1, 4}, green_col * 0.5, src_size);
@@ -70,6 +70,20 @@ void Desktop::addPpColorField(WContainer* container, ColComponent component) {
 WContainer* Desktop::createPpColorContainer(dr4::Vec2f pos, dr4::Vec2f size) {
     // GridContainer* cont = new GridContainer(GetUI(), pos, size, 2, 3);
     return nullptr;
+}
+
+
+
+
+
+
+MenuButton::MenuButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, std::string text) 
+    : Button(ui, pos, size, gray_color, text) {
+    //
+}
+
+void MenuButton::action() {
+    //
 }
 
 } // namepsace hui

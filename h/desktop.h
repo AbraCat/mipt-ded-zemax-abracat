@@ -16,7 +16,7 @@ class Desktop : public MyContainer
 {
     friend class OptController;
 public:
-    Desktop(hui::UI* state, dr4::Vec2f size, cum::Manager* manager);
+    Desktop(hui::UI* ui, dr4::Vec2f size, cum::Manager* manager);
     virtual ~Desktop();
 
     OptController* getOptController() const { return control; }
@@ -33,6 +33,13 @@ private:
     WContainer* tools_container;
     cum::Manager* manager;
     std::vector<std::unique_ptr<pp::Tool>> tools;
+};
+
+class MenuButton : public Button {
+public:
+    MenuButton(hui::UI *ui, dr4::Vec2f pos, dr4::Vec2f size, std::string text);
+    virtual void action() override;
+    virtual Widget* createWidget() = 0;
 };
 
 }

@@ -8,6 +8,9 @@
 
 using hui::EventResult;
 
+class TextField;
+class InputField;
+
 class MyContainer : public hui::Container {
 public:
     MyContainer(hui::UI* state, dr4::Vec2f pos = dr4::Vec2f(), dr4::Vec2f size = dr4::Vec2f());
@@ -76,10 +79,21 @@ private:
     double scroll_frac, child_len, edge_len;
 };
 
-// class PropertyContainer : public WContainer {
-// public:
-//     PropertyContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int n_properties, double properties_portion);
-//     //
-// }
+
+
+class PropertyWidget : public MyContainer {
+public:
+    PropertyWidget(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, std::string name, InputField* inp_field,
+        double properties_portion = 0.5);
+protected:
+    TextField* name_field;
+    InputField* inp_field;
+};
+
+class PropertyContainer : public WContainer {
+public:
+    PropertyContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int n_properties, double properties_portion = 0.5);
+    void addProperty(std::string name, InputField* inp_field);
+};
 
 #endif // W_CONTAINER_H

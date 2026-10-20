@@ -1,5 +1,6 @@
 #include "wcontainer.h"
 #include "my-utils.h"
+#include "button.h"
 
 #include "hui/ui.hpp"
 
@@ -317,4 +318,34 @@ int WList::removeChildByPredicate(std::function<bool(Widget*)> predicate)
     int n_removed = WContainer::removeChildByPredicate(predicate);
     resize();
     return n_removed;
+}
+
+
+
+
+PropertyWidget::PropertyWidget(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, std::string name, InputField* inp_field,
+    double properties_portion) : MyContainer(ui, pos, size) {
+    const int prop_field_padding = 5;
+
+    name_field = new TextField(ui, {0, 0}, {GetSize().x * properties_portion, GetSize().y});
+    name_field->SetText(name);
+    addChild(name_field);
+
+    inp_field->SetPos({GetSize().x * properties_portion + prop_field_padding, 0});
+    inp_field->SetSize({GetSize().x * (1 - properties_portion) - prop_field_padding, GetSize().y});
+    addChild(inp_field);
+
+    // float incr_but_size = size.y / 2;
+    // addChild(new IncreaseValueButton(val_field, {size.x - incr_but_size, 0}, {incr_but_size, incr_but_size}, true));
+    // addChild(new IncreaseValueButton(val_field, {size.x - incr_but_size, incr_but_size}, {incr_but_size, incr_but_size}, false));
+}
+
+PropertyContainer::PropertyContainer(hui::UI* ui, dr4::Vec2f pos, dr4::Vec2f size, int n_properties, double properties_portion)
+    : WContainer(ui, pos, size, n_properties, true) {
+    //
+}
+
+void PropertyContainer::addProperty(std::string name, InputField* inp_field) {
+    PropertyWidget* prop_w = new PropertyWidget(GetUI(), {}, getChildSize(), name, inp_field);
+    addChild(prop_w);
 }
